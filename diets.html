@@ -21,17 +21,39 @@
   * { box-sizing: border-box; }
   html, body { margin: 0; padding: 0; background: var(--bg); color: var(--ink);
     font: 14px/1.45 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
-  body { display: grid; grid-template-columns: 320px 1fr 340px; min-height: 100vh; }
-  @media (max-width: 1100px) { body { grid-template-columns: 280px 1fr; } #insight { display: none; } }
-  @media (max-width: 760px)  { body { grid-template-columns: 1fr; } #filters { position: static; max-height: none; } }
+  body { display: grid; grid-template-columns: 320px 1fr 340px;
+    grid-template-areas: "head head head" "filt main insi";
+    min-height: 100vh; }
+  @media (max-width: 1100px) {
+    body { grid-template-columns: 280px 1fr; grid-template-areas: "head head" "filt main"; }
+    #insight { display: none; }
+  }
+  @media (max-width: 760px) {
+    body { grid-template-columns: 1fr; grid-template-areas: "head" "filt" "main"; }
+    #filters { position: static; max-height: none; border-right: none;
+      border-bottom: 1px solid var(--line); }
+    #toggleFilters { display: inline-block; }
+  }
+  header { grid-area: head; }
+  #filters { grid-area: filt; }
+  #main    { grid-area: main; }
+  #insight { grid-area: insi; }
 
-  header { grid-column: 1 / -1; background: var(--panel); border-bottom: 1px solid var(--line);
-    padding: 12px 18px; display: flex; align-items: baseline; gap: 16px; }
+  header { background: var(--panel); border-bottom: 1px solid var(--line);
+    padding: 12px 18px; display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
+    position: sticky; top: 0; z-index: 10; }
   header h1 { margin: 0; font-size: 16px; font-weight: 600; letter-spacing: 0.2px; }
   header .meta { color: var(--muted); font-size: 12px; }
-  header .search { flex: 1; max-width: 520px; }
+  header .search { flex: 1; min-width: 180px; max-width: 520px; }
   header input[type=search] { width: 100%; padding: 7px 10px; border: 1px solid var(--line);
     border-radius: 6px; background: #fff; font-size: 14px; }
+  #toggleFilters { display: none; padding: 6px 12px; background: var(--accent);
+    color: #fff; border: none; border-radius: 6px; cursor: pointer; font-size: 13px;
+    font-weight: 500; }
+  #toggleFilters.active { background: var(--ink); }
+  @media (max-width: 760px) {
+    #filters.collapsed { display: none; }
+  }
 
   #filters { background: var(--panel); border-right: 1px solid var(--line); padding: 14px;
     position: sticky; top: 49px; max-height: calc(100vh - 49px); overflow-y: auto; }
@@ -72,6 +94,21 @@
   #summary button { padding: 4px 10px; border: 1px solid var(--line); background: #fff;
     border-radius: 4px; cursor: pointer; font-size: 12px; }
   #summary button:hover { background: var(--accent-soft); border-color: var(--accent); }
+
+  .table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  #cards { display: none; }
+  .card { background: var(--panel); border: 1px solid var(--line); border-radius: 6px;
+    padding: 10px 12px; margin-bottom: 8px; }
+  .card .name { font-weight: 600; font-size: 14px; margin-bottom: 2px; }
+  .card .meta { color: var(--muted); font-size: 11px; margin-bottom: 6px; }
+  .card .grid { display: grid; grid-template-columns: repeat(2, 1fr);
+    gap: 4px 12px; font-size: 12px; }
+  .card .grid .k { color: var(--muted); }
+  .card .grid .v { font-variant-numeric: tabular-nums; text-align: right; }
+  .card .grid .v.zero { color: var(--accent); font-weight: 500; }
+  .card .grid .v.over { color: var(--warn); }
+  .card .grid .row { display: flex; justify-content: space-between;
+    padding: 2px 0; border-bottom: 1px dotted var(--line); }
 
   table { width: 100%; border-collapse: collapse; background: var(--panel);
     border: 1px solid var(--line); border-radius: 6px; overflow: hidden; }
@@ -123,6 +160,18 @@
   .legend .dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%;
     background: var(--accent); margin: 0 4px 0 8px; vertical-align: middle; }
   .legend .dot.warn { background: var(--warn); }
+
+  /* Responsive overrides — kept last so they win the cascade */
+  @media (max-width: 760px) {
+    .table-wrap { display: none; }
+    #cards { display: block; }
+    #toggleFilters { display: inline-block; }
+    #filters.collapsed { display: none; }
+    #main { padding: 10px 12px; }
+    header { padding: 10px 12px; gap: 8px; }
+    header h1 { font-size: 15px; }
+    header .meta { display: none; }
+  }
 </style>
 </head>
 <body>
@@ -130,11 +179,12 @@
 <header>
   <h1>Diets</h1>
   <span class="meta" title="Open Food Facts + OpenLabel grocery items, common US-retail brands (Walmart, Kroger, Target). All values per 100 g.">
-    <span id="totalCount">—</span> items · per 100 g · open data
+    <span id="totalCount">—</span> items · per 100 g
   </span>
   <div class="search">
-    <input id="search" type="search" placeholder="Search by name, brand, category…" autofocus>
+    <input id="search" type="search" placeholder="Search by name, brand, category…">
   </div>
+  <button id="toggleFilters">Filters</button>
 </header>
 
 <aside id="filters">
@@ -159,6 +209,7 @@
 
   <h2> </h2>
   <button id="reset" style="width:100%;padding:7px;border:1px solid var(--line);background:#fff;border-radius:4px;cursor:pointer">Reset all filters</button>
+  <button id="applyFilters" style="display:none;width:100%;padding:11px;margin-top:8px;background:var(--accent);color:#fff;border:none;border-radius:6px;cursor:pointer;font-weight:600;font-size:14px">Show <span id="applyCount">—</span> results</button>
 </aside>
 
 <section id="main">
@@ -168,10 +219,13 @@
     <button id="exportBtn">Export visible as CSV</button>
   </div>
   <div class="legend"><span class="dot"></span>= 0 · <span class="dot warn"></span>= over Daily Value</div>
-  <table>
-    <thead><tr id="tableHead"></tr></thead>
-    <tbody id="tableBody"></tbody>
-  </table>
+  <div class="table-wrap">
+    <table>
+      <thead><tr id="tableHead"></tr></thead>
+      <tbody id="tableBody"></tbody>
+    </table>
+  </div>
+  <div id="cards"></div>
   <div id="pager">
     <button id="prev">← prev</button>
     <span id="pageInfo"></span>
@@ -403,29 +457,62 @@ function renderHead() {
   }
 }
 
+function fmtCell(v) {
+  if (v == null) return "—";
+  return v >= 100 ? v.toFixed(0) : v >= 10 ? v.toFixed(1) : v.toFixed(2);
+}
+
+function cellClass(v, n) {
+  if (v === 0) return " zero";
+  if (v != null && n.dv > 0 && v > n.dv) return " over";
+  return "";
+}
+
 function renderRows(vis) {
-  const body = $("#tableBody");
-  body.innerHTML = "";
   const sortedRows = sorted(vis);
   const start = state.page * state.perPage;
   const slice = sortedRows.slice(start, start + state.perPage);
+
+  // Table (desktop / tablet)
+  const body = $("#tableBody");
+  body.innerHTML = "";
   for (const it of slice) {
     const tr = el("tr");
     tr.append(el("td", {class:"name", title:it.name, html: it.name}));
     tr.append(el("td", {class:"brand", html: it.brand || ""}));
     tr.append(el("td", {class:"cat", html: it.cat || ""}));
     for (const k of NUT_KEYS) {
-      const v = it[k];
       const n = NUTRIENTS[k];
-      let cls = "num";
-      if (v === 0) cls += " zero";
-      else if (v != null && n.dv > 0 && v > n.dv) cls += " over";
-      tr.append(el("td", {class:cls, html: v == null ? "—" : (v >= 100 ? v.toFixed(0) : v >= 10 ? v.toFixed(1) : v.toFixed(2))}));
+      const v = it[k];
+      tr.append(el("td", {class: "num" + cellClass(v, n), html: fmtCell(v)}));
     }
     body.append(tr);
   }
 
+  // Cards (mobile)
+  const cards = $("#cards");
+  cards.innerHTML = "";
+  for (const it of slice) {
+    const card = el("div", {class:"card"});
+    card.append(el("div", {class:"name", html: it.name}));
+    const meta = [it.brand, it.cat].filter(Boolean).join(" · ");
+    if (meta) card.append(el("div", {class:"meta", html: meta}));
+    const grid = el("div", {class:"grid"});
+    for (const k of NUT_KEYS) {
+      const n = NUTRIENTS[k];
+      const v = it[k];
+      const row = el("div", {class:"row"});
+      row.append(el("span", {class:"k", html: n.label}));
+      row.append(el("span", {class:"v" + cellClass(v, n),
+        html: `${fmtCell(v)} <small style="color:var(--muted)">${n.unit}</small>`}));
+      grid.append(row);
+    }
+    card.append(grid);
+    cards.append(card);
+  }
+
   $("#resultCount").textContent = sortedRows.length;
+  $("#applyCount").textContent = sortedRows.length;
   $("#pageInfo").textContent = sortedRows.length === 0
     ? "no matches" : `${start+1}–${Math.min(start+state.perPage, sortedRows.length)} of ${sortedRows.length}`;
   $("#prev").disabled = state.page === 0;
@@ -512,6 +599,25 @@ function exportCSV() {
   a.click();
   a.remove();
 }
+
+// Mobile: collapse filters by default; toggle button shows/hides
+const filtersEl = $("#filters");
+const toggleBtn = $("#toggleFilters");
+const applyBtn = $("#applyFilters");
+const isMobile = () => window.matchMedia("(max-width: 760px)").matches;
+if (isMobile()) {
+  filtersEl.classList.add("collapsed");
+  applyBtn.style.display = "block";
+}
+toggleBtn.addEventListener("click", () => {
+  filtersEl.classList.toggle("collapsed");
+  toggleBtn.classList.toggle("active", !filtersEl.classList.contains("collapsed"));
+});
+applyBtn.addEventListener("click", () => {
+  filtersEl.classList.add("collapsed");
+  toggleBtn.classList.remove("active");
+  window.scrollTo({top: 0, behavior: "smooth"});
+});
 
 $("#search").addEventListener("input", e => { state.search = e.target.value; state.page = 0; rerender(); });
 $("#prev").addEventListener("click", () => { state.page = Math.max(0, state.page-1); rerender(); });
