@@ -38,6 +38,21 @@ def _f(v: str) -> float | None:
         return None
 
 
+def off_image_url(code: str) -> str | None:
+    """Open Food Facts image URL convention: barcode padded to 13 digits, split 3/3/3/rest."""
+    if not code:
+        return None
+    digits = "".join(ch for ch in code if ch.isdigit())
+    if not digits:
+        return None
+    if len(digits) <= 8:
+        path = digits
+    else:
+        padded = digits.zfill(13)
+        path = f"{padded[:3]}/{padded[3:6]}/{padded[6:9]}/{padded[9:]}"
+    return f"https://images.openfoodfacts.org/images/products/{path}/front_en.200.jpg"
+
+
 def load_openfood(path: Path) -> list[dict]:
     """Open Food Facts export: nutrient values per 100g (sodium in g)."""
     items: list[dict] = []
@@ -58,6 +73,7 @@ def load_openfood(path: Path) -> list[dict]:
                 "brand": "",
                 "cat": cat,
                 "src": "OFF",
+                "img": off_image_url(r.get("code", "")),
                 "kcal": round(kcal, 1),
                 "fat": _f(r.get("fat_100g")),
                 "satfat": _f(r.get("saturated-fat_100g")),
@@ -108,11 +124,15 @@ def load_openlabel(path: Path) -> list[dict]:
                 v = _f(r.get(k))
                 return round(v * scale, 2) if v is not None else None
 
+            img = ""
+            if r.get("Images"):
+                img = r["Images"].split(",")[0].strip().strip('"') or ""
             items.append({
                 "name": name[:120],
                 "brand": brand,
                 "cat": "Branded Food",
                 "src": "OL",
+                "img": img or None,
                 "kcal": round(kcal * scale, 1),
                 "fat": s("Fat (g)"),
                 "satfat": s("Saturated Fat (g)"),
@@ -318,6 +338,18 @@ HTML_TEMPLATE = r"""<!doctype html>
     white-space: nowrap; text-overflow: ellipsis; }
   tbody td.brand { color: var(--muted); font-size: 12px; }
   tbody td.cat { color: var(--muted); font-size: 11px; }
+  td.thumb-cell { width: 44px; padding: 4px 4px 4px 8px; }
+  .thumb { width: 36px; height: 36px; object-fit: cover; border-radius: 4px;
+    background: var(--chip-off); border: 1px solid var(--line); display: block; }
+  .thumb.placeholder { background: linear-gradient(135deg, #f0efe9, #e3e3df);
+    display: inline-flex; align-items: center; justify-content: center;
+    color: var(--muted); font-size: 10px; font-weight: 600; }
+  .card-thumb { width: 64px; height: 64px; object-fit: cover; border-radius: 6px;
+    background: var(--chip-off); border: 1px solid var(--line); float: left;
+    margin: 0 10px 6px 0; }
+  .card-thumb.placeholder { background: linear-gradient(135deg, #f0efe9, #e3e3df);
+    display: inline-flex; align-items: center; justify-content: center;
+    color: var(--muted); font-size: 10px; font-weight: 600; }
 
   #pager { padding: 10px 0; display: flex; gap: 8px; align-items: center; color: var(--muted); font-size: 12px; }
   #pager button { padding: 4px 10px; border: 1px solid var(--line); background: #fff;
@@ -624,6 +656,7 @@ function renderChips() {
 
 function renderHead() {
   const cols = [
+    {k:"_thumb", label:"", nosort:true},
     {k:"name", label:"Name"},
     {k:"brand", label:"Brand"},
     {k:"cat", label:"Category"},
@@ -632,8 +665,9 @@ function renderHead() {
   const tr = $("#tableHead");
   tr.innerHTML = "";
   for (const c of cols) {
-    const th = el("th", {class: c.num ? "num" : ""});
+    const th = el("th", {class: c.num ? "num" : (c.k === "_thumb" ? "thumb-cell" : "")});
     th.textContent = c.label;
+    if (c.nosort) { tr.append(th); continue; }
     if (state.sort === c.k) {
       th.append(el("span", {class:"arrow", html: state.sortDir === "asc" ? " ↑" : " ↓"}));
     }
@@ -658,6 +692,24 @@ function cellClass(v, n) {
   return "";
 }
 
+function initials(name) {
+  return (name || "?").trim().split(/\s+/).slice(0, 2).map(w => w[0] || "").join("").toUpperCase() || "?";
+}
+
+function thumbImg(it, cls) {
+  if (!it.img) {
+    const ph = el("div", {class: cls + " placeholder", html: initials(it.name)});
+    return ph;
+  }
+  const img = el("img", {class: cls, src: it.img, alt: "", loading: "lazy", referrerpolicy: "no-referrer"});
+  // Graceful 404 fallback — replace with placeholder if the image fails to load
+  img.addEventListener("error", () => {
+    const ph = el("div", {class: cls + " placeholder", html: initials(it.name)});
+    img.replaceWith(ph);
+  });
+  return img;
+}
+
 function renderRows(vis) {
   const sortedRows = sorted(vis);
   const start = state.page * state.perPage;
@@ -668,6 +720,9 @@ function renderRows(vis) {
   body.innerHTML = "";
   for (const it of slice) {
     const tr = el("tr");
+    const thumbTd = el("td", {class:"thumb-cell"});
+    thumbTd.append(thumbImg(it, "thumb"));
+    tr.append(thumbTd);
     tr.append(el("td", {class:"name", title:it.name, html: it.name}));
     tr.append(el("td", {class:"brand", html: it.brand || ""}));
     tr.append(el("td", {class:"cat", html: it.cat || ""}));
@@ -684,10 +739,11 @@ function renderRows(vis) {
   cards.innerHTML = "";
   for (const it of slice) {
     const card = el("div", {class:"card"});
+    card.append(thumbImg(it, "card-thumb"));
     card.append(el("div", {class:"name", html: it.name}));
     const meta = [it.brand, it.cat].filter(Boolean).join(" · ");
     if (meta) card.append(el("div", {class:"meta", html: meta}));
-    const grid = el("div", {class:"grid"});
+    const grid = el("div", {class:"grid", style: "clear:both"});
     for (const k of NUT_KEYS) {
       const n = NUTRIENTS[k];
       const v = it[k];
