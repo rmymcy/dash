@@ -147,6 +147,38 @@ def load_openlabel(path: Path) -> list[dict]:
     return items
 
 
+def load_usda_sr(path: Path) -> list[dict]:
+    """USDA Standard Reference data, per 100g already."""
+    items: list[dict] = []
+    with path.open(newline="", encoding="utf-8") as f:
+        for r in csv.DictReader(f):
+            kcal = _f(r.get("kcal"))
+            if kcal is None:
+                continue
+            # Reformat USDA's "Group, Subcat, ..." description: keep first 100 chars
+            name = (r.get("name") or "").strip()
+            if not name:
+                continue
+            items.append({
+                "name": name[:120],
+                "brand": "",
+                "cat": (r.get("category") or "Generic Food").strip(),
+                "src": "USDA",
+                "img": None,  # USDA SR has no images
+                "kcal": round(kcal, 1),
+                "fat": _f(r.get("fat")),
+                "satfat": _f(r.get("satfat")),
+                "transfat": _f(r.get("transfat")),
+                "chol": _f(r.get("chol")),
+                "sodium": _f(r.get("sodium")),
+                "carbs": _f(r.get("carbs")),
+                "sugar": _f(r.get("sugar")),
+                "fiber": _f(r.get("fiber")),
+                "protein": _f(r.get("protein")),
+            })
+    return items
+
+
 # --- Dedup / cleanup ---------------------------------------------------------
 
 def dedupe(items: list[dict]) -> list[dict]:
@@ -893,8 +925,9 @@ rerender();
 def main() -> None:
     off = load_openfood(DATA / "openfood.csv") if (DATA / "openfood.csv").exists() else []
     ol = load_openlabel(DATA / "products-3000.csv") if (DATA / "products-3000.csv").exists() else []
-    print(f"Loaded: openfood={len(off)}, openlabel={len(ol)}")
-    items = dedupe(off + ol)
+    usda = load_usda_sr(DATA / "usda_sr28.csv") if (DATA / "usda_sr28.csv").exists() else []
+    print(f"Loaded: openfood={len(off)}, openlabel={len(ol)}, usda={len(usda)}")
+    items = dedupe(usda + off + ol)
     print(f"After dedupe: {len(items)}")
     # Sort by name for stable ordering in HTML
     items.sort(key=lambda it: (it["name"].lower(), it.get("brand","").lower()))
