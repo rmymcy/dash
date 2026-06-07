@@ -1,29 +1,30 @@
-# diets
+# Personal Dashboard
 
-A self-contained, single-file HTML browser for grocery-item nutrition. Open
-`diets.html` in any browser — no server, no install. Filter by multiple
-nutrients at once (zero cholesterol + zero sugar + low sodium, etc.), with a
-live insight panel that shows the distribution of the current selection
-alongside FDA Daily Value references.
+A maximalist single-file personal command center. Open `dashboard.html`
+in any browser — no server, no install. All data lives in
+`localStorage`; export/import a JSON backup from the header.
 
-## Data sources
+## Modules
 
-Walmart's own site blocks scrapers (ToS + bot protection), so we pull from
-open datasets instead:
+- **Today** — at-a-glance summary: tasks, habits, water, cleaning,
+  schedule, diet, health
+- **Tasks** — kanban board, priorities, deadlines, drag-and-drop
+- **Schedule** — week view with time blocks + Pomodoro timer
+- **Habits** — daily check-ins, streak tracking, 12-week heatmap
+- **Diet** — meal log, macros, water tracker, 14-day calorie sparkline
+- **Health** — sleep, exercise, weight, mood; trend charts
+- **Cleaning** — room-by-room rotation with recommended frequencies;
+  overdue items surface first
+- **Finance** — daily spending vs. monthly budget, category breakdown
+- **Goals** — measurable targets with progress bars
+- **Notes** — quick capture, pin, search
+- **Reading** — books in progress, want-to-read, finished
+- **Review** — weekly reflection prompts + auto-computed stats
 
-- **Open Food Facts** (`data/openfood.csv`) — community-contributed grocery
-  nutrition labels, per 100 g
-- **OpenLabel / Wikifood** (`data/products-3000.csv`) — branded nutrition
-  panels, normalized to per 100 g
+## Tips
 
-Most national-brand items in these datasets are sold at Walmart. The result
-isn't strictly the Walmart catalog, but it covers the same shopping universe.
-
-## Rebuild
-
-```
-python3 build.py
-```
-
-That regenerates `diets.html` from the CSVs in `data/`. Add more rows to
-either CSV and rebuild to grow the catalog.
+- `Ctrl/Cmd + K` opens a command palette. Try `task buy milk`,
+  `note remember to...`, `meal salad`, `spend 12 coffee`, or `water`
+- Number keys `1`–`0` jump between views
+- Three-state theme toggle (auto / dark / light) in the header
+- Cleaning seeds with a sensible default rotation; edit per room
