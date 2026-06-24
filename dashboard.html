@@ -209,6 +209,7 @@ header button.icon svg { width:18px; height:18px }
 .week-grid .cell:hover { background:var(--accent-soft) }
 .week-block { position:absolute; left:2px; right:2px; padding:3px 5px;
   background:var(--accent); color:#fff; font-size:10px; border-radius:3px; overflow:hidden; cursor:pointer }
+.cal-block { background:var(--teal) !important; border-left:3px solid rgba(255,255,255,.4); cursor:default }
 @media(max-width:760px){ .week-grid { grid-template-columns:40px repeat(7,1fr); font-size:10px }
   .week-grid .hr { font-size:9px } }
 
@@ -938,7 +939,12 @@ render.schedule = () => {
   v.append(form);
 
   // Week grid
-  v.append(el("div", { class:"section-title", text:"This Week" }));
+  const sectionHdr = el("div", { class:"section-title", text:"This Week" });
+  if (state.calendar?.icsUrl) {
+    const syncLbl = el("span", { class:"muted", style:{fontSize:"11px",fontWeight:"400"}, text: calCache.ts ? `Outlook synced ${new Date(calCache.ts).toLocaleTimeString("en-US",{hour:"numeric",minute:"2-digit"})}` : "Loading Outlook…" });
+    sectionHdr.append(syncLbl);
+  }
+  v.append(sectionHdr);
   const grid = el("div", { class:"week-grid" });
   grid.append(el("div", { class:"hd" }));
   const startOfWeek = new Date(); startOfWeek.setDate(startOfWeek.getDate() - startOfWeek.getDay());
@@ -954,6 +960,7 @@ render.schedule = () => {
     for (let i=0;i<7;i++) {
       const d = days[i];
       const cell = el("div", { class:"cell" });
+      // Manual blocks
       const blocks = state.schedule.blocks.filter(b => b.date===dayStr(d) && parseInt(b.startTime)===h);
       for (const b of blocks) {
         const dur = (parseInt(b.endTime)-parseInt(b.startTime)) + (parseInt(b.endTime.slice(3))-parseInt(b.startTime.slice(3)))/60;
@@ -965,10 +972,24 @@ render.schedule = () => {
         });
         cell.append(blk);
       }
+      // Outlook calendar events
+      for (const ev of calCache.events) {
+        if (ev.start.allDay || ev.start.date !== dayStr(d)) continue;
+        if (new Date(ev.start.ts).getHours() !== h) continue;
+        const durMs = ev.end ? (ev.end.ts - ev.start.ts) : 3600000;
+        const durH = Math.max(0.5, durMs / 3600000);
+        const blk = el("div", { class:"week-block cal-block", text:ev.summary, style:{height:`${durH*40-4}px`, zIndex:1} });
+        blk.title = `${ev.start.timeStr||''} ${ev.summary}${ev.location?' · '+ev.location:''}`;
+        cell.append(blk);
+      }
       grid.append(cell);
     }
   }
   v.append(grid);
+  // Trigger async calendar load if cache is cold
+  if (state.calendar?.icsUrl && !calCache.ts) {
+    syncCalendar().then(() => render.schedule()).catch(() => {});
+  }
   renderPomDisplay();
 };
 
