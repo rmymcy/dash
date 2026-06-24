@@ -534,10 +534,29 @@ function defaultState() {
     settings: { theme: "auto", calmMode: false }
   };
 }
+function normalizeState(s) {
+  const d = defaultState();
+  if (!s.schedule) s.schedule = d.schedule;
+  if (!s.schedule.pomodoro) s.schedule.pomodoro = d.schedule.pomodoro;
+  if (!s.recurring) s.recurring = d.recurring;
+  if (!s.recurring.daily) s.recurring.daily = [];
+  if (!s.recurring.weekly) s.recurring.weekly = [];
+  if (!s.recurring.monthly) s.recurring.monthly = [];
+  if (!s.weather) s.weather = d.weather;
+  if (!s.weather.cities) s.weather.cities = d.weather.cities;
+  if (!s.settings) s.settings = d.settings;
+  if (s.settings.theme === undefined) s.settings.theme = "auto";
+  if (s.settings.calmMode === undefined) s.settings.calmMode = false;
+  if (!s.goals) s.goals = [];
+  if (!s.notes) s.notes = [];
+  if (!s.tasks) s.tasks = [];
+  if (!s.review) s.review = d.review;
+  return s;
+}
 function load() {
   try {
     const raw = localStorage.getItem(KEY);
-    if (raw) return Object.assign(defaultState(), JSON.parse(raw));
+    if (raw) return normalizeState(Object.assign(defaultState(), JSON.parse(raw)));
     // migrate v1
     const v1 = localStorage.getItem("dashboard_v1");
     if (v1) {
@@ -547,7 +566,7 @@ function load() {
       s.schedule = d.schedule || s.schedule;
       s.goals = d.goals || [];
       s.notes = d.notes || [];
-      return s;
+      return normalizeState(s);
     }
   } catch(e) { console.error(e); }
   return defaultState();
@@ -742,7 +761,7 @@ function renderRecurring(container) {
 
 // ============ SCHEDULE ============
 let pomState = { running:false, remaining:0, mode:"work", session:1, interval:null, start:0, base:0 };
-function pomInit() { pomState.remaining = (state.schedule.pomodoro.work||25)*60; }
+function pomInit() { pomState.remaining = (state.schedule?.pomodoro?.work||25)*60; }
 function pomNext() {
   const p = state.schedule.pomodoro;
   if (pomState.mode === "work") {
@@ -1208,7 +1227,9 @@ $("#importFile").addEventListener("change", e => {
 // ============ INIT ============
 function renderAll() {
   renderHeader();
-  for (const k of Object.keys(render)) render[k]?.();
+  for (const k of Object.keys(render)) {
+    try { render[k]?.(); } catch(e) { console.error("render." + k + " failed:", e); }
+  }
 }
 renderAll();
 showView("today");
