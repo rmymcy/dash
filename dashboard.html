@@ -357,6 +357,8 @@ header button.icon svg { width:18px; height:18px }
     <button class="nav-btn" data-view="goals"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>Goals</button>
     <button class="nav-btn" data-view="notes"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/></svg>Notes</button>
     <button class="nav-btn" data-view="review"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 14l4-4 4 4 5-5"/></svg>Review</button>
+    <div style="flex:1"></div>
+    <button class="nav-btn" data-view="settings"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>Settings</button>
   </aside>
 
   <main id="content">
@@ -374,6 +376,8 @@ header button.icon svg { width:18px; height:18px }
     <section class="view" id="view-notes"></section>
     <!-- REVIEW VIEW -->
     <section class="view" id="view-review"></section>
+    <!-- SETTINGS VIEW -->
+    <section class="view" id="view-settings"></section>
   </main>
 </div>
 
@@ -386,6 +390,7 @@ header button.icon svg { width:18px; height:18px }
     <button data-view="goals"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>Goals</button>
     <button data-view="notes"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/></svg>Notes</button>
     <button data-view="review"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 14l4-4 4 4 5-5"/></svg>Review</button>
+    <button data-view="settings"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>Settings</button>
   </div>
 </nav>
 
@@ -421,8 +426,8 @@ const el = (t,p={},k=[]) => {
   return e;
 };
 const genId = p => p+"_"+Date.now().toString(36)+"_"+Math.random().toString(36).slice(2,7);
-const today = () => new Date().toISOString().slice(0,10);
-const dayStr = d => d.toISOString().slice(0,10);
+const today = () => { const d = new Date(); return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`; };
+const dayStr = d => `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
 const fmtDate = d => { if(!d) return ""; const dt = new Date(d+"T00:00:00"); return dt.toLocaleDateString("en-US",{month:"short",day:"numeric"}); };
 const fmtDateTime = iso => new Date(iso).toLocaleString("en-US",{month:"short",day:"numeric",hour:"numeric",minute:"2-digit"});
 const daysBetween = (a,b) => Math.round((new Date(b)-new Date(a))/864e5);
@@ -964,50 +969,6 @@ render.schedule = () => {
     }
   }
   v.append(grid);
-
-  // Calendar sync
-  v.append(el("div", { class:"section-title", style:{marginTop:"28px"}, text:"Outlook Calendar" }));
-  const calHint = el("div", { class:"cal-hint", html:'Paste your Outlook ICS link: Calendar → Settings → Shared calendars → Publish → ICS. If direct fetch is blocked, the dashboard uses a CORS proxy (corsproxy.io) — data passes through it.' });
-  v.append(calHint);
-  const syncRow = el("div", { class:"cal-sync-row" });
-  const urlInp = el("input", { type:"url", placeholder:"https://outlook.live.com/owa/calendar/…/calendar.ics", value: state.calendar?.icsUrl||"" });
-  const syncStatus = el("span", { style:{fontSize:"12px",color:"var(--muted)"} });
-  const syncBtn = el("button", { class:"btn primary sm", text:"Sync", onclick: async () => {
-    const u = urlInp.value.trim();
-    if (!u) return;
-    state.calendar.icsUrl = u; save();
-    syncBtn.textContent = "Syncing…"; syncBtn.disabled = true; syncStatus.textContent = "";
-    try {
-      await syncCalendar(true);
-      syncStatus.textContent = `✓ ${calCache.events.length} events loaded`;
-      syncStatus.style.color = "var(--success)";
-      renderCalList();
-    } catch(err) {
-      syncStatus.textContent = "Failed — check the URL and try again";
-      syncStatus.style.color = "var(--danger)";
-    }
-    syncBtn.textContent = "Sync"; syncBtn.disabled = false;
-  }});
-  urlInp.addEventListener("keydown", e => { if (e.key==="Enter") syncBtn.click(); });
-  syncRow.append(urlInp, syncBtn, syncStatus);
-  v.append(syncRow);
-  const calList = el("div");
-  v.append(calList);
-  function renderCalList() {
-    calList.innerHTML = "";
-    if (!calCache.ts) { calList.append(el("div",{class:"empty",text:"No calendar synced yet"})); return; }
-    const cutoff = new Date(); cutoff.setDate(cutoff.getDate()+14);
-    const upcoming = calCache.events.filter(e => e.start.ts >= new Date(today()+'T00:00:00').getTime() && e.start.ts <= cutoff.getTime());
-    calList.append(el("div",{class:"section-title",text:`Next 14 days (${upcoming.length} events)`}));
-    renderCalEvents(calList, upcoming, "No events in the next 14 days");
-    if (calCache.ts) calList.append(el("div",{class:"wx-ts",text:`Last synced ${new Date(calCache.ts).toLocaleTimeString("en-US",{hour:"numeric",minute:"2-digit"})}`}));
-  }
-  if (state.calendar?.icsUrl) {
-    syncCalendar().then(renderCalList).catch(() => renderCalList());
-  } else {
-    renderCalList();
-  }
-
   renderPomDisplay();
 };
 
@@ -1292,6 +1253,81 @@ render.today = () => {
 };
 
 
+// ============ SETTINGS ============
+render.settings = () => {
+  const v = $("#view-settings");
+  v.innerHTML = "";
+  v.append(el("h1", { text:"Settings" }));
+  v.append(el("div", { class:"view-sub", text:"Calendar, appearance, and data." }));
+
+  // --- Calendar ---
+  v.append(el("div", { class:"section-title", text:"Outlook Calendar (ICS)" }));
+  v.append(el("div", { class:"cal-hint", html:'Go to Outlook → Calendar → Settings → Shared calendars → Publish calendar → copy the ICS link. If your account blocks direct browser fetch, the dashboard retries via corsproxy.io (your data passes through it briefly).' }));
+  const syncRow = el("div", { class:"cal-sync-row" });
+  const urlInp = el("input", { type:"url", placeholder:"https://outlook.live.com/owa/calendar/…/calendar.ics", value: state.calendar?.icsUrl||"" });
+  const syncStatus = el("span", { style:{fontSize:"12px"} });
+  const setSyncStatus = (msg, ok) => { syncStatus.textContent = msg; syncStatus.style.color = ok ? "var(--success)" : "var(--danger)"; };
+  const syncBtn = el("button", { class:"btn primary sm", text:"Sync", onclick: async () => {
+    const u = urlInp.value.trim(); if (!u) return;
+    state.calendar.icsUrl = u; save();
+    syncBtn.textContent = "Syncing…"; syncBtn.disabled = true; syncStatus.textContent = "";
+    try {
+      await syncCalendar(true);
+      setSyncStatus(`✓ ${calCache.events.length} events loaded`, true);
+      renderPreview();
+      render.today?.();
+    } catch(e) {
+      setSyncStatus("Failed — check the URL or connection", false);
+    }
+    syncBtn.textContent = "Sync"; syncBtn.disabled = false;
+  }});
+  urlInp.addEventListener("keydown", e => { if (e.key==="Enter") syncBtn.click(); });
+  syncRow.append(urlInp, syncBtn, syncStatus);
+  v.append(syncRow);
+  const previewEl = el("div", { style:{marginTop:"6px"} });
+  v.append(previewEl);
+  function renderPreview() {
+    previewEl.innerHTML = "";
+    if (!calCache.ts) { previewEl.append(el("div",{class:"empty",text:"No calendar synced yet"})); return; }
+    const now = Date.now();
+    const cutoff = now + 14 * 24 * 60 * 60 * 1000;
+    const todayStart = new Date(today()+'T00:00:00').getTime();
+    const upcoming = calCache.events.filter(e => e.start.ts >= todayStart && e.start.ts <= cutoff);
+    previewEl.append(el("div",{class:"section-title",text:`Upcoming — next 14 days (${upcoming.length})`}));
+    renderCalEvents(previewEl, upcoming, "No events in the next 14 days");
+    previewEl.append(el("div",{class:"wx-ts",text:`Last synced ${new Date(calCache.ts).toLocaleTimeString("en-US",{hour:"numeric",minute:"2-digit"})}`}));
+  }
+  if (state.calendar?.icsUrl) syncCalendar().then(renderPreview).catch(renderPreview);
+  else renderPreview();
+
+  // --- Appearance ---
+  v.append(el("div", { class:"section-title", style:{marginTop:"24px"}, text:"Appearance" }));
+  const themeRow = el("div", { class:"flex-row", style:{gap:"8px",marginBottom:"10px"} });
+  for (const [val, label] of [["light","Light"],["dark","Dark"],["auto","System"]]) {
+    themeRow.append(el("button", { class:`btn sm${state.settings.theme===val?" primary":""}`, text:label, onclick:() => {
+      state.settings.theme = val; save(); applyTheme(); render.settings();
+    }}));
+  }
+  v.append(themeRow);
+  const calmRow = el("div", { class:"flex-row", style:{gap:"10px",alignItems:"center"} });
+  calmRow.append(el("span", { text:"Calm mode (muted accent colors)" }));
+  const calmBtn = el("button", { class:`btn sm${state.settings.calmMode?" primary":""}`, text: state.settings.calmMode?"On":"Off", onclick:() => {
+    state.settings.calmMode = !state.settings.calmMode; save(); applyTheme(); render.settings();
+  }});
+  calmRow.append(calmBtn);
+  v.append(calmRow);
+
+  // --- Data ---
+  v.append(el("div", { class:"section-title", style:{marginTop:"24px"}, text:"Data" }));
+  const dataRow = el("div", { class:"flex-row", style:{gap:"8px"} });
+  dataRow.append(el("button", { class:"btn sm", text:"Export JSON", onclick:()=>$("#exportBtn").click() }));
+  dataRow.append(el("button", { class:"btn sm", text:"Import JSON", onclick:()=>$("#importBtn").click() }));
+  dataRow.append(el("button", { class:"btn sm danger", text:"Clear all data", onclick:() => {
+    if (confirm("Delete everything and reset to defaults?")) { localStorage.removeItem(KEY); location.reload(); }
+  }}));
+  v.append(dataRow);
+};
+
 // ============ COMMAND PALETTE ============
 const cmdActions = [
   { kind:"View", key:"today", label:"Today", icon:"🏠", action:()=>showView("today") },
@@ -1301,6 +1337,7 @@ const cmdActions = [
   { kind:"View", key:"goals", label:"Goals", icon:"🎯", action:()=>showView("goals") },
   { kind:"View", key:"notes", label:"Notes", icon:"📝", action:()=>showView("notes") },
   { kind:"View", key:"review", label:"Weekly Review", icon:"📊", action:()=>showView("review") },
+  { kind:"View", key:"settings", label:"Settings", icon:"⚙", action:()=>showView("settings") },
   { kind:"Action", key:"pom", label:"Start/pause Pomodoro", icon:"⏱", action:pomToggle },
   { kind:"Action", key:"theme", label:"Toggle theme", icon:"🌓", action:()=>$("#themeBtn").click() },
   { kind:"Action", key:"export", label:"Export data", icon:"⬇", action:()=>$("#exportBtn").click() },
@@ -1356,7 +1393,7 @@ document.addEventListener("keydown", e => {
   if ((e.metaKey||e.ctrlKey) && e.key==="k") { e.preventDefault(); openCmd(); }
   if (e.key==="Escape") closeCmd();
   if (!$("#modal").classList.contains("open") && !$("#cmd").classList.contains("open") && document.activeElement.tagName!=="INPUT" && document.activeElement.tagName!=="TEXTAREA") {
-    const map = { "1":"today","2":"tasks","3":"schedule","4":"weather","5":"goals","6":"notes","7":"review" };
+    const map = { "1":"today","2":"tasks","3":"schedule","4":"weather","5":"goals","6":"notes","7":"review","8":"settings" };
     if (map[e.key]) { showView(map[e.key]); }
   }
 });
