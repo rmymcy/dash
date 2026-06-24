@@ -210,23 +210,6 @@ header button.icon svg { width:18px; height:18px }
 .habit-row .del:hover { opacity:1; color:var(--danger) }
 @media(max-width:600px){ .habit-row .week { display:none } }
 
-/* Cleaning */
-.clean-room { margin-bottom:14px }
-.clean-room h3 { font-size:13px; font-weight:600; margin-bottom:8px; color:var(--ink); text-transform:none; letter-spacing:0 }
-.clean-task { display:flex; align-items:center; gap:10px; padding:9px 12px; background:var(--surface);
-  border:1px solid var(--border); border-radius:var(--radius-sm); margin-bottom:4px }
-.clean-task.overdue { border-color:var(--danger); background:var(--danger-soft) }
-.clean-task.due { border-color:var(--warning); background:var(--warning-soft) }
-.clean-task .check { width:24px; height:24px; border-radius:50%; border:2px solid var(--border);
-  cursor:pointer; flex-shrink:0; display:flex; align-items:center; justify-content:center }
-.clean-task .check.done { background:var(--success); border-color:var(--success); color:#fff }
-.clean-task .name { flex:1; font-size:14px }
-.clean-task .freq { font-size:11px; color:var(--muted) }
-.clean-task .age { font-size:11px; padding:2px 7px; border-radius:99px; background:var(--surface-2); color:var(--muted) }
-.clean-task.overdue .age { background:var(--danger); color:#fff }
-.clean-task.due .age { background:var(--warning); color:#fff }
-.clean-task .del { color:var(--muted); padding:4px; opacity:.4; font-size:13px }
-.clean-task .del:hover { opacity:1; color:var(--danger) }
 
 /* Diet */
 .macros { display:grid; grid-template-columns:repeat(4,1fr); gap:10px; margin-bottom:14px }
@@ -249,14 +232,7 @@ header button.icon svg { width:18px; height:18px }
 .meal-row .meal-name { flex:1; font-size:14px }
 .meal-row .meal-cal { font-variant-numeric:tabular-nums; font-weight:600; font-size:13px }
 
-/* Health */
-.health-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(260px,1fr)); gap:12px; margin-bottom:14px }
 .sparkline { width:100%; height:50px; display:block }
-.mood-row { display:flex; gap:8px; margin:10px 0 }
-.mood-btn { flex:1; padding:14px 8px; border-radius:var(--radius-sm); font-size:24px; cursor:pointer;
-  background:var(--surface-2); border:2px solid transparent; transition:.15s }
-.mood-btn.selected { border-color:var(--accent); background:var(--accent-soft) }
-.mood-btn:hover { background:var(--surface-2); filter:brightness(.95) }
 
 /* Schedule */
 .week-grid { display:grid; grid-template-columns:60px repeat(7,1fr); gap:0; background:var(--border) }
@@ -324,14 +300,6 @@ header button.icon svg { width:18px; height:18px }
 .book-row .author { font-size:12px; color:var(--muted) }
 .book-row .progress { font-size:11px; color:var(--accent); font-weight:600 }
 
-/* Finance */
-.budget-card { padding:14px }
-.budget-card .top { display:flex; justify-content:space-between; align-items:baseline; margin-bottom:8px }
-.spend-row { display:flex; align-items:center; gap:10px; padding:8px 10px; background:var(--surface-2);
-  border-radius:var(--radius-sm); margin-bottom:4px; font-size:13px }
-.spend-row .amt { font-weight:700; font-variant-numeric:tabular-nums }
-.spend-row .cat { color:var(--muted); font-size:11px }
-.spend-row .date { color:var(--muted); font-size:11px }
 
 /* Modals */
 .modal-overlay { position:fixed; inset:0; background:rgba(0,0,0,.4); z-index:50;
@@ -399,10 +367,6 @@ header button.icon svg { width:18px; height:18px }
     <div class="group-label">Wellness</div>
     <button class="nav-btn" data-view="habits"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>Habits</button>
     <button class="nav-btn" data-view="diet"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a10 10 0 100 20 10 10 0 000-20zm0 0v10l5 3"/></svg>Diet</button>
-    <button class="nav-btn" data-view="health"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>Health</button>
-    <div class="group-label">Home</div>
-    <button class="nav-btn" data-view="cleaning"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12l2-2 4 4 8-8 4 4-12 12-6-6 0-4z"/></svg>Cleaning<span class="badge" id="navBadgeClean" style="display:none">0</span></button>
-    <button class="nav-btn" data-view="finance"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>Finance</button>
     <div class="group-label">Mind</div>
     <button class="nav-btn" data-view="goals"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>Goals</button>
     <button class="nav-btn" data-view="notes"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/></svg>Notes</button>
@@ -421,12 +385,6 @@ header button.icon svg { width:18px; height:18px }
     <section class="view" id="view-habits"></section>
     <!-- DIET VIEW -->
     <section class="view" id="view-diet"></section>
-    <!-- HEALTH VIEW -->
-    <section class="view" id="view-health"></section>
-    <!-- CLEANING VIEW -->
-    <section class="view" id="view-cleaning"></section>
-    <!-- FINANCE VIEW -->
-    <section class="view" id="view-finance"></section>
     <!-- GOALS VIEW -->
     <section class="view" id="view-goals"></section>
     <!-- NOTES VIEW -->
@@ -445,9 +403,6 @@ header button.icon svg { width:18px; height:18px }
     <button data-view="schedule"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="3" y1="10" x2="21" y2="10"/></svg>Plan</button>
     <button data-view="habits"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>Habits</button>
     <button data-view="diet"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a10 10 0 100 20 10 10 0 000-20zm0 0v10l5 3"/></svg>Diet</button>
-    <button data-view="health"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>Health</button>
-    <button data-view="cleaning"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12l2-2 4 4 8-8 4 4-12 12-6-6 0-4z"/></svg>Clean</button>
-    <button data-view="finance"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>$</button>
     <button data-view="goals"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>Goals</button>
     <button data-view="notes"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/></svg>Notes</button>
     <button data-view="reading"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 016.5 17H20M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/></svg>Read</button>
@@ -463,7 +418,7 @@ header button.icon svg { width:18px; height:18px }
 <!-- Command palette -->
 <div id="cmd">
   <div class="panel">
-    <input id="cmdInput" type="text" placeholder="Quick add: 'task buy milk', 'water', 'note ...', 'meal ...', 'spend 10 coffee', or jump to view">
+    <input id="cmdInput" type="text" placeholder="Quick add: 'task buy milk', 'water', 'note ...', 'meal ...', or jump to view">
     <div class="results" id="cmdResults"></div>
   </div>
 </div>
@@ -505,9 +460,6 @@ function defaultState() {
     goals: [],
     notes: [],
     diet: { meals: [], water: {}, settings: { calGoal:2000, proteinGoal:120, carbGoal:250, fatGoal:65, waterGoal:8 } },
-    health: { sleep: [], exercise: [], weight: [], mood: [] },
-    cleaning: { rooms: [], history: {} },
-    finance: { entries: [], settings: { monthlyBudget: 2000 } },
     reading: { books: [] },
     review: { entries: [] },
     settings: { theme: "auto", calmMode: false }
@@ -535,36 +487,6 @@ function load() {
 function save() { try { localStorage.setItem(KEY, JSON.stringify(state)); } catch(e) { console.error(e); } }
 let state = load();
 
-// Seed cleaning if empty (default household rotation)
-if (!state.cleaning.rooms.length) {
-  state.cleaning.rooms = [
-    { id: genId("r"), name: "Kitchen", tasks: [
-      { id: genId("ct"), name: "Wipe counters", freq: 1 },
-      { id: genId("ct"), name: "Dishes & sink", freq: 1 },
-      { id: genId("ct"), name: "Sweep floor", freq: 2 },
-      { id: genId("ct"), name: "Mop floor", freq: 7 },
-      { id: genId("ct"), name: "Clean fridge", freq: 30 },
-      { id: genId("ct"), name: "Clean oven", freq: 60 },
-    ]},
-    { id: genId("r"), name: "Bathroom", tasks: [
-      { id: genId("ct"), name: "Wipe sink & mirror", freq: 3 },
-      { id: genId("ct"), name: "Clean toilet", freq: 7 },
-      { id: genId("ct"), name: "Scrub shower / tub", freq: 7 },
-      { id: genId("ct"), name: "Mop floor", freq: 14 },
-    ]},
-    { id: genId("r"), name: "Bedroom", tasks: [
-      { id: genId("ct"), name: "Make bed", freq: 1 },
-      { id: genId("ct"), name: "Change sheets", freq: 14 },
-      { id: genId("ct"), name: "Vacuum / dust", freq: 7 },
-    ]},
-    { id: genId("r"), name: "Living room", tasks: [
-      { id: genId("ct"), name: "Tidy & put away", freq: 2 },
-      { id: genId("ct"), name: "Vacuum", freq: 7 },
-      { id: genId("ct"), name: "Dust surfaces", freq: 14 },
-    ]},
-  ];
-  save();
-}
 
 // ============ THEME ============
 function applyTheme() {
@@ -592,9 +514,6 @@ function renderHeader() {
   const sb = $("#stat-streak");
   if (streaks.length) { sb.style.display=""; sb.innerHTML = `&#x1F525; <strong>${Math.max(...streaks)}d</strong>&nbsp;best streak`; }
   else sb.style.display = "none";
-  const overdue = countOverdueCleaning();
-  if (overdue > 0) { $("#navBadgeClean").style.display=""; $("#navBadgeClean").textContent = overdue; }
-  else $("#navBadgeClean").style.display = "none";
   const taskBadge = state.tasks.filter(t => t.status!=="done" && t.deadline && t.deadline<today()).length;
   if (taskBadge > 0) { $("#navBadgeTasks").style.display=""; $("#navBadgeTasks").textContent = taskBadge; }
   else $("#navBadgeTasks").style.display = "none";
@@ -971,189 +890,7 @@ render.diet = () => {
   v.append(card);
 };
 
-// ============ HEALTH ============
-render.health = () => {
-  const v = $("#view-health");
-  v.innerHTML = "";
-  v.append(el("h1", { text:"Health" }));
-  v.append(el("div", { class:"view-sub", text:"Sleep, movement, weight, mood — daily ticks add up." }));
 
-  const days30 = []; for (let i=29;i>=0;i--) { const d=new Date(); d.setDate(d.getDate()-i); days30.push(dayStr(d)); }
-  const getLast = (arr) => arr.length ? arr[arr.length-1] : null;
-  const sleepVals = days30.map(ds => { const e = state.health.sleep.find(x=>x.date===ds); return e?e.hours:null; });
-  const weightVals = days30.map(ds => { const e = state.health.weight.find(x=>x.date===ds); return e?e.value:null; });
-  const exerciseVals = days30.map(ds => { const e = state.health.exercise.find(x=>x.date===ds); return e?e.minutes:0; });
-  const moodVals = days30.map(ds => { const e = state.health.mood.find(x=>x.date===ds); return e?e.value:null; });
-  const lastSleep = getLast(state.health.sleep);
-  const lastWeight = getLast(state.health.weight);
-  const lastMood = state.health.mood.find(x=>x.date===today());
-
-  // Stats grid
-  const grid = el("div", { class:"health-grid" });
-  for (const [label, val, unit, vals, color] of [
-    ["Sleep", lastSleep?lastSleep.hours:"—", "h last night", sleepVals, "#8b5cf6"],
-    ["Weight", lastWeight?lastWeight.value:"—", lastWeight?lastWeight.unit||"lb":"", weightVals.filter(v=>v!==null), "#3b6df0"],
-    ["Exercise", sum(exerciseVals.slice(-7)), "min this week", exerciseVals, "#2f7a4a"],
-    ["Mood", lastMood?["😞","😐","🙂","😊","🤩"][lastMood.value-1]:"—", "today", moodVals, "#d97706"],
-  ]) {
-    const c = el("div", { class:"card" });
-    c.append(el("div", { class:"stat-sub", text: label }));
-    c.append(el("div", { class:"stat-row" }, [el("span",{class:"stat-big",text:val}), el("span",{class:"muted",text:unit})]));
-    if (vals.length > 1 && vals.some(v=>v!==null)) c.append(sparkline(vals, { color, height: 40, fill:true }));
-    grid.append(c);
-  }
-  v.append(grid);
-
-  // Log forms
-  v.append(el("div", { class:"section-title", text:"Log" }));
-
-  // Sleep
-  const sleepRow = el("div", { class:"flex-row" });
-  sleepRow.append(el("span", { class:"chip", text:"Sleep last night" }));
-  const sh = el("input", { type:"number", step:"0.5", min:"0", max:"14", placeholder:"hours", style:{width:"90px"} });
-  const sq = el("select"); for (const [v,l] of [[3,"Good"],[2,"OK"],[1,"Poor"]]) sq.append(el("option",{value:v,text:l}));
-  sleepRow.append(sh, sq);
-  sleepRow.append(el("button", { class:"btn primary sm", text:"Save", onclick:() => {
-    if (!sh.value) return;
-    state.health.sleep = state.health.sleep.filter(x=>x.date!==today());
-    state.health.sleep.push({ date:today(), hours:+sh.value, quality:+sq.value });
-    sh.value=""; save(); render.health();
-  }}));
-  v.append(sleepRow);
-
-  // Exercise
-  const exRow = el("div", { class:"flex-row", style:{marginTop:"8px"} });
-  exRow.append(el("span", { class:"chip", text:"Exercise" }));
-  const exName = el("input", { type:"text", placeholder:"e.g. Walk, lifting…", style:{flex:"1",minWidth:"140px"} });
-  const exMin = el("input", { type:"number", placeholder:"min", style:{width:"80px"} });
-  exRow.append(exName, exMin);
-  exRow.append(el("button", { class:"btn primary sm", text:"Save", onclick:() => {
-    if (!exMin.value) return;
-    state.health.exercise.push({ id:genId("ex"), date:today(), name:exName.value||"Exercise", minutes:+exMin.value });
-    exName.value=""; exMin.value=""; save(); render.health();
-  }}));
-  v.append(exRow);
-
-  // Weight
-  const wRow = el("div", { class:"flex-row", style:{marginTop:"8px"} });
-  wRow.append(el("span", { class:"chip", text:"Weight" }));
-  const wv = el("input", { type:"number", step:"0.1", placeholder:"value", style:{width:"100px"} });
-  const wu = el("select"); for (const x of ["lb","kg"]) wu.append(el("option",{value:x,text:x}));
-  wRow.append(wv, wu);
-  wRow.append(el("button", { class:"btn primary sm", text:"Save", onclick:() => {
-    if (!wv.value) return;
-    state.health.weight = state.health.weight.filter(x=>x.date!==today());
-    state.health.weight.push({ date:today(), value:+wv.value, unit:wu.value });
-    wv.value=""; save(); render.health();
-  }}));
-  v.append(wRow);
-
-  // Mood
-  v.append(el("div", { class:"section-title", text:"Mood today" }));
-  const moods = el("div", { class:"mood-row" });
-  for (let i=1;i<=5;i++) {
-    const emoji = ["😞","😐","🙂","😊","🤩"][i-1];
-    const b = el("button", { class: `mood-btn${lastMood?.value===i?" selected":""}`, text: emoji });
-    b.addEventListener("click", () => {
-      state.health.mood = state.health.mood.filter(x=>x.date!==today());
-      state.health.mood.push({ date:today(), value:i });
-      save(); render.health();
-    });
-    moods.append(b);
-  }
-  v.append(moods);
-};
-
-// ============ CLEANING ============
-function lastCleaned(roomId, taskId) {
-  const hist = state.cleaning.history[`${roomId}_${taskId}`];
-  if (!hist || !hist.length) return null;
-  return hist[hist.length-1];
-}
-function daysSince(date) { return date ? daysBetween(date, today()) : null; }
-function cleanTaskStatus(task, roomId) {
-  const last = lastCleaned(roomId, task.id);
-  const ds = daysSince(last);
-  if (ds === null) return { cls:"overdue", label: "Never", overdue: true };
-  if (ds >= task.freq) return { cls:"overdue", label: `${ds}d ago`, overdue: true };
-  if (ds >= task.freq * 0.8) return { cls:"due", label: `${ds}d ago`, overdue: false };
-  return { cls:"", label: `${ds}d ago`, overdue: false };
-}
-function countOverdueCleaning() {
-  let c = 0;
-  for (const r of state.cleaning.rooms) for (const t of r.tasks) if (cleanTaskStatus(t, r.id).overdue) c++;
-  return c;
-}
-
-render.cleaning = () => {
-  const v = $("#view-cleaning");
-  v.innerHTML = "";
-  v.append(el("h1", { text:"Cleaning" }));
-  v.append(el("div", { class:"view-sub", text:"Rotate chores by recommended frequency. Check off — done is better than perfect." }));
-
-  // Quick overdue strip
-  const overdue = [];
-  for (const r of state.cleaning.rooms) for (const t of r.tasks) {
-    const s = cleanTaskStatus(t, r.id);
-    if (s.overdue) overdue.push({ room: r, task: t, status: s });
-  }
-  if (overdue.length) {
-    v.append(el("div", { class:"section-title", text: `Needs attention — ${overdue.length}` }));
-    for (const o of overdue.slice(0, 8)) {
-      v.append(cleanTaskRow(o.task, o.room, o.status));
-    }
-  }
-
-  for (const room of state.cleaning.rooms) {
-    const wrap = el("div", { class:"clean-room" });
-    const head = el("h3");
-    head.append(el("span", { text: room.name }));
-    head.append(el("button", { class:"btn ghost sm", text:"+ task", onclick:() => {
-      const c = el("div");
-      const n = el("input", { type:"text", placeholder:"Task name" }); c.append(el("label",{text:"Task"}), n);
-      const f = el("input", { type:"number", min:"1", value:"7" }); c.append(el("label",{text:"Frequency (days)"}), f);
-      modal("Add Cleaning Task", c, () => {
-        if (!n.value.trim()) return false;
-        room.tasks.push({ id:genId("ct"), name:n.value.trim(), freq:+f.value||7 });
-        save(); render.cleaning();
-      });
-    }}));
-    wrap.append(head);
-    for (const t of room.tasks) {
-      wrap.append(cleanTaskRow(t, room, cleanTaskStatus(t, room.id)));
-    }
-    v.append(wrap);
-  }
-  v.append(el("button", { class:"btn", text:"+ Room", style:{marginTop:"10px"}, onclick:() => {
-    const c = el("div");
-    const n = el("input", { type:"text", placeholder:"Room name" }); c.append(el("label",{text:"Name"}), n);
-    modal("Add Room", c, () => {
-      if (!n.value.trim()) return false;
-      state.cleaning.rooms.push({ id:genId("r"), name:n.value.trim(), tasks:[] });
-      save(); render.cleaning();
-    });
-  }}));
-};
-function cleanTaskRow(t, room, status) {
-  const row = el("div", { class: `clean-task ${status.cls}` });
-  const check = el("div", { class:"check" });
-  check.addEventListener("click", () => {
-    const k = `${room.id}_${t.id}`;
-    if (!state.cleaning.history[k]) state.cleaning.history[k] = [];
-    state.cleaning.history[k].push(today());
-    save(); render.cleaning(); renderHeader();
-  });
-  check.innerHTML = "&#x2714;";
-  check.style.color = "transparent";
-  row.append(check);
-  row.append(el("span", { class:"name", text: t.name }));
-  row.append(el("span", { class:"freq", text: t.freq===1 ? "Daily" : `Every ${t.freq}d` }));
-  row.append(el("span", { class:"age", text: status.label }));
-  row.append(el("button", { class:"del", html:"&#x2715;", onclick:() => {
-    room.tasks = room.tasks.filter(x=>x.id!==t.id); save(); render.cleaning();
-  }}));
-  return row;
-}
 
 // ============ GOALS ============
 render.goals = () => {
@@ -1293,81 +1030,6 @@ render.reading = () => {
   if (!state.reading.books.length) v.append(el("div", { class:"empty", text:"No books yet" }));
 };
 
-// ============ FINANCE ============
-render.finance = () => {
-  const v = $("#view-finance");
-  v.innerHTML = "";
-  v.append(el("h1", { text:"Finance" }));
-  v.append(el("div", { class:"view-sub", text:"Track daily spending against a monthly budget." }));
-
-  const month = today().slice(0,7);
-  const monthEntries = state.finance.entries.filter(e => e.date.startsWith(month));
-  const monthTotal = sum(monthEntries.map(e=>e.amount));
-  const budget = state.finance.settings.monthlyBudget;
-  const pct = budget ? Math.round(monthTotal/budget*100) : 0;
-
-  const summary = el("div", { class:"card budget-card" });
-  summary.append(el("div", { class:"top" },
-    [el("span", { class:"stat-sub", text: `${new Date().toLocaleDateString("en",{month:"long"})} spent` }),
-     el("button", { class:"btn ghost sm", text:"Set budget", onclick:() => {
-        const c = el("div"); const i = el("input", { type:"number", value:budget });
-        c.append(el("label",{text:"Monthly budget"}), i);
-        modal("Set Budget", c, () => { state.finance.settings.monthlyBudget = +i.value||0; save(); render.finance(); });
-     }})]));
-  summary.append(el("div", { class:"stat-row" },
-    [el("span", { class:"stat-big", text: "$"+monthTotal.toFixed(0) }),
-     el("span", { class:"muted", text: ` / $${budget} budget` })]));
-  const bar = el("div", { class:"goal-bar", style:{marginTop:"10px"} });
-  bar.append(el("div", { class:"fill", style:{ width: `${clamp(pct,0,100)}%`, background: pct>100?"var(--danger)":pct>80?"var(--warning)":"var(--success)" } }));
-  summary.append(bar);
-  v.append(summary);
-
-  // Add entry
-  v.append(el("div", { class:"section-title", text:"Add expense" }));
-  const form = el("div", { class:"flex-row" });
-  const amt = el("input", { type:"number", step:"0.01", placeholder:"$", style:{width:"100px"} });
-  const cat = el("input", { type:"text", placeholder:"Category (groceries, gas…)", style:{flex:"1",minWidth:"160px"} });
-  const note = el("input", { type:"text", placeholder:"Note (optional)", style:{flex:"1",minWidth:"140px"} });
-  const ds = el("input", { type:"date", value: today() });
-  const add = el("button", { class:"btn primary", text:"Add", onclick:() => {
-    if (!amt.value) return;
-    state.finance.entries.push({ id:genId("f"), amount:+amt.value, category:cat.value.trim()||"misc", note:note.value.trim(), date:ds.value });
-    amt.value=""; cat.value=""; note.value=""; save(); render.finance();
-  }});
-  form.append(amt, cat, note, ds, add);
-  v.append(form);
-
-  // List
-  v.append(el("div", { class:"section-title", text:"Recent" }));
-  for (const e of monthEntries.slice(-20).reverse()) {
-    const row = el("div", { class:"spend-row" });
-    row.append(el("span", { class:"amt", text: "$"+e.amount.toFixed(2) }));
-    row.append(el("span", { class:"cat", text: e.category }));
-    row.append(el("span", { style:{flex:"1"}, text: e.note }));
-    row.append(el("span", { class:"date", text: fmtDate(e.date) }));
-    row.append(el("button", { class:"btn ghost", html:"&#x2715;", onclick:() => { state.finance.entries = state.finance.entries.filter(x=>x.id!==e.id); save(); render.finance(); }}));
-    v.append(row);
-  }
-  if (!monthEntries.length) v.append(el("div", { class:"empty", text:"No entries this month" }));
-
-  // Category breakdown
-  const byCat = {};
-  for (const e of monthEntries) byCat[e.category] = (byCat[e.category]||0) + e.amount;
-  if (Object.keys(byCat).length) {
-    v.append(el("div", { class:"section-title", text:"By Category" }));
-    const sorted = Object.entries(byCat).sort((a,b)=>b[1]-a[1]);
-    for (const [c, amt] of sorted) {
-      const p = monthTotal ? amt/monthTotal*100 : 0;
-      const r = el("div", { style:{padding:"6px 0"} });
-      r.append(el("div", { style:{display:"flex",justifyContent:"space-between",fontSize:"13px",marginBottom:"3px"} },
-        [el("span", { text: c }), el("span", { text: `$${amt.toFixed(0)} (${p.toFixed(0)}%)` })]));
-      const bar2 = el("div", { class:"goal-bar" });
-      bar2.append(el("div", { class:"fill", style: { width: `${p}%` } }));
-      r.append(bar2);
-      v.append(r);
-    }
-  }
-};
 
 // ============ REVIEW ============
 render.review = () => {
@@ -1380,19 +1042,11 @@ render.review = () => {
   const last7 = []; for (let i=6;i>=0;i--) { const d = new Date(); d.setDate(d.getDate()-i); last7.push(dayStr(d)); }
   const tasksDone = state.tasks.filter(t => t.status==="done" && t.completedAt && t.completedAt.slice(0,10) >= last7[0]).length;
   const habitChecks = state.habits.reduce((acc,h) => acc + (h.checkins||[]).filter(d => last7.includes(d)).length, 0);
-  const sleepWk = state.health.sleep.filter(s => last7.includes(s.date));
-  const sleepAvg = sleepWk.length ? sum(sleepWk.map(s=>s.hours))/sleepWk.length : 0;
-  const moodWk = state.health.mood.filter(m => last7.includes(m.date));
-  const moodAvg = moodWk.length ? sum(moodWk.map(m=>m.value))/moodWk.length : 0;
-  const exMins = sum(state.health.exercise.filter(e=>last7.includes(e.date)).map(e=>e.minutes));
 
   const grid = el("div", { class:"today-grid" });
   for (const [label, val, sub] of [
     ["Tasks completed", tasksDone, "this week"],
     ["Habit check-ins", habitChecks, "across all habits"],
-    ["Avg sleep", sleepAvg.toFixed(1)+"h", `${sleepWk.length}/7 nights`],
-    ["Avg mood", moodAvg.toFixed(1)+"/5", moodWk.length+" days logged"],
-    ["Exercise", exMins+" min", "total this week"],
     ["Notes added", state.notes.filter(n=>n.createdAt.slice(0,10) >= last7[0]).length, "captures"],
   ]) {
     const c = el("div", { class:"card" });
@@ -1439,10 +1093,8 @@ render.today = () => {
   gc.append(el("h2", { text: `${greet}!` }));
   const todoCount = state.tasks.filter(t=>t.status!=="done").length;
   const dueToday = state.tasks.filter(t=>t.status!=="done" && t.deadline===today()).length;
-  const overdueClean = countOverdueCleaning();
   const bits = [];
   if (dueToday) bits.push(`${dueToday} task${dueToday>1?"s":""} due today`);
-  if (overdueClean) bits.push(`${overdueClean} cleaning item${overdueClean>1?"s":""} overdue`);
   if (!bits.length) bits.push(`${todoCount} task${todoCount!==1?"s":""} on your plate`);
   gc.append(el("p", { text: bits.join(" · ") }));
   v.append(gc);
@@ -1512,30 +1164,6 @@ render.today = () => {
   waterCard.append(wrow);
   grid.append(waterCard);
 
-  // Cleaning preview
-  const cleanCard = el("div", { class:"card" });
-  cleanCard.append(el("h3", {}, [el("span",{text:"Cleaning"}), el("button",{class:"btn ghost sm",text:"All →",onclick:()=>showView("cleaning")})]));
-  const overdue = [];
-  for (const r of state.cleaning.rooms) for (const t of r.tasks) {
-    const s = cleanTaskStatus(t, r.id);
-    if (s.overdue) overdue.push({ room:r, task:t, status:s });
-  }
-  for (const o of overdue.slice(0,4)) {
-    const row = el("div", { class:"row", style:{padding:"6px 0",borderBottom:"1px solid var(--border)"} });
-    const check = el("div", { class:"check", style:{width:"20px",height:"20px",borderRadius:"50%",border:"2px solid var(--border)",cursor:"pointer",flexShrink:"0"} });
-    check.addEventListener("click", () => {
-      const k = `${o.room.id}_${o.task.id}`;
-      if (!state.cleaning.history[k]) state.cleaning.history[k]=[];
-      state.cleaning.history[k].push(today()); save(); render.today(); renderHeader();
-    });
-    row.append(check);
-    row.append(el("span", { style:{flex:"1",fontSize:"14px"}, text: o.task.name }));
-    row.append(el("span", { class:"chip", text: o.room.name }));
-    cleanCard.append(row);
-  }
-  if (!overdue.length) cleanCard.append(el("div", { class:"empty", text:"All clean ✓" }));
-  grid.append(cleanCard);
-
   // Today's schedule
   const schedCard = el("div", { class:"card" });
   schedCard.append(el("h3", {}, [el("span",{text:"Today's Schedule"}), el("button",{class:"btn ghost sm",text:"Plan →",onclick:()=>showView("schedule")})]));
@@ -1562,19 +1190,6 @@ render.today = () => {
   dietCard.append(bar);
   dietCard.append(el("div", { class:"muted", style:{fontSize:"11px",marginTop:"6px"}, text: `${meals.length} meal${meals.length!==1?"s":""} logged` }));
   grid.append(dietCard);
-
-  // Health snapshot
-  const healthCard = el("div", { class:"card" });
-  healthCard.append(el("h3", {}, [el("span",{text:"Health"}), el("button",{class:"btn ghost sm",text:"All →",onclick:()=>showView("health")})]));
-  const lastSleep = state.health.sleep[state.health.sleep.length-1];
-  const todayMood = state.health.mood.find(m=>m.date===today());
-  const wkExercise = sum(state.health.exercise.filter(e => { const dt=new Date(); dt.setDate(dt.getDate()-7); return e.date >= dayStr(dt); }).map(e=>e.minutes));
-  healthCard.append(el("div", { class:"row", style:{gap:"14px",marginTop:"4px"} }, [
-    el("span", { html: `<strong style="font-size:18px">${lastSleep?lastSleep.hours+"h":"—"}</strong><br><small class="muted">sleep</small>`, style:{textAlign:"center"} }),
-    el("span", { html: `<strong style="font-size:18px">${wkExercise}</strong><br><small class="muted">wk min</small>`, style:{textAlign:"center"} }),
-    el("span", { html: `<strong style="font-size:20px">${todayMood?["😞","😐","🙂","😊","🤩"][todayMood.value-1]:"—"}</strong><br><small class="muted">mood</small>`, style:{textAlign:"center"} }),
-  ]));
-  grid.append(healthCard);
 
   v.append(grid);
 };
@@ -1635,9 +1250,6 @@ const cmdActions = [
   { kind:"View", key:"schedule", label:"Schedule / Pomodoro", icon:"📅", action:()=>showView("schedule") },
   { kind:"View", key:"habits", label:"Habits", icon:"🔥", action:()=>showView("habits") },
   { kind:"View", key:"diet", label:"Diet", icon:"🍽", action:()=>showView("diet") },
-  { kind:"View", key:"health", label:"Health", icon:"❤", action:()=>showView("health") },
-  { kind:"View", key:"cleaning", label:"Cleaning", icon:"🧽", action:()=>showView("cleaning") },
-  { kind:"View", key:"finance", label:"Finance", icon:"💵", action:()=>showView("finance") },
   { kind:"View", key:"goals", label:"Goals", icon:"🎯", action:()=>showView("goals") },
   { kind:"View", key:"notes", label:"Notes", icon:"📝", action:()=>showView("notes") },
   { kind:"View", key:"reading", label:"Reading", icon:"📖", action:()=>showView("reading") },
@@ -1670,11 +1282,6 @@ function renderCmd(q) {
     state.diet.meals.push({ id:genId("m"), date:today(), time:"Snack", name:q.slice(5), cal:0, protein:0, carbs:0, fat:0 });
     save(); render.diet(); closeCmd();
   }});
-  const spendMatch = ql.match(/^spend\s+([\d.]+)\s*(.*)$/);
-  if (spendMatch) results.push({ kind:"Quick add", label:`Log expense $${spendMatch[1]} ${spendMatch[2]}`, icon:"+", action: () => {
-    state.finance.entries.push({ id:genId("f"), amount:+spendMatch[1], category:spendMatch[2]||"misc", note:"", date:today() });
-    save(); render.finance(); closeCmd();
-  }});
   if (ql === "water" || ql.startsWith("water")) results.push({ kind:"Action", label:"Log a glass of water", icon:"💧", action: () => {
     state.diet.water[today()] = (state.diet.water[today()]||0)+1; save(); renderHeader(); render.today(); closeCmd();
   }});
@@ -1701,7 +1308,6 @@ $("#cmdInput").addEventListener("keydown", e => {
   if (ql.startsWith("task ")) n++;
   if (ql.startsWith("note ")) n++;
   if (ql.startsWith("meal ")) n++;
-  if (/^spend\s+[\d.]+/.test(ql)) n++;
   if (ql==="water"||ql.startsWith("water")) n++;
   for (const a of cmdActions) if (!ql || a.label.toLowerCase().includes(ql) || a.key.includes(ql)) n++;
   if (e.key==="ArrowDown") { cmdSel = Math.min(n-1, cmdSel+1); renderCmd(e.target.value); e.preventDefault(); }
@@ -1713,7 +1319,7 @@ document.addEventListener("keydown", e => {
   if ((e.metaKey||e.ctrlKey) && e.key==="k") { e.preventDefault(); openCmd(); }
   if (e.key==="Escape") closeCmd();
   if (!$("#modal").classList.contains("open") && !$("#cmd").classList.contains("open") && document.activeElement.tagName!=="INPUT" && document.activeElement.tagName!=="TEXTAREA") {
-    const map = { "1":"today","2":"tasks","3":"schedule","4":"habits","5":"diet","6":"health","7":"cleaning","8":"finance","9":"goals","0":"notes" };
+    const map = { "1":"today","2":"tasks","3":"schedule","4":"habits","5":"diet","6":"goals","7":"notes","8":"reading","9":"review" };
     if (map[e.key]) { showView(map[e.key]); }
   }
 });
