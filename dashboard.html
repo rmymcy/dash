@@ -256,6 +256,29 @@ header button.icon svg { width:18px; height:18px }
 
 
 
+/* Weather */
+.weather-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(300px,1fr)); gap:14px }
+.wx-card { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:16px }
+.wx-card.wx-main { border-color:var(--accent); border-left-width:3px }
+.wx-label { font-size:10px; text-transform:uppercase; letter-spacing:.6px; color:var(--accent); font-weight:700; margin-bottom:6px }
+.wx-city-row { display:flex; gap:6px; align-items:center; margin-bottom:10px }
+.wx-city-row input { flex:1; font-size:14px; font-weight:600; padding:6px 10px; min-height:34px }
+.wx-city-row button { min-height:34px; font-size:12px }
+.wx-current { display:flex; align-items:center; gap:14px; margin:10px 0 }
+.wx-emoji { font-size:44px; line-height:1; flex-shrink:0 }
+.wx-temp { font-size:40px; font-weight:200; font-variant-numeric:tabular-nums; line-height:1 }
+.wx-cond { font-size:13px; font-weight:600; color:var(--ink); margin-top:2px }
+.wx-details { font-size:11px; color:var(--muted); margin-top:2px }
+.wx-week { display:grid; grid-template-columns:repeat(7,1fr); gap:3px; margin-top:12px; padding-top:12px; border-top:1px solid var(--border) }
+.wx-day { text-align:center }
+.wx-day .wd { font-size:10px; color:var(--muted); text-transform:uppercase; letter-spacing:.3px; font-weight:600 }
+.wx-day .we { font-size:20px; margin:4px 0 2px }
+.wx-day .wh { font-size:12px; font-weight:700 }
+.wx-day .wl { font-size:11px; color:var(--muted) }
+.wx-loading { color:var(--muted); font-size:13px; padding:18px 0; text-align:center }
+.wx-err { color:var(--danger); font-size:12px; margin:4px 0 }
+.wx-ts { font-size:10px; color:var(--muted); margin-top:10px; text-align:right }
+
 /* Modals */
 .modal-overlay { position:fixed; inset:0; background:rgba(0,0,0,.4); z-index:50;
   display:none; align-items:center; justify-content:center; padding:16px; backdrop-filter:blur(2px) }
@@ -318,6 +341,7 @@ header button.icon svg { width:18px; height:18px }
     <button class="nav-btn active" data-view="today"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>Today</button>
     <button class="nav-btn" data-view="tasks"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>Tasks<span class="badge" id="navBadgeTasks" style="display:none">0</span></button>
     <button class="nav-btn" data-view="schedule"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>Schedule</button>
+    <button class="nav-btn" data-view="weather"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17.5 19H9a7 7 0 113.6-13A5 5 0 0117.5 19z"/></svg>Weather</button>
     <div class="group-label">Work</div>
     <button class="nav-btn" data-view="goals"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>Goals</button>
     <button class="nav-btn" data-view="notes"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/></svg>Notes</button>
@@ -331,6 +355,8 @@ header button.icon svg { width:18px; height:18px }
     <section class="view" id="view-tasks"></section>
     <!-- SCHEDULE VIEW -->
     <section class="view" id="view-schedule"></section>
+    <!-- WEATHER VIEW -->
+    <section class="view" id="view-weather"></section>
     <!-- GOALS VIEW -->
     <section class="view" id="view-goals"></section>
     <!-- NOTES VIEW -->
@@ -345,6 +371,7 @@ header button.icon svg { width:18px; height:18px }
     <button data-view="today" class="active"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/></svg>Today</button>
     <button data-view="tasks"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>Tasks</button>
     <button data-view="schedule"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="3" y1="10" x2="21" y2="10"/></svg>Plan</button>
+    <button data-view="weather"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17.5 19H9a7 7 0 113.6-13A5 5 0 0117.5 19z"/></svg>Weather</button>
     <button data-view="goals"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>Goals</button>
     <button data-view="notes"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/></svg>Notes</button>
     <button data-view="review"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 14l4-4 4 4 5-5"/></svg>Review</button>
@@ -394,6 +421,112 @@ const sum = arr => arr.reduce((a,b)=>a+(+b||0),0);
 const currentWeek = () => { const d = new Date(), day = d.getDay(), m = new Date(d); m.setDate(d.getDate()-(day===0?6:day-1)); return dayStr(m); };
 const currentMonth = () => today().slice(0,7);
 
+// ============ WEATHER HELPERS ============
+const wxCache = {};
+const WX_TTL = 30 * 60 * 1000;
+function wmoEmoji(c) {
+  if (c===0) return "☀️"; if (c<=2) return "🌤️"; if (c===3) return "☁️";
+  if (c<=48) return "🌫️"; if (c<=55) return "🌦️"; if (c<=65) return "🌧️";
+  if (c<=77) return "❄️"; if (c<=82) return "🌧️"; if (c<=86) return "🌨️";
+  return "⛈️";
+}
+function wmoLabel(c) {
+  if (c===0) return "Clear"; if (c===1) return "Mainly clear"; if (c===2) return "Partly cloudy";
+  if (c===3) return "Overcast"; if (c<=48) return "Foggy"; if (c<=55) return "Drizzle";
+  if (c<=65) return "Rain"; if (c<=77) return "Snow"; if (c<=82) return "Showers";
+  if (c<=86) return "Snow showers"; return "Thunderstorm";
+}
+async function geocodeCity(name) {
+  const r = await fetch(`https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(name)}&count=1&language=en&format=json`);
+  const d = await r.json();
+  if (!d.results?.length) throw new Error("not found");
+  return { lat: d.results[0].latitude, lng: d.results[0].longitude };
+}
+async function fetchCityWx(city) {
+  const url = `https://api.open-meteo.com/v1/forecast?latitude=${city.lat}&longitude=${city.lng}&current=temperature_2m,weathercode,windspeed_10m&daily=weathercode,temperature_2m_max,temperature_2m_min&temperature_unit=fahrenheit&windspeed_unit=mph&timezone=auto&forecast_days=7`;
+  const r = await fetch(url);
+  const d = await r.json();
+  const entry = {
+    ts: Date.now(),
+    current: { temp: Math.round(d.current.temperature_2m), code: d.current.weathercode, wind: Math.round(d.current.windspeed_10m) },
+    daily: d.daily.time.map((dt, i) => ({ date: dt, code: d.daily.weathercode[i], hi: Math.round(d.daily.temperature_2m_max[i]), lo: Math.round(d.daily.temperature_2m_min[i]) }))
+  };
+  wxCache[city.id] = entry;
+  return entry;
+}
+function showWxData(container, data, compact=false) {
+  const { current, daily } = data;
+  const d0 = daily[0];
+  const curr = el("div", { class:"wx-current" });
+  curr.append(el("div", { class:"wx-emoji", text: wmoEmoji(current.code) }));
+  const inf = el("div");
+  inf.append(el("div", { class:"wx-temp", text:`${current.temp}°F` }));
+  inf.append(el("div", { class:"wx-cond", text: wmoLabel(current.code) }));
+  inf.append(el("div", { class:"wx-details", text:`↑${d0?.hi}° ↓${d0?.lo}° · Wind ${current.wind} mph` }));
+  curr.append(inf);
+  container.append(curr);
+  if (!compact) {
+    const week = el("div", { class:"wx-week" });
+    const DN = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
+    for (const d of daily) {
+      const dt = new Date(d.date+"T12:00:00");
+      const dc = el("div", { class:"wx-day" });
+      dc.append(el("div",{class:"wd",text:d.date===today()?"Today":DN[dt.getDay()]}));
+      dc.append(el("div",{class:"we",text:wmoEmoji(d.code)}));
+      dc.append(el("div",{class:"wh",text:`${d.hi}°`}));
+      dc.append(el("div",{class:"wl",text:`${d.lo}°`}));
+      week.append(dc);
+    }
+    container.append(week);
+  }
+  container.append(el("div",{class:"wx-ts",text:`Updated ${new Date(data.ts).toLocaleTimeString("en-US",{hour:"numeric",minute:"2-digit"})}`}));
+}
+function buildWxCard(city, idx) {
+  const card = el("div", { class:`wx-card${idx===0?" wx-main":""}` });
+  if (idx===0) card.append(el("div",{class:"wx-label",text:"Main · Orlando"}));
+  const errEl = el("div", { class:"wx-err" });
+  const cityRow = el("div", { class:"wx-city-row" });
+  const inp = el("input", { type:"text", placeholder:`City ${idx+1}…`, value: city.name||"" });
+  const setBtn = el("button", { class:"btn sm primary", text:"Set", onclick: async () => {
+    const name = inp.value.trim(); if (!name) return;
+    setBtn.textContent = "…"; setBtn.disabled = true; errEl.textContent = "";
+    try {
+      const { lat, lng } = await geocodeCity(name);
+      city.name = name; city.lat = lat; city.lng = lng;
+      delete wxCache[city.id]; save();
+      const newCard = buildWxCard(city, idx); card.replaceWith(newCard);
+    } catch(e) {
+      errEl.textContent = "City not found — check spelling"; setBtn.textContent = "Set"; setBtn.disabled = false;
+    }
+  }});
+  inp.addEventListener("keydown", e => { if (e.key==="Enter") setBtn.click(); });
+  cityRow.append(inp, setBtn); card.append(cityRow, errEl);
+  if (!city.name || city.lat===null) { card.append(el("div",{class:"wx-loading",text:"Enter a city name above"})); return card; }
+  const wxArea = el("div");
+  card.append(wxArea);
+  const cached = wxCache[city.id];
+  if (cached && Date.now()-cached.ts < WX_TTL) {
+    showWxData(wxArea, cached);
+  } else {
+    wxArea.append(el("div",{class:"wx-loading",text:"Loading weather…"}));
+    fetchCityWx(city).then(data => { wxArea.innerHTML=""; showWxData(wxArea, data); }).catch(() => { wxArea.innerHTML=""; wxArea.append(el("div",{class:"wx-err",text:"Failed to load — check connection"})); });
+  }
+  return card;
+}
+render.weather = () => {
+  const v = $("#view-weather");
+  v.innerHTML = "";
+  v.append(el("h1",{text:"Weather"}));
+  v.append(el("div",{class:"view-sub",text:"Live conditions + 7-day forecast for all crew markets. Click Set to save a city."}));
+  const hdr = el("div",{class:"flex-row",style:{justifyContent:"flex-end",marginBottom:"14px"}});
+  hdr.append(el("button",{class:"btn sm",text:"↻ Refresh all",onclick:()=>{ Object.keys(wxCache).forEach(k=>delete wxCache[k]); render.weather(); }}));
+  v.append(hdr);
+  if (!state.weather) state.weather = defaultState().weather;
+  const grid = el("div",{class:"weather-grid"});
+  state.weather.cities.forEach((city, i) => grid.append(buildWxCard(city, i)));
+  v.append(grid);
+};
+
 function defaultState() {
   return {
     version: 2,
@@ -402,6 +535,15 @@ function defaultState() {
     goals: [],
     notes: [],
     recurring: { daily: [], weekly: [], monthly: [] },
+    weather: { cities: [
+      { id:"w0", name:"Orlando", lat:28.5383, lng:-81.3792 },
+      { id:"w1", name:"", lat:null, lng:null },
+      { id:"w2", name:"", lat:null, lng:null },
+      { id:"w3", name:"", lat:null, lng:null },
+      { id:"w4", name:"", lat:null, lng:null },
+      { id:"w5", name:"", lat:null, lng:null },
+      { id:"w6", name:"", lat:null, lng:null },
+    ]},
     review: { entries: [] },
     settings: { theme: "auto", calmMode: false }
   };
@@ -917,6 +1059,25 @@ render.today = () => {
   if (!topTasks.length) tasksCard.append(el("div", { class:"empty", text:"All clear ✓" }));
   grid.append(tasksCard);
 
+  // Main city weather
+  const wxTodayCard = el("div", { class:"card" });
+  const mainCity = state.weather?.cities?.[0];
+  wxTodayCard.append(el("h3",{},[el("span",{text: mainCity?.name ? `Weather · ${mainCity.name}` : "Weather"}), el("button",{class:"btn ghost sm",text:"All cities →",onclick:()=>showView("weather")})]));
+  const wxTodayBody = el("div");
+  wxTodayCard.append(wxTodayBody);
+  if (mainCity?.lat !== null && mainCity?.lat !== undefined) {
+    const cached = wxCache[mainCity.id];
+    if (cached && Date.now()-cached.ts < WX_TTL) {
+      showWxData(wxTodayBody, cached, true);
+    } else {
+      wxTodayBody.append(el("div",{class:"wx-loading",text:"Loading weather…"}));
+      fetchCityWx(mainCity).then(data => { wxTodayBody.innerHTML=""; showWxData(wxTodayBody, data, true); }).catch(()=>{ wxTodayBody.innerHTML=""; wxTodayBody.append(el("div",{class:"wx-err",text:"Could not load weather"})); });
+    }
+  } else {
+    wxTodayBody.append(el("div",{class:"empty",text:"Set up cities in Weather view"}));
+  }
+  grid.append(wxTodayCard);
+
   // Today's schedule
   const schedCard = el("div", { class:"card" });
   schedCard.append(el("h3", {}, [el("span",{text:"Today's Schedule"}), el("button",{class:"btn ghost sm",text:"Plan →",onclick:()=>showView("schedule")})]));
@@ -964,6 +1125,7 @@ const cmdActions = [
   { kind:"View", key:"today", label:"Today", icon:"🏠", action:()=>showView("today") },
   { kind:"View", key:"tasks", label:"Tasks", icon:"✓", action:()=>showView("tasks") },
   { kind:"View", key:"schedule", label:"Schedule / Pomodoro", icon:"📅", action:()=>showView("schedule") },
+  { kind:"View", key:"weather", label:"Weather — crew markets", icon:"⛅", action:()=>showView("weather") },
   { kind:"View", key:"goals", label:"Goals", icon:"🎯", action:()=>showView("goals") },
   { kind:"View", key:"notes", label:"Notes", icon:"📝", action:()=>showView("notes") },
   { kind:"View", key:"review", label:"Weekly Review", icon:"📊", action:()=>showView("review") },
@@ -1022,7 +1184,7 @@ document.addEventListener("keydown", e => {
   if ((e.metaKey||e.ctrlKey) && e.key==="k") { e.preventDefault(); openCmd(); }
   if (e.key==="Escape") closeCmd();
   if (!$("#modal").classList.contains("open") && !$("#cmd").classList.contains("open") && document.activeElement.tagName!=="INPUT" && document.activeElement.tagName!=="TEXTAREA") {
-    const map = { "1":"today","2":"tasks","3":"schedule","4":"goals","5":"notes","6":"review" };
+    const map = { "1":"today","2":"tasks","3":"schedule","4":"weather","5":"goals","6":"notes","7":"review" };
     if (map[e.key]) { showView(map[e.key]); }
   }
 });
