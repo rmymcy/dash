@@ -280,6 +280,16 @@ header button.icon svg { width:18px; height:18px }
 .wx-err { color:var(--danger); font-size:12px; margin:4px 0 }
 .wx-ts { font-size:10px; color:var(--muted); margin-top:10px; text-align:right }
 
+/* Calendar */
+.cal-event { display:flex; align-items:baseline; gap:8px; padding:6px 0; border-bottom:1px solid var(--border) }
+.cal-event:last-child { border-bottom:none }
+.cal-time { font-size:12px; color:var(--muted); min-width:72px; flex-shrink:0 }
+.cal-title { font-size:14px; flex:1 }
+.cal-loc { font-size:11px; color:var(--muted); display:block; margin-top:1px }
+.cal-sync-row { display:flex; gap:8px; align-items:center; margin-bottom:10px }
+.cal-sync-row input { flex:1; font-size:13px }
+.cal-hint { font-size:11px; color:var(--muted); margin-bottom:10px; line-height:1.6 }
+
 /* Modals */
 .modal-overlay { position:fixed; inset:0; background:rgba(0,0,0,.4); z-index:50;
   display:none; align-items:center; justify-content:center; padding:16px; backdrop-filter:blur(2px) }
@@ -518,6 +528,67 @@ function buildWxCard(city, idx) {
   }
   return card;
 }
+
+// ============ CALENDAR (ICS) ============
+const calCache = { events: [], ts: 0 };
+const CAL_TTL = 30 * 60 * 1000;
+
+function parseICS(text) {
+  const raw = text.replace(/\r\n/g, '\n').replace(/\n[ \t]/g, '');
+  const unescape = s => s.replace(/\\n/g,' ').replace(/\\,/g,',').replace(/\\;/g,';').replace(/\\\\/g,'\\');
+  const get = (block, k) => { const m = block.match(new RegExp('^' + k + '[^:]*:(.+)$','m')); return m ? m[1].trim() : ''; };
+  const parseICSDate = dt => {
+    if (!dt) return null;
+    if (/^\d{8}$/.test(dt)) {
+      const iso = `${dt.slice(0,4)}-${dt.slice(4,6)}-${dt.slice(6,8)}`;
+      return { date: iso, allDay: true, ts: new Date(iso + 'T00:00:00').getTime() };
+    }
+    const m = dt.match(/^(\d{4})(\d{2})(\d{2})T(\d{2})(\d{2})(\d{2})(Z?)$/);
+    if (!m) return null;
+    const d = new Date(`${m[1]}-${m[2]}-${m[3]}T${m[4]}:${m[5]}:${m[6]}${m[7]||''}`);
+    return { date: dayStr(d), allDay: false, ts: d.getTime(),
+      timeStr: d.toLocaleTimeString('en-US', { hour:'numeric', minute:'2-digit' }) };
+  };
+  const events = [];
+  for (const block of (raw.match(/BEGIN:VEVENT[\s\S]*?END:VEVENT/g) || [])) {
+    const summary = unescape(get(block, 'SUMMARY'));
+    const location = unescape(get(block, 'LOCATION'));
+    const start = parseICSDate(get(block, 'DTSTART'));
+    const end = parseICSDate(get(block, 'DTEND'));
+    if (!summary || !start) continue;
+    events.push({ summary, location, start, end });
+  }
+  return events.sort((a, b) => a.start.ts - b.start.ts);
+}
+
+async function syncCalendar(forceRefresh = false) {
+  const url = state.calendar?.icsUrl?.trim();
+  if (!url) return;
+  if (!forceRefresh && calCache.ts && Date.now() - calCache.ts < CAL_TTL) return;
+  let text;
+  try { const r = await fetch(url, { cache:'no-store' }); if (r.ok) text = await r.text(); } catch(e) {}
+  if (!text) {
+    const r = await fetch(`https://corsproxy.io/?url=${encodeURIComponent(url)}`, { cache:'no-store' });
+    if (!r.ok) throw new Error(`HTTP ${r.status}`);
+    text = await r.text();
+  }
+  calCache.events = parseICS(text);
+  calCache.ts = Date.now();
+}
+
+function renderCalEvents(container, events, emptyMsg) {
+  if (!events.length) { container.append(el('div',{class:'empty',text:emptyMsg})); return; }
+  for (const ev of events) {
+    const row = el('div', { class:'cal-event' });
+    row.append(el('span', { class:'cal-time', text: ev.start.allDay ? 'All day' : (ev.start.timeStr||'') }));
+    const info = el('span', { class:'cal-title' });
+    info.append(document.createTextNode(ev.summary));
+    if (ev.location) info.append(el('span', { class:'cal-loc', text: ev.location }));
+    row.append(info);
+    container.append(row);
+  }
+}
+
 function defaultState() {
   return {
     version: 2,
@@ -536,6 +607,7 @@ function defaultState() {
       { id:"w6", name:"", lat:null, lng:null, region:"", country:"" },
     ]},
     review: { entries: [] },
+    calendar: { icsUrl: "" },
     settings: { theme: "auto", calmMode: false }
   };
 }
@@ -560,6 +632,7 @@ function normalizeState(s) {
   if (!s.notes) s.notes = [];
   if (!s.tasks) s.tasks = [];
   if (!s.review) s.review = d.review;
+  if (!s.calendar) s.calendar = d.calendar;
   return s;
 }
 function load() {
@@ -891,6 +964,50 @@ render.schedule = () => {
     }
   }
   v.append(grid);
+
+  // Calendar sync
+  v.append(el("div", { class:"section-title", style:{marginTop:"28px"}, text:"Outlook Calendar" }));
+  const calHint = el("div", { class:"cal-hint", html:'Paste your Outlook ICS link: Calendar → Settings → Shared calendars → Publish → ICS. If direct fetch is blocked, the dashboard uses a CORS proxy (corsproxy.io) — data passes through it.' });
+  v.append(calHint);
+  const syncRow = el("div", { class:"cal-sync-row" });
+  const urlInp = el("input", { type:"url", placeholder:"https://outlook.live.com/owa/calendar/…/calendar.ics", value: state.calendar?.icsUrl||"" });
+  const syncStatus = el("span", { style:{fontSize:"12px",color:"var(--muted)"} });
+  const syncBtn = el("button", { class:"btn primary sm", text:"Sync", onclick: async () => {
+    const u = urlInp.value.trim();
+    if (!u) return;
+    state.calendar.icsUrl = u; save();
+    syncBtn.textContent = "Syncing…"; syncBtn.disabled = true; syncStatus.textContent = "";
+    try {
+      await syncCalendar(true);
+      syncStatus.textContent = `✓ ${calCache.events.length} events loaded`;
+      syncStatus.style.color = "var(--success)";
+      renderCalList();
+    } catch(err) {
+      syncStatus.textContent = "Failed — check the URL and try again";
+      syncStatus.style.color = "var(--danger)";
+    }
+    syncBtn.textContent = "Sync"; syncBtn.disabled = false;
+  }});
+  urlInp.addEventListener("keydown", e => { if (e.key==="Enter") syncBtn.click(); });
+  syncRow.append(urlInp, syncBtn, syncStatus);
+  v.append(syncRow);
+  const calList = el("div");
+  v.append(calList);
+  function renderCalList() {
+    calList.innerHTML = "";
+    if (!calCache.ts) { calList.append(el("div",{class:"empty",text:"No calendar synced yet"})); return; }
+    const cutoff = new Date(); cutoff.setDate(cutoff.getDate()+14);
+    const upcoming = calCache.events.filter(e => e.start.ts >= new Date(today()+'T00:00:00').getTime() && e.start.ts <= cutoff.getTime());
+    calList.append(el("div",{class:"section-title",text:`Next 14 days (${upcoming.length} events)`}));
+    renderCalEvents(calList, upcoming, "No events in the next 14 days");
+    if (calCache.ts) calList.append(el("div",{class:"wx-ts",text:`Last synced ${new Date(calCache.ts).toLocaleTimeString("en-US",{hour:"numeric",minute:"2-digit"})}`}));
+  }
+  if (state.calendar?.icsUrl) {
+    syncCalendar().then(renderCalList).catch(() => renderCalList());
+  } else {
+    renderCalList();
+  }
+
   renderPomDisplay();
 };
 
@@ -1150,6 +1267,26 @@ render.today = () => {
     recurCard.append(el("div", { class:"empty", text:"No daily tasks yet" }));
   }
   grid.append(recurCard);
+
+  // Calendar
+  if (state.calendar?.icsUrl) {
+    const calCard = el("div", { class:"card" });
+    calCard.append(el("h3", {}, [el("span",{text:"Calendar · Today"}), el("button",{class:"btn ghost sm",text:"Sync →",onclick:()=>showView("schedule")})]));
+    const calBody = el("div");
+    calCard.append(calBody);
+    const showTodayCal = () => {
+      calBody.innerHTML = "";
+      const todayEv = calCache.events.filter(e => e.start.date === today());
+      renderCalEvents(calBody, todayEv, "No events today");
+    };
+    if (calCache.ts) {
+      showTodayCal();
+    } else {
+      calBody.append(el("div",{class:"wx-loading",text:"Loading calendar…"}));
+      syncCalendar().then(() => { calBody.innerHTML=""; showTodayCal(); }).catch(()=>{ calBody.innerHTML=""; calBody.append(el("div",{class:"wx-err",text:"Could not load calendar"})); });
+    }
+    grid.append(calCard);
+  }
 
   v.append(grid);
 };
