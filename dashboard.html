@@ -513,20 +513,6 @@ function buildWxCard(city, idx) {
   }
   return card;
 }
-render.weather = () => {
-  const v = $("#view-weather");
-  v.innerHTML = "";
-  v.append(el("h1",{text:"Weather"}));
-  v.append(el("div",{class:"view-sub",text:"Live conditions + 7-day forecast for all crew markets. Click Set to save a city."}));
-  const hdr = el("div",{class:"flex-row",style:{justifyContent:"flex-end",marginBottom:"14px"}});
-  hdr.append(el("button",{class:"btn sm",text:"↻ Refresh all",onclick:()=>{ Object.keys(wxCache).forEach(k=>delete wxCache[k]); render.weather(); }}));
-  v.append(hdr);
-  if (!state.weather) state.weather = defaultState().weather;
-  const grid = el("div",{class:"weather-grid"});
-  state.weather.cities.forEach((city, i) => grid.append(buildWxCard(city, i)));
-  v.append(grid);
-};
-
 function defaultState() {
   return {
     version: 2,
@@ -626,6 +612,19 @@ $("#modal").addEventListener("click", e => { if (e.target.id==="modal") closeMod
 
 // ============ TASKS ============
 const render = {};
+render.weather = () => {
+  const v = $("#view-weather");
+  v.innerHTML = "";
+  v.append(el("h1",{text:"Weather"}));
+  v.append(el("div",{class:"view-sub",text:"Live conditions + 7-day forecast for all crew markets. Click Set to save a city."}));
+  const hdr = el("div",{class:"flex-row",style:{justifyContent:"flex-end",marginBottom:"14px"}});
+  hdr.append(el("button",{class:"btn sm",text:"↻ Refresh all",onclick:()=>{ Object.keys(wxCache).forEach(k=>delete wxCache[k]); render.weather(); }}));
+  v.append(hdr);
+  if (!state.weather) state.weather = defaultState().weather;
+  const grid = el("div",{class:"weather-grid"});
+  state.weather.cities.forEach((city, i) => grid.append(buildWxCard(city, i)));
+  v.append(grid);
+};
 render.tasks = () => {
   const v = $("#view-tasks");
   v.innerHTML = "";
