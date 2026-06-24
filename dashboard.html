@@ -180,59 +180,24 @@ header button.icon svg { width:18px; height:18px }
   border-radius:var(--radius-sm); min-height:40px; margin-bottom:6px; display:none }
 .kanban-col.drag-over .drop-zone { display:block }
 
-/* Heatmap */
-.heatmap { display:flex; gap:2px; flex-wrap:wrap }
-.heatmap .day { width:12px; height:12px; border-radius:2px; background:var(--surface-2); border:1px solid var(--border) }
-.heatmap .day.l1 { background:#c6e3d2; border-color:#c6e3d2 }
-.heatmap .day.l2 { background:#7fc69b; border-color:#7fc69b }
-.heatmap .day.l3 { background:#2f7a4a; border-color:#2f7a4a }
-.heatmap .day.l4 { background:#1a5230; border-color:#1a5230 }
-:root.dark .heatmap .day { background:#222 }
-:root.dark .heatmap .day.l1 { background:#1e3527; border-color:#1e3527 }
-:root.dark .heatmap .day.l2 { background:#2d5d3e; border-color:#2d5d3e }
-:root.dark .heatmap .day.l3 { background:#4caf6a; border-color:#4caf6a }
-:root.dark .heatmap .day.l4 { background:#7dd49b; border-color:#7dd49b }
-
-/* Habit grid */
-.habit-row { display:flex; align-items:center; gap:10px; padding:10px; background:var(--surface-2);
-  border-radius:var(--radius-sm); margin-bottom:6px }
-.habit-row .icon { font-size:22px; width:30px; text-align:center }
-.habit-row .name { flex:1; font-weight:500; font-size:14px }
-.habit-row .streak { font-size:12px; color:var(--success); font-weight:600; white-space:nowrap;
-  background:var(--success-soft); padding:2px 8px; border-radius:99px }
-.habit-row .week { display:flex; gap:3px }
-.habit-row .dot { width:24px; height:24px; border-radius:50%; border:2px solid var(--border);
-  display:flex; align-items:center; justify-content:center; font-size:9px; color:var(--muted);
-  cursor:pointer; transition:.1s }
-.habit-row .dot.done { background:var(--success); border-color:var(--success); color:#fff }
-.habit-row .dot.today { border-color:var(--accent); border-width:2px }
-.habit-row .del { color:var(--muted); padding:4px; opacity:.5 }
-.habit-row .del:hover { opacity:1; color:var(--danger) }
-@media(max-width:600px){ .habit-row .week { display:none } }
-
-
-/* Diet */
-.macros { display:grid; grid-template-columns:repeat(4,1fr); gap:10px; margin-bottom:14px }
-.macro-card { background:var(--surface-2); border-radius:var(--radius-sm); padding:10px; text-align:center }
-.macro-card .val { font-size:18px; font-weight:700 }
-.macro-card .max { font-size:11px; color:var(--muted) }
-.macro-card .bar { height:4px; background:var(--border); border-radius:2px; margin-top:6px; overflow:hidden }
-.macro-card .bar .fill { height:100%; background:var(--accent) }
-.macro-card.cal .fill { background:var(--warning) }
-.macro-card.protein .fill { background:var(--success) }
-.macro-card.carbs .fill { background:var(--accent) }
-.macro-card.fat .fill { background:var(--purple) }
-.water-tracker { display:flex; gap:6px; margin:10px 0; flex-wrap:wrap }
-.water-glass { width:30px; height:36px; border:2px solid var(--accent); border-top:none;
-  border-radius:0 0 6px 6px; cursor:pointer; transition:.15s; position:relative }
-.water-glass.filled { background:linear-gradient(180deg,transparent 20%,var(--accent) 20%) }
-.meal-row { display:flex; align-items:center; gap:10px; padding:10px; background:var(--surface-2);
-  border-radius:var(--radius-sm); margin-bottom:4px }
-.meal-row .meal-time { font-size:11px; color:var(--muted); text-transform:uppercase; min-width:60px; font-weight:600 }
-.meal-row .meal-name { flex:1; font-size:14px }
-.meal-row .meal-cal { font-variant-numeric:tabular-nums; font-weight:600; font-size:13px }
-
-.sparkline { width:100%; height:50px; display:block }
+/* Recurring tasks */
+.recur-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; margin-top:20px }
+@media(max-width:760px) { .recur-grid { grid-template-columns:1fr } }
+.recur-card { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:14px }
+.recur-card h3 { font-size:11px; text-transform:uppercase; letter-spacing:.6px; color:var(--muted); font-weight:600; margin-bottom:6px; display:flex; justify-content:space-between; align-items:center }
+.recur-progress { height:4px; background:var(--border); border-radius:2px; margin-bottom:10px; overflow:hidden }
+.recur-progress .fill { height:100%; background:var(--success); border-radius:2px; transition:.3s }
+.recur-item { display:flex; align-items:center; gap:8px; padding:7px 0; border-bottom:1px solid var(--border) }
+.recur-item:last-child { border-bottom:none }
+.recur-item .cb { width:20px; height:20px; border-radius:4px; border:2px solid var(--border); cursor:pointer; flex-shrink:0; display:flex; align-items:center; justify-content:center; transition:.1s; font-size:11px }
+.recur-item .cb.done { background:var(--success); border-color:var(--success); color:#fff }
+.recur-item .lbl { flex:1; font-size:14px }
+.recur-item.done .lbl { text-decoration:line-through; color:var(--muted) }
+.recur-item .del { color:var(--muted); opacity:.35; padding:2px 5px; font-size:12px; border-radius:3px }
+.recur-item .del:hover { opacity:1; color:var(--danger); background:var(--danger-soft) }
+.recur-add { display:flex; gap:6px; margin-top:10px }
+.recur-add input { flex:1; padding:7px 10px; font-size:13px; min-height:32px }
+.recur-add button { font-size:13px; min-height:32px }
 
 /* Schedule */
 .week-grid { display:grid; grid-template-columns:60px repeat(7,1fr); gap:0; background:var(--border) }
@@ -289,16 +254,6 @@ header button.icon svg { width:18px; height:18px }
 .note-card .bottom button:hover { color:var(--accent); background:var(--accent-soft) }
 .note-card .tags { display:flex; gap:4px; margin-top:6px; flex-wrap:wrap }
 
-/* Reading */
-.book-row { display:flex; gap:12px; padding:12px; background:var(--surface); border:1px solid var(--border);
-  border-radius:var(--radius-sm); margin-bottom:6px; align-items:center }
-.book-row .cover { width:38px; height:50px; background:linear-gradient(135deg,var(--purple),var(--accent));
-  border-radius:3px; flex-shrink:0; display:flex; align-items:center; justify-content:center;
-  color:#fff; font-size:14px; font-weight:700 }
-.book-row .info { flex:1 }
-.book-row .title { font-weight:600; font-size:14px }
-.book-row .author { font-size:12px; color:var(--muted) }
-.book-row .progress { font-size:11px; color:var(--accent); font-weight:600 }
 
 
 /* Modals */
@@ -344,8 +299,7 @@ header button.icon svg { width:18px; height:18px }
   <span class="greeting" id="greeting"></span>
   <span class="spacer"></span>
   <span class="h-stat" id="stat-tasks"><span>Tasks today: <strong id="hsTasks">0</strong></span></span>
-  <span class="h-stat streak" id="stat-streak" style="display:none"></span>
-  <button class="icon" id="cmdBtn" title="Quick add (Ctrl+K)">
+<button class="icon" id="cmdBtn" title="Quick add (Ctrl+K)">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
   </button>
   <button class="icon" id="exportBtn" title="Export data">
@@ -364,13 +318,9 @@ header button.icon svg { width:18px; height:18px }
     <button class="nav-btn active" data-view="today"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>Today</button>
     <button class="nav-btn" data-view="tasks"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>Tasks<span class="badge" id="navBadgeTasks" style="display:none">0</span></button>
     <button class="nav-btn" data-view="schedule"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>Schedule</button>
-    <div class="group-label">Wellness</div>
-    <button class="nav-btn" data-view="habits"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>Habits</button>
-    <button class="nav-btn" data-view="diet"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a10 10 0 100 20 10 10 0 000-20zm0 0v10l5 3"/></svg>Diet</button>
-    <div class="group-label">Mind</div>
+    <div class="group-label">Work</div>
     <button class="nav-btn" data-view="goals"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>Goals</button>
     <button class="nav-btn" data-view="notes"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/></svg>Notes</button>
-    <button class="nav-btn" data-view="reading"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 016.5 17H20M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/></svg>Reading</button>
     <button class="nav-btn" data-view="review"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 14l4-4 4 4 5-5"/></svg>Review</button>
   </aside>
 
@@ -381,16 +331,10 @@ header button.icon svg { width:18px; height:18px }
     <section class="view" id="view-tasks"></section>
     <!-- SCHEDULE VIEW -->
     <section class="view" id="view-schedule"></section>
-    <!-- HABITS VIEW -->
-    <section class="view" id="view-habits"></section>
-    <!-- DIET VIEW -->
-    <section class="view" id="view-diet"></section>
     <!-- GOALS VIEW -->
     <section class="view" id="view-goals"></section>
     <!-- NOTES VIEW -->
     <section class="view" id="view-notes"></section>
-    <!-- READING VIEW -->
-    <section class="view" id="view-reading"></section>
     <!-- REVIEW VIEW -->
     <section class="view" id="view-review"></section>
   </main>
@@ -401,11 +345,8 @@ header button.icon svg { width:18px; height:18px }
     <button data-view="today" class="active"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/></svg>Today</button>
     <button data-view="tasks"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>Tasks</button>
     <button data-view="schedule"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="3" y1="10" x2="21" y2="10"/></svg>Plan</button>
-    <button data-view="habits"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>Habits</button>
-    <button data-view="diet"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a10 10 0 100 20 10 10 0 000-20zm0 0v10l5 3"/></svg>Diet</button>
     <button data-view="goals"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>Goals</button>
     <button data-view="notes"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/></svg>Notes</button>
-    <button data-view="reading"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 016.5 17H20M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/></svg>Read</button>
     <button data-view="review"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 14l4-4 4 4 5-5"/></svg>Review</button>
   </div>
 </nav>
@@ -418,7 +359,7 @@ header button.icon svg { width:18px; height:18px }
 <!-- Command palette -->
 <div id="cmd">
   <div class="panel">
-    <input id="cmdInput" type="text" placeholder="Quick add: 'task buy milk', 'water', 'note ...', 'meal ...', or jump to view">
+    <input id="cmdInput" type="text" placeholder="Quick add: 'task buy milk', 'note ...', or jump to a view">
     <div class="results" id="cmdResults"></div>
   </div>
 </div>
@@ -450,17 +391,17 @@ const daysBetween = (a,b) => Math.round((new Date(b)-new Date(a))/864e5);
 const esc = s => { const d = document.createElement("div"); d.textContent = s||""; return d.innerHTML; };
 const clamp = (v,a,b) => Math.max(a, Math.min(b,v));
 const sum = arr => arr.reduce((a,b)=>a+(+b||0),0);
+const currentWeek = () => { const d = new Date(), day = d.getDay(), m = new Date(d); m.setDate(d.getDate()-(day===0?6:day-1)); return dayStr(m); };
+const currentMonth = () => today().slice(0,7);
 
 function defaultState() {
   return {
     version: 2,
     tasks: [],
     schedule: { blocks: [], pomodoro: { work:25, brk:5, longBrk:15, sessions:4 } },
-    habits: [],
     goals: [],
     notes: [],
-    diet: { meals: [], water: {}, settings: { calGoal:2000, proteinGoal:120, carbGoal:250, fatGoal:65, waterGoal:8 } },
-    reading: { books: [] },
+    recurring: { daily: [], weekly: [], monthly: [] },
     review: { entries: [] },
     settings: { theme: "auto", calmMode: false }
   };
@@ -476,7 +417,6 @@ function load() {
       const s = defaultState();
       s.tasks = d.tasks || [];
       s.schedule = d.schedule || s.schedule;
-      s.habits = d.habits || [];
       s.goals = d.goals || [];
       s.notes = d.notes || [];
       return s;
@@ -510,10 +450,6 @@ function renderHeader() {
   $("#greeting").textContent = `${greet} — ${d}`;
   const todoToday = state.tasks.filter(t => t.status!=="done" && (!t.deadline || t.deadline<=today())).length;
   $("#hsTasks").textContent = todoToday;
-  const streaks = state.habits.map(h => getStreak(h.checkins||[])).filter(s=>s>0);
-  const sb = $("#stat-streak");
-  if (streaks.length) { sb.style.display=""; sb.innerHTML = `&#x1F525; <strong>${Math.max(...streaks)}d</strong>&nbsp;best streak`; }
-  else sb.style.display = "none";
   const taskBadge = state.tasks.filter(t => t.status!=="done" && t.deadline && t.deadline<today()).length;
   if (taskBadge > 0) { $("#navBadgeTasks").style.display=""; $("#navBadgeTasks").textContent = taskBadge; }
   else $("#navBadgeTasks").style.display = "none";
@@ -610,7 +546,58 @@ render.tasks = () => {
     kanban.append(col);
   }
   v.append(kanban);
+
+  v.append(el("div", { class:"section-title", style:{marginTop:"24px"}, text:"Recurring" }));
+  renderRecurring(v);
 };
+
+function renderRecurring(container) {
+  const sections = [
+    { key:"daily",   label:"Daily",   period:today(),        hint:"Resets each day" },
+    { key:"weekly",  label:"Weekly",  period:currentWeek(),  hint:"Resets each Monday" },
+    { key:"monthly", label:"Monthly", period:currentMonth(), hint:"Resets each month" },
+  ];
+  const grid = el("div", { class:"recur-grid" });
+  for (const { key, label, period, hint } of sections) {
+    if (!state.recurring[key]) state.recurring[key] = [];
+    const items = state.recurring[key];
+    const doneCount = items.filter(i => i.lastChecked === period).length;
+    const total = items.length;
+    const card = el("div", { class:"recur-card" });
+    const head = el("h3");
+    head.append(el("span", { text: label }));
+    head.append(el("span", { class: doneCount===total&&total>0?"chip success":"chip", text:`${doneCount}/${total}` }));
+    card.append(head);
+    const prog = el("div", { class:"recur-progress" });
+    prog.append(el("div", { class:"fill", style:{width: total ? `${Math.round(doneCount/total*100)}%`:"0%"} }));
+    card.append(prog);
+    const list = el("div");
+    for (const item of items) {
+      const done = item.lastChecked === period;
+      const row = el("div", { class:`recur-item${done?" done":""}` });
+      const cb = el("div", { class:`cb${done?" done":""}` });
+      if (done) cb.innerHTML = "&#x2713;";
+      cb.addEventListener("click", () => { item.lastChecked = done ? null : period; save(); render.tasks(); });
+      row.append(cb, el("span", { class:"lbl", text:item.title }));
+      row.append(el("button", { class:"del", html:"&#x2715;", onclick:() => { state.recurring[key]=state.recurring[key].filter(x=>x.id!==item.id); save(); render.tasks(); }}));
+      list.append(row);
+    }
+    if (!items.length) list.append(el("div", { class:"empty", style:{padding:"8px 0",fontSize:"13px"}, text:`No ${label.toLowerCase()} tasks yet` }));
+    card.append(list);
+    const addRow = el("div", { class:"recur-add" });
+    const inp = el("input", { type:"text", placeholder:`Add ${label.toLowerCase()} task…` });
+    const addBtn = el("button", { class:"btn primary sm", text:"Add", onclick:() => {
+      if (!inp.value.trim()) return;
+      state.recurring[key].push({ id:genId("rc"), title:inp.value.trim(), lastChecked:null });
+      inp.value=""; save(); render.tasks();
+    }});
+    inp.addEventListener("keydown", e => { if (e.key==="Enter") addBtn.click(); });
+    addRow.append(inp, addBtn);
+    card.append(addRow);
+    grid.append(card);
+  }
+  container.append(grid);
+}
 
 // ============ SCHEDULE ============
 let pomState = { running:false, remaining:0, mode:"work", session:1, interval:null, start:0, base:0 };
@@ -738,157 +725,7 @@ render.schedule = () => {
   renderPomDisplay();
 };
 
-// ============ HABITS ============
-function getStreak(checkins) {
-  if (!checkins || !checkins.length) return 0;
-  const sorted = [...new Set(checkins)].sort().reverse();
-  let streak = 0;
-  let d = new Date();
-  if (sorted[0] !== today() && sorted[0] !== dayStr(new Date(Date.now()-864e5))) return 0;
-  if (sorted[0] === dayStr(new Date(Date.now()-864e5))) d.setDate(d.getDate()-1);
-  for (const ds of sorted) {
-    if (ds === dayStr(d)) { streak++; d.setDate(d.getDate()-1); }
-    else break;
-  }
-  return streak;
-}
-render.habits = () => {
-  const v = $("#view-habits");
-  v.innerHTML = "";
-  v.append(el("h1", { text: "Habits" }));
-  v.append(el("div", { class:"view-sub", text:"Small consistent wins. Tap a dot to check in." }));
 
-  const form = el("div", { class:"flex-row", style:{marginBottom:"16px"} });
-  const n = el("input", { type:"text", placeholder:"New habit (e.g. Read 20 minutes)", style:{flex:"1",minWidth:"200px"} });
-  const ic = el("input", { type:"text", placeholder:"📚", maxlength:"2", style:{width:"60px",textAlign:"center"} });
-  const add = el("button", { class:"btn primary", text:"Add", onclick:() => {
-    if (!n.value.trim()) return;
-    state.habits.push({ id:genId("h"), name:n.value.trim(), icon:ic.value.trim()||"⭐", checkins:[], createdAt:new Date().toISOString() });
-    n.value=""; ic.value=""; save(); render.habits(); renderHeader();
-  }});
-  n.addEventListener("keydown", e => { if (e.key==="Enter") add.click(); });
-  form.append(n, ic, add);
-  v.append(form);
-
-  // Habit rows
-  for (const h of state.habits) {
-    const row = el("div", { class:"habit-row" });
-    row.append(el("span", { class:"icon", text: h.icon || "⭐" }));
-    row.append(el("span", { class:"name", text: h.name }));
-    const week = el("div", { class:"week" });
-    for (let i=6;i>=0;i--) {
-      const d = new Date(); d.setDate(d.getDate()-i); const ds = dayStr(d);
-      const done = h.checkins?.includes(ds);
-      const isToday = ds === today();
-      const dot = el("div", { class:`dot${done?" done":""}${isToday?" today":""}`, text: d.toLocaleDateString("en",{weekday:"narrow"}) });
-      dot.addEventListener("click", () => {
-        if (!h.checkins) h.checkins = [];
-        if (h.checkins.includes(ds)) h.checkins = h.checkins.filter(x=>x!==ds);
-        else h.checkins.push(ds);
-        save(); render.habits(); renderHeader();
-      });
-      week.append(dot);
-    }
-    row.append(week);
-    const streak = getStreak(h.checkins);
-    if (streak > 0) row.append(el("span", { class:"streak", html: `🔥 ${streak}d` }));
-    row.append(el("button", { class:"del", html:"&#x2715;", onclick:() => {
-      if (confirm(`Delete "${h.name}"?`)) { state.habits = state.habits.filter(x=>x.id!==h.id); save(); render.habits(); renderHeader(); }
-    }}));
-    v.append(row);
-
-    // Heatmap (last 12 weeks)
-    const hm = el("div", { class:"heatmap", style:{marginBottom:"14px",marginLeft:"40px"} });
-    for (let i=83;i>=0;i--) {
-      const d = new Date(); d.setDate(d.getDate()-i); const ds = dayStr(d);
-      const done = h.checkins?.includes(ds);
-      hm.append(el("div", { class:`day${done?" l3":""}`, title:`${ds}${done?" ✓":""}` }));
-    }
-    v.append(hm);
-  }
-  if (!state.habits.length) v.append(el("div", { class:"empty", text:"No habits yet. Try \"Drink water\", \"Walk 10 min\", or \"Read 1 page\"." }));
-};
-
-// ============ DIET ============
-render.diet = () => {
-  const v = $("#view-diet");
-  v.innerHTML = "";
-  v.append(el("h1", { text:"Diet" }));
-  v.append(el("div", { class:"view-sub", text:"Log meals and water. Aim for steady progress, not perfection." }));
-
-  const todayMeals = state.diet.meals.filter(m => m.date===today());
-  const totals = { cal: sum(todayMeals.map(m=>m.cal)), protein: sum(todayMeals.map(m=>m.protein)),
-    carbs: sum(todayMeals.map(m=>m.carbs)), fat: sum(todayMeals.map(m=>m.fat)) };
-  const g = state.diet.settings;
-
-  // Macros
-  const macros = el("div", { class:"macros" });
-  for (const [k, label, max, cls] of [["cal","Calories",g.calGoal,"cal"],["protein","Protein (g)",g.proteinGoal,"protein"],["carbs","Carbs (g)",g.carbGoal,"carbs"],["fat","Fat (g)",g.fatGoal,"fat"]]) {
-    const mc = el("div", { class:`macro-card ${cls}` });
-    mc.append(el("div", { class:"val", text: Math.round(totals[k]) }));
-    mc.append(el("div", { class:"max", text: `/ ${max} ${label}` }));
-    const bar = el("div", { class:"bar" });
-    bar.append(el("div", { class:"fill", style: { width: `${clamp(totals[k]/max*100,0,100)}%` } }));
-    mc.append(bar);
-    macros.append(mc);
-  }
-  v.append(macros);
-
-  // Water
-  v.append(el("div", { class:"section-title", text: `Water — ${state.diet.water[today()]||0} / ${g.waterGoal} glasses` }));
-  const water = el("div", { class:"water-tracker" });
-  for (let i=0;i<Math.max(g.waterGoal,(state.diet.water[today()]||0));i++) {
-    const gl = el("div", { class: `water-glass${i < (state.diet.water[today()]||0) ? " filled":""}` });
-    gl.addEventListener("click", () => {
-      const cur = state.diet.water[today()]||0;
-      state.diet.water[today()] = cur > i ? i : i+1;
-      save(); render.diet();
-    });
-    water.append(gl);
-  }
-  v.append(water);
-
-  // Add meal
-  v.append(el("div", { class:"section-title", text:"Add Meal" }));
-  const form = el("div", { class:"flex-row" });
-  const time = el("select"); for (const x of ["Breakfast","Lunch","Dinner","Snack"]) time.append(el("option",{value:x,text:x}));
-  const name = el("input", { type:"text", placeholder:"What did you eat?", style:{flex:"1",minWidth:"180px"} });
-  const cal = el("input", { type:"number", placeholder:"Cal", style:{width:"80px"} });
-  const pro = el("input", { type:"number", placeholder:"P", style:{width:"60px"} });
-  const carb = el("input", { type:"number", placeholder:"C", style:{width:"60px"} });
-  const fat = el("input", { type:"number", placeholder:"F", style:{width:"60px"} });
-  const add = el("button", { class:"btn primary", text:"Log", onclick:() => {
-    if (!name.value.trim()) return;
-    state.diet.meals.push({ id:genId("m"), date:today(), time:time.value, name:name.value.trim(),
-      cal:+cal.value||0, protein:+pro.value||0, carbs:+carb.value||0, fat:+fat.value||0 });
-    name.value=""; cal.value=""; pro.value=""; carb.value=""; fat.value="";
-    save(); render.diet();
-  }});
-  form.append(time, name, cal, pro, carb, fat, add);
-  v.append(form);
-
-  // Today's meals
-  v.append(el("div", { class:"section-title", text:"Today" }));
-  for (const m of todayMeals) {
-    const row = el("div", { class:"meal-row" });
-    row.append(el("span", { class:"meal-time", text: m.time }));
-    row.append(el("span", { class:"meal-name", text: m.name }));
-    row.append(el("span", { class:"meal-cal", text: `${m.cal} cal` }));
-    row.append(el("button", { class:"btn ghost", html:"&#x2715;", style:{padding:"2px 6px",minHeight:"24px"}, onclick:() => {
-      state.diet.meals = state.diet.meals.filter(x=>x.id!==m.id); save(); render.diet();
-    }}));
-    v.append(row);
-  }
-  if (!todayMeals.length) v.append(el("div", { class:"empty", text:"No meals logged today" }));
-
-  // Weekly sparkline
-  v.append(el("div", { class:"section-title", text:"Past 14 Days — Calories" }));
-  const days = []; for (let i=13;i>=0;i--) { const d=new Date(); d.setDate(d.getDate()-i); days.push(dayStr(d)); }
-  const calsByDay = days.map(ds => sum(state.diet.meals.filter(m=>m.date===ds).map(m=>m.cal)));
-  const card = el("div", { class:"card" });
-  card.append(sparkline(calsByDay, { goal: g.calGoal, height: 80, label: "cal" }));
-  v.append(card);
-};
 
 
 
@@ -983,52 +820,6 @@ render.notes = () => {
   renderList();
 };
 
-// ============ READING ============
-render.reading = () => {
-  const v = $("#view-reading");
-  v.innerHTML = "";
-  v.append(el("h1", { text:"Reading" }));
-  v.append(el("div", { class:"view-sub", text:"Track books in progress and what you've finished." }));
-
-  const form = el("div", { class:"flex-row", style:{marginBottom:"12px"} });
-  const t = el("input", { type:"text", placeholder:"Book title", style:{flex:"2",minWidth:"160px"} });
-  const a = el("input", { type:"text", placeholder:"Author", style:{flex:"1",minWidth:"120px"} });
-  const p = el("input", { type:"number", placeholder:"Pages", style:{width:"90px"} });
-  const add = el("button", { class:"btn primary", text:"Add", onclick:() => {
-    if (!t.value.trim()) return;
-    state.reading.books.push({ id:genId("bk"), title:t.value.trim(), author:a.value.trim(), pages:+p.value||0, read:0, status:"reading", addedAt:new Date().toISOString() });
-    t.value=""; a.value=""; p.value=""; save(); render.reading();
-  }});
-  form.append(t, a, p, add);
-  v.append(form);
-
-  for (const [status, label] of [["reading","Currently Reading"],["want","Want to Read"],["done","Finished"]]) {
-    const books = state.reading.books.filter(b => b.status===status);
-    if (!books.length && status==="done") continue;
-    v.append(el("div", { class:"section-title", text: `${label} — ${books.length}` }));
-    for (const b of books) {
-      const row = el("div", { class:"book-row" });
-      row.append(el("div", { class:"cover", text: (b.title[0]||"?").toUpperCase() }));
-      const info = el("div", { class:"info" });
-      info.append(el("div", { class:"title", text: b.title }));
-      info.append(el("div", { class:"author", text: b.author || "Unknown" }));
-      if (b.pages && status==="reading") info.append(el("div", { class:"progress", text: `${b.read || 0}/${b.pages} pages (${Math.round((b.read||0)/b.pages*100)}%)` }));
-      row.append(info);
-      if (status==="reading") {
-        const pg = el("input", { type:"number", placeholder:"page", style:{width:"70px"}, value:b.read||"" });
-        pg.addEventListener("change", () => { b.read = +pg.value; save(); });
-        row.append(pg);
-        row.append(el("button", { class:"btn sm", text:"Done", onclick:() => { b.status="done"; b.finishedAt=new Date().toISOString(); save(); render.reading(); }}));
-      } else if (status==="want") {
-        row.append(el("button", { class:"btn sm primary", text:"Start", onclick:() => { b.status="reading"; save(); render.reading(); }}));
-      }
-      row.append(el("button", { class:"btn ghost", html:"&#x2715;", onclick:() => { state.reading.books = state.reading.books.filter(x=>x.id!==b.id); save(); render.reading(); }}));
-      v.append(row);
-    }
-  }
-
-  if (!state.reading.books.length) v.append(el("div", { class:"empty", text:"No books yet" }));
-};
 
 
 // ============ REVIEW ============
@@ -1041,12 +832,12 @@ render.review = () => {
   // Last 7 days stats
   const last7 = []; for (let i=6;i>=0;i--) { const d = new Date(); d.setDate(d.getDate()-i); last7.push(dayStr(d)); }
   const tasksDone = state.tasks.filter(t => t.status==="done" && t.completedAt && t.completedAt.slice(0,10) >= last7[0]).length;
-  const habitChecks = state.habits.reduce((acc,h) => acc + (h.checkins||[]).filter(d => last7.includes(d)).length, 0);
 
   const grid = el("div", { class:"today-grid" });
+  const dailyDoneWk = (state.recurring?.daily||[]).filter(i => i.lastChecked && i.lastChecked >= last7[0]).length;
   for (const [label, val, sub] of [
     ["Tasks completed", tasksDone, "this week"],
-    ["Habit check-ins", habitChecks, "across all habits"],
+    ["Daily tasks done", dailyDoneWk, "across all days"],
     ["Notes added", state.notes.filter(n=>n.createdAt.slice(0,10) >= last7[0]).length, "captures"],
   ]) {
     const c = el("div", { class:"card" });
@@ -1126,44 +917,6 @@ render.today = () => {
   if (!topTasks.length) tasksCard.append(el("div", { class:"empty", text:"All clear ✓" }));
   grid.append(tasksCard);
 
-  // Habits today
-  const habCard = el("div", { class:"card" });
-  habCard.append(el("h3", {}, [el("span",{text:"Habits"}), el("button",{class:"btn ghost sm",text:"All →",onclick:()=>showView("habits")})]));
-  for (const h of state.habits.slice(0,6)) {
-    const done = h.checkins?.includes(today());
-    const r = el("div", { class:"row", style:{padding:"6px 0"} });
-    const dot = el("div", { class:"dot"+(done?" done":""), style:{width:"22px",height:"22px",borderRadius:"50%",border:"2px solid "+(done?"var(--success)":"var(--border)"),background:done?"var(--success)":"transparent",display:"flex",alignItems:"center",justifyContent:"center",color:"#fff",fontSize:"11px",cursor:"pointer",flexShrink:"0"} });
-    if (done) dot.innerHTML = "&#x2713;";
-    dot.addEventListener("click", () => {
-      if (!h.checkins) h.checkins=[];
-      if (done) h.checkins = h.checkins.filter(x=>x!==today()); else h.checkins.push(today());
-      save(); render.today(); renderHeader();
-    });
-    r.append(dot);
-    r.append(el("span", { text: h.icon||"⭐", style:{fontSize:"18px"} }));
-    r.append(el("span", { style:{flex:"1",fontSize:"14px"}, text: h.name }));
-    const s = getStreak(h.checkins);
-    if (s>0) r.append(el("span", { class:"chip success", text: `🔥 ${s}d` }));
-    habCard.append(r);
-  }
-  if (!state.habits.length) habCard.append(el("div", { class:"empty", text:"Add habits to track" }));
-  grid.append(habCard);
-
-  // Water
-  const waterCard = el("div", { class:"card" });
-  const wc = state.diet.water[today()]||0; const wg = state.diet.settings.waterGoal;
-  waterCard.append(el("h3", {}, [el("span",{text:"Water"}), el("span",{class:"chip"+(wc>=wg?" success":""),text:`${wc}/${wg}`})]));
-  const wrow = el("div", { class:"water-tracker" });
-  for (let i=0;i<wg;i++) {
-    const g = el("div", { class:"water-glass"+(i<wc?" filled":"") });
-    g.addEventListener("click", () => {
-      state.diet.water[today()] = wc>i ? i : i+1; save(); render.today();
-    });
-    wrow.append(g);
-  }
-  waterCard.append(wrow);
-  grid.append(waterCard);
-
   // Today's schedule
   const schedCard = el("div", { class:"card" });
   schedCard.append(el("h3", {}, [el("span",{text:"Today's Schedule"}), el("button",{class:"btn ghost sm",text:"Plan →",onclick:()=>showView("schedule")})]));
@@ -1178,83 +931,42 @@ render.today = () => {
   if (!todayBlocks.length) schedCard.append(el("div", { class:"empty", text:"No blocks scheduled" }));
   grid.append(schedCard);
 
-  // Diet snapshot
-  const dietCard = el("div", { class:"card" });
-  dietCard.append(el("h3", {}, [el("span",{text:"Diet Today"}), el("button",{class:"btn ghost sm",text:"All →",onclick:()=>showView("diet")})]));
-  const meals = state.diet.meals.filter(m=>m.date===today());
-  const cal = sum(meals.map(m=>m.cal));
-  const calGoal = state.diet.settings.calGoal;
-  dietCard.append(el("div", { class:"stat-row" }, [el("span",{class:"stat-big",text:cal}), el("span",{class:"muted",text:`/${calGoal} cal`})]));
-  const bar = el("div", { class:"goal-bar", style:{marginTop:"6px"} });
-  bar.append(el("div", { class:"fill", style:{width:`${clamp(cal/calGoal*100,0,100)}%`,background:"var(--warning)"} }));
-  dietCard.append(bar);
-  dietCard.append(el("div", { class:"muted", style:{fontSize:"11px",marginTop:"6px"}, text: `${meals.length} meal${meals.length!==1?"s":""} logged` }));
-  grid.append(dietCard);
+  // Daily recurring snapshot
+  const recurCard = el("div", { class:"card" });
+  const dailyItems = state.recurring?.daily || [];
+  const dailyDone = dailyItems.filter(i => i.lastChecked === today()).length;
+  recurCard.append(el("h3", {}, [el("span",{text:"Daily Tasks"}), el("button",{class:"btn ghost sm",text:"All →",onclick:()=>showView("tasks")})]));
+  if (dailyItems.length) {
+    const prog = el("div", { class:"recur-progress" });
+    prog.append(el("div", { class:"fill", style:{width:`${Math.round(dailyDone/dailyItems.length*100)}%`} }));
+    recurCard.append(prog);
+    for (const item of dailyItems.slice(0,6)) {
+      const done = item.lastChecked === today();
+      const r = el("div", { class:`recur-item${done?" done":""}`, style:{borderBottom:"1px solid var(--border)",padding:"6px 0"} });
+      const cb = el("div", { class:`cb${done?" done":""}` });
+      if (done) cb.innerHTML = "&#x2713;";
+      cb.addEventListener("click", () => { item.lastChecked = done ? null : today(); save(); render.today(); });
+      r.append(cb, el("span", { class:"lbl", text:item.title }));
+      recurCard.append(r);
+    }
+    recurCard.append(el("div", { class:"muted", style:{fontSize:"11px",marginTop:"8px"}, text:`${dailyDone}/${dailyItems.length} done today` }));
+  } else {
+    recurCard.append(el("div", { class:"empty", text:"No daily tasks yet" }));
+  }
+  grid.append(recurCard);
 
   v.append(grid);
 };
 
-// ============ UTILITIES ============
-function sparkline(values, opts={}) {
-  const { color = "var(--accent)", height = 50, goal = null, fill = false, label = "" } = opts;
-  const w = 280, h = height;
-  const nonNull = values.filter(v=>v!==null);
-  if (!nonNull.length) {
-    const svg = document.createElementNS("http://www.w3.org/2000/svg","svg");
-    svg.setAttribute("class","sparkline"); svg.setAttribute("viewBox",`0 0 ${w} ${h}`);
-    return svg;
-  }
-  const max = Math.max(...nonNull, goal||0) * 1.1 || 1;
-  const min = Math.min(...nonNull, 0);
-  const pad = 4;
-  const stepX = (w - pad*2) / Math.max(values.length-1,1);
-  const points = values.map((v,i) => v===null ? null : [pad + i*stepX, h - pad - ((v-min)/(max-min))*(h-pad*2)]);
-  let pathD = "";
-  let started = false;
-  for (const p of points) {
-    if (p === null) { started = false; continue; }
-    pathD += (started?" L ":" M ")+p[0]+" "+p[1]; started = true;
-  }
-  const svg = document.createElementNS("http://www.w3.org/2000/svg","svg");
-  svg.setAttribute("class","sparkline"); svg.setAttribute("viewBox",`0 0 ${w} ${h}`); svg.setAttribute("preserveAspectRatio","none");
-  if (goal !== null) {
-    const gy = h - pad - ((goal-min)/(max-min))*(h-pad*2);
-    const gl = document.createElementNS("http://www.w3.org/2000/svg","line");
-    gl.setAttribute("x1",0); gl.setAttribute("x2",w); gl.setAttribute("y1",gy); gl.setAttribute("y2",gy);
-    gl.setAttribute("stroke","var(--muted)"); gl.setAttribute("stroke-dasharray","3,3"); gl.setAttribute("stroke-width","1");
-    svg.appendChild(gl);
-  }
-  if (fill && started) {
-    const fillD = pathD + ` L ${w-pad} ${h-pad} L ${pad} ${h-pad} Z`;
-    const f = document.createElementNS("http://www.w3.org/2000/svg","path");
-    f.setAttribute("d", fillD); f.setAttribute("fill", color); f.setAttribute("opacity","0.15");
-    svg.appendChild(f);
-  }
-  const path = document.createElementNS("http://www.w3.org/2000/svg","path");
-  path.setAttribute("d", pathD); path.setAttribute("fill","none"); path.setAttribute("stroke", color); path.setAttribute("stroke-width","2"); path.setAttribute("stroke-linejoin","round");
-  svg.appendChild(path);
-  // Dots
-  for (const p of points) {
-    if (!p) continue;
-    const c = document.createElementNS("http://www.w3.org/2000/svg","circle");
-    c.setAttribute("cx",p[0]); c.setAttribute("cy",p[1]); c.setAttribute("r","2"); c.setAttribute("fill",color);
-    svg.appendChild(c);
-  }
-  return svg;
-}
 
 // ============ COMMAND PALETTE ============
 const cmdActions = [
   { kind:"View", key:"today", label:"Today", icon:"🏠", action:()=>showView("today") },
   { kind:"View", key:"tasks", label:"Tasks", icon:"✓", action:()=>showView("tasks") },
   { kind:"View", key:"schedule", label:"Schedule / Pomodoro", icon:"📅", action:()=>showView("schedule") },
-  { kind:"View", key:"habits", label:"Habits", icon:"🔥", action:()=>showView("habits") },
-  { kind:"View", key:"diet", label:"Diet", icon:"🍽", action:()=>showView("diet") },
   { kind:"View", key:"goals", label:"Goals", icon:"🎯", action:()=>showView("goals") },
   { kind:"View", key:"notes", label:"Notes", icon:"📝", action:()=>showView("notes") },
-  { kind:"View", key:"reading", label:"Reading", icon:"📖", action:()=>showView("reading") },
   { kind:"View", key:"review", label:"Weekly Review", icon:"📊", action:()=>showView("review") },
-  { kind:"Action", key:"water", label:"Log a glass of water", icon:"💧", action:()=>{state.diet.water[today()]=(state.diet.water[today()]||0)+1; save(); renderHeader(); render.today();} },
   { kind:"Action", key:"pom", label:"Start/pause Pomodoro", icon:"⏱", action:pomToggle },
   { kind:"Action", key:"theme", label:"Toggle theme", icon:"🌓", action:()=>$("#themeBtn").click() },
   { kind:"Action", key:"export", label:"Export data", icon:"⬇", action:()=>$("#exportBtn").click() },
@@ -1278,13 +990,6 @@ function renderCmd(q) {
     state.notes.push({ id:genId("n"), content:q.slice(5), createdAt:new Date().toISOString(), pinned:false, tags:[] });
     save(); render.notes(); closeCmd();
   }});
-  if (ql.startsWith("meal ")) results.push({ kind:"Quick add", label:`Log meal: "${q.slice(5)}"`, icon:"+", action: () => {
-    state.diet.meals.push({ id:genId("m"), date:today(), time:"Snack", name:q.slice(5), cal:0, protein:0, carbs:0, fat:0 });
-    save(); render.diet(); closeCmd();
-  }});
-  if (ql === "water" || ql.startsWith("water")) results.push({ kind:"Action", label:"Log a glass of water", icon:"💧", action: () => {
-    state.diet.water[today()] = (state.diet.water[today()]||0)+1; save(); renderHeader(); render.today(); closeCmd();
-  }});
 
   // View matches
   for (const a of cmdActions) {
@@ -1307,8 +1012,6 @@ $("#cmdInput").addEventListener("keydown", e => {
   let n = 0;
   if (ql.startsWith("task ")) n++;
   if (ql.startsWith("note ")) n++;
-  if (ql.startsWith("meal ")) n++;
-  if (ql==="water"||ql.startsWith("water")) n++;
   for (const a of cmdActions) if (!ql || a.label.toLowerCase().includes(ql) || a.key.includes(ql)) n++;
   if (e.key==="ArrowDown") { cmdSel = Math.min(n-1, cmdSel+1); renderCmd(e.target.value); e.preventDefault(); }
   if (e.key==="ArrowUp") { cmdSel = Math.max(0, cmdSel-1); renderCmd(e.target.value); e.preventDefault(); }
@@ -1319,7 +1022,7 @@ document.addEventListener("keydown", e => {
   if ((e.metaKey||e.ctrlKey) && e.key==="k") { e.preventDefault(); openCmd(); }
   if (e.key==="Escape") closeCmd();
   if (!$("#modal").classList.contains("open") && !$("#cmd").classList.contains("open") && document.activeElement.tagName!=="INPUT" && document.activeElement.tagName!=="TEXTAREA") {
-    const map = { "1":"today","2":"tasks","3":"schedule","4":"habits","5":"diet","6":"goals","7":"notes","8":"reading","9":"review" };
+    const map = { "1":"today","2":"tasks","3":"schedule","4":"goals","5":"notes","6":"review" };
     if (map[e.key]) { showView(map[e.key]); }
   }
 });
