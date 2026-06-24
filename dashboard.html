@@ -261,6 +261,7 @@ header button.icon svg { width:18px; height:18px }
 .wx-card { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:16px }
 .wx-card.wx-main { border-color:var(--accent); border-left-width:3px }
 .wx-label { font-size:10px; text-transform:uppercase; letter-spacing:.6px; color:var(--accent); font-weight:700; margin-bottom:6px }
+.wx-location { font-size:11px; color:var(--muted); margin:-6px 0 8px; letter-spacing:.2px }
 .wx-city-row { display:flex; gap:6px; align-items:center; margin-bottom:10px }
 .wx-city-row input { flex:1; font-size:14px; font-weight:600; padding:6px 10px; min-height:34px }
 .wx-city-row button { min-height:34px; font-size:12px }
@@ -440,7 +441,8 @@ async function geocodeCity(name) {
   const r = await fetch(`https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(name)}&count=1&language=en&format=json`);
   const d = await r.json();
   if (!d.results?.length) throw new Error("not found");
-  return { lat: d.results[0].latitude, lng: d.results[0].longitude };
+  const res = d.results[0];
+  return { lat: res.latitude, lng: res.longitude, region: res.admin1 || "", country: res.country_code || "" };
 }
 async function fetchCityWx(city) {
   const url = `https://api.open-meteo.com/v1/forecast?latitude=${city.lat}&longitude=${city.lng}&current=temperature_2m,weathercode,windspeed_10m&daily=weathercode,temperature_2m_max,temperature_2m_min&temperature_unit=fahrenheit&windspeed_unit=mph&timezone=auto&forecast_days=7`;
@@ -483,7 +485,6 @@ function showWxData(container, data, compact=false) {
 }
 function buildWxCard(city, idx) {
   const card = el("div", { class:`wx-card${idx===0?" wx-main":""}` });
-  if (idx===0) card.append(el("div",{class:"wx-label",text:"Main · Orlando"}));
   const errEl = el("div", { class:"wx-err" });
   const cityRow = el("div", { class:"wx-city-row" });
   const inp = el("input", { type:"text", placeholder:`City ${idx+1}…`, value: city.name||"" });
@@ -491,8 +492,8 @@ function buildWxCard(city, idx) {
     const name = inp.value.trim(); if (!name) return;
     setBtn.textContent = "…"; setBtn.disabled = true; errEl.textContent = "";
     try {
-      const { lat, lng } = await geocodeCity(name);
-      city.name = name; city.lat = lat; city.lng = lng;
+      const { lat, lng, region, country } = await geocodeCity(name);
+      city.name = name; city.lat = lat; city.lng = lng; city.region = region; city.country = country;
       delete wxCache[city.id]; save();
       const newCard = buildWxCard(city, idx); card.replaceWith(newCard);
     } catch(e) {
@@ -501,6 +502,10 @@ function buildWxCard(city, idx) {
   }});
   inp.addEventListener("keydown", e => { if (e.key==="Enter") setBtn.click(); });
   cityRow.append(inp, setBtn); card.append(cityRow, errEl);
+  if (city.name && city.lat !== null) {
+    const parts = [city.region, city.country].filter(Boolean).join(", ");
+    if (parts) card.append(el("div", { class:"wx-location", text: parts }));
+  }
   if (!city.name || city.lat===null) { card.append(el("div",{class:"wx-loading",text:"Enter a city name above"})); return card; }
   const wxArea = el("div");
   card.append(wxArea);
@@ -522,13 +527,13 @@ function defaultState() {
     notes: [],
     recurring: { daily: [], weekly: [], monthly: [] },
     weather: { cities: [
-      { id:"w0", name:"Orlando", lat:28.5383, lng:-81.3792 },
-      { id:"w1", name:"", lat:null, lng:null },
-      { id:"w2", name:"", lat:null, lng:null },
-      { id:"w3", name:"", lat:null, lng:null },
-      { id:"w4", name:"", lat:null, lng:null },
-      { id:"w5", name:"", lat:null, lng:null },
-      { id:"w6", name:"", lat:null, lng:null },
+      { id:"w0", name:"Orlando", lat:28.5383, lng:-81.3792, region:"Florida", country:"US" },
+      { id:"w1", name:"", lat:null, lng:null, region:"", country:"" },
+      { id:"w2", name:"", lat:null, lng:null, region:"", country:"" },
+      { id:"w3", name:"", lat:null, lng:null, region:"", country:"" },
+      { id:"w4", name:"", lat:null, lng:null, region:"", country:"" },
+      { id:"w5", name:"", lat:null, lng:null, region:"", country:"" },
+      { id:"w6", name:"", lat:null, lng:null, region:"", country:"" },
     ]},
     review: { entries: [] },
     settings: { theme: "auto", calmMode: false }
@@ -544,6 +549,10 @@ function normalizeState(s) {
   if (!s.recurring.monthly) s.recurring.monthly = [];
   if (!s.weather) s.weather = d.weather;
   if (!s.weather.cities) s.weather.cities = d.weather.cities;
+  for (const c of s.weather.cities) {
+    if (c.region === undefined) c.region = "";
+    if (c.country === undefined) c.country = "";
+  }
   if (!s.settings) s.settings = d.settings;
   if (s.settings.theme === undefined) s.settings.theme = "auto";
   if (s.settings.calmMode === undefined) s.settings.calmMode = false;
