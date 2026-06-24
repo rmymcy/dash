@@ -979,6 +979,14 @@ render.notes = () => {
       b.append(el("span", { text: fmtDateTime(n.createdAt) }));
       const btns = el("span");
       btns.append(el("button", { html: n.pinned?"&#x1F4CC;":"&#x1F4CD;", title: n.pinned?"Unpin":"Pin", onclick:() => { n.pinned = !n.pinned; save(); renderList(q); }}));
+      btns.append(el("button", { html:"&#x270E;", title:"Edit", onclick:() => {
+        const ta2 = el("textarea", { style:{width:"100%",minHeight:"120px"} });
+        ta2.value = n.content;
+        modal("Edit Note", ta2, () => {
+          const v2 = ta2.value.trim(); if (!v2) return false;
+          n.content = v2; save(); renderList(q);
+        });
+      }}));
       btns.append(el("button", { html:"&#x2715;", title:"Delete", onclick:() => { state.notes = state.notes.filter(x=>x.id!==n.id); save(); renderList(q); }}));
       b.append(btns);
       c.append(b);
