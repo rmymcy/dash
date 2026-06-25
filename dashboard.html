@@ -964,12 +964,12 @@ async function gistPush() {
       method:'PATCH', headers: GIST_HDR(token),
       body: JSON.stringify({ files: { [GIST_FILE]: { content: JSON.stringify(state) } } })
     });
-    if (!r.ok) return;
+    if (!r.ok) { console.warn('gistPush failed', r.status, await r.text()); return; }
     state.sync.lastSynced = new Date().toISOString();
     try { localStorage.setItem(KEY, JSON.stringify(state)); } catch(e) {}
     const el2 = document.getElementById('gistSyncStatus');
-    if (el2) { el2.textContent = `Last synced ${new Date().toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'})}`; el2.style.color='var(--success)'; }
-  } catch(e) {}
+    if (el2) { el2.textContent = `↑ Synced ${new Date().toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'})}`; el2.style.color='var(--success)'; }
+  } catch(e) { console.warn('gistPush error', e); }
 }
 
 async function gistPull() {
@@ -977,7 +977,7 @@ async function gistPull() {
   if (!token || !gistId) return false;
   try {
     const r = await fetch(`https://api.github.com/gists/${gistId}`, { headers: GIST_HDR(token) });
-    if (!r.ok) return false;
+    if (!r.ok) { console.warn('gistPull failed', r.status, await r.text()); return false; }
     const d = await r.json();
     const raw = d.files?.[GIST_FILE]?.content;
     if (!raw) return false;
@@ -987,13 +987,17 @@ async function gistPull() {
     state.sync = localSync;
     try { localStorage.setItem(KEY, JSON.stringify(state)); } catch(e) {}
     return true;
-  } catch(e) { return false; }
+  } catch(e) { console.warn('gistPull error', e); return false; }
 }
 
 async function connectGist(token, existingGistId) {
+  // Validate token first
+  const meR = await fetch('https://api.github.com/user', { headers: GIST_HDR(token) });
+  if (!meR.ok) throw new Error(`Token rejected by GitHub (${meR.status}) — make sure it's a Classic token with gist scope`);
+
   if (existingGistId) {
     const r = await fetch(`https://api.github.com/gists/${existingGistId}`, { headers: GIST_HDR(token) });
-    if (!r.ok) throw new Error('Gist not found — check the ID and token');
+    if (!r.ok) throw new Error(`Gist not found (${r.status}) — check the Gist ID is correct`);
     const d = await r.json();
     const raw = d.files?.[GIST_FILE]?.content;
     state.sync.token = token; state.sync.gistId = existingGistId;
@@ -1011,7 +1015,7 @@ async function connectGist(token, existingGistId) {
       body: JSON.stringify({ description:'Dashboard state (auto-managed)', public:false,
         files: { [GIST_FILE]: { content: JSON.stringify(state) } } })
     });
-    if (!r.ok) throw new Error('Failed to create Gist — check the token has gist scope');
+    if (!r.ok) throw new Error(`Failed to create Gist (${r.status}) — token may be missing gist scope`);
     const d = await r.json();
     state.sync.token = token; state.sync.gistId = d.id;
   }
@@ -1800,43 +1804,56 @@ render.settings = () => {
 
   // --- Cloud Sync ---
   v.append(el("div", { class:"section-title", style:{marginTop:"24px"}, text:"Cloud Sync (GitHub Gist)" }));
-  v.append(el("div", { class:"cal-hint", html:'Syncs your data to a private GitHub Gist so every device stays in sync. <a href="https://github.com/settings/tokens/new?scopes=gist&description=Dashboard+Sync" target="_blank" rel="noopener">Create a token</a> with only the <code>gist</code> scope checked.' }));
-  const tokenInp = el("input", { type:"password", placeholder:"GitHub token  (ghp_…)", value:state.sync?.token||"", style:{flex:"1"} });
-  const gistInp  = el("input", { type:"text",     placeholder:"Gist ID — auto-filled on first connect", value:state.sync?.gistId||"", style:{flex:"1",marginTop:"6px",fontFamily:"monospace",fontSize:"12px"} });
+  v.append(el("div", { class:"cal-hint", html:'Syncs your data to a private GitHub Gist. Step 1: <a href="https://github.com/settings/tokens/new?scopes=gist&description=Dashboard+Sync" target="_blank" rel="noopener">Create a Classic token</a> with only <code>gist</code> scope. Step 2: paste it below and click Connect. Step 3: copy the Gist ID to your other devices.' }));
+
   const syncStatusEl = el("span", { id:"gistSyncStatus", style:{fontSize:"12px"} });
   const setSyncSt = (msg, ok) => { syncStatusEl.textContent = msg; syncStatusEl.style.color = ok?"var(--success)":"var(--danger)"; };
-  if (state.sync?.lastSynced) setSyncSt(`Last synced ${new Date(state.sync.lastSynced).toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'})}`, true);
-  else if (state.sync?.gistId) setSyncSt("Connected — not yet synced this session", true);
+  if (state.sync?.lastSynced) setSyncSt(`↑ Last synced ${new Date(state.sync.lastSynced).toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'})}`, true);
+  else if (state.sync?.gistId) setSyncSt("Connected", true);
 
+  // Token row
+  const tokenInp = el("input", { type:"password", placeholder:"Paste GitHub token (ghp_… or github_pat_…)", value:state.sync?.token||"", style:{flex:"1"} });
   const connectBtn = el("button", { class:"btn primary sm", text:"Connect", onclick: async () => {
     const token = tokenInp.value.trim();
     if (!token) { setSyncSt("Paste your token first", false); return; }
-    connectBtn.textContent="Connecting…"; connectBtn.disabled=true; setSyncSt("","true");
+    connectBtn.textContent="Connecting…"; connectBtn.disabled=true; setSyncSt("Validating token…", true);
     try {
       const gistId = await connectGist(token, gistInp.value.trim()||null);
       gistInp.value = gistId;
-      setSyncSt("✓ Connected", true);
+      setSyncSt("✓ Connected and synced", true);
+      render.settings(); // rebuild to show copy button + pull/disconnect
       renderAll();
-    } catch(e) { setSyncSt(e.message||"Failed — check token", false); }
-    connectBtn.textContent="Connect"; connectBtn.disabled=false;
+    } catch(e) { setSyncSt(e.message||"Failed", false); connectBtn.textContent="Connect"; connectBtn.disabled=false; }
   }});
-  const disconnectSyncBtn = el("button", { class:"btn sm", text:"Disconnect", onclick:() => {
-    if (!confirm("Stop syncing? Local data is kept, Gist is not deleted.")) return;
-    state.sync = { token:"", gistId:"", lastSynced:null };
-    save(); render.settings();
-  }});
-  const pullBtn = el("button", { class:"btn sm", text:"↓ Pull now", title:"Overwrite local data with Gist", onclick: async () => {
-    pullBtn.textContent="Pulling…"; pullBtn.disabled=true;
-    const ok = await gistPull();
-    if (ok) { setSyncSt("✓ Pulled", true); renderAll(); } else setSyncSt("Pull failed", false);
-    pullBtn.textContent="↓ Pull now"; pullBtn.disabled=false;
-  }});
-  const syncRow1 = el("div", { class:"flex-row", style:{gap:"8px",alignItems:"center"} });
-  syncRow1.append(tokenInp, connectBtn);
-  if (state.sync?.gistId) syncRow1.append(pullBtn, disconnectSyncBtn);
-  v.append(syncRow1);
+  const tokenRow = el("div", { class:"flex-row", style:{gap:"8px",marginBottom:"6px"} });
+  tokenRow.append(tokenInp, connectBtn);
+  v.append(tokenRow);
+
+  // Gist ID row
+  const gistInp = el("input", { type:"text", placeholder:"Gist ID — auto-filled after Connect (or paste from another device)", value:state.sync?.gistId||"", style:{width:"100%",fontFamily:"monospace",fontSize:"12px",marginBottom:"6px"} });
   v.append(gistInp);
-  v.append(el("div", { style:{marginTop:"4px"} }, [syncStatusEl]));
+
+  // Action row (only when connected)
+  if (state.sync?.gistId) {
+    const copyBtn = el("button", { class:"btn sm", text:"Copy Gist ID", onclick:() => {
+      navigator.clipboard.writeText(state.sync.gistId).then(() => { copyBtn.textContent="Copied!"; setTimeout(()=>copyBtn.textContent="Copy Gist ID",1500); });
+    }});
+    const pullBtn = el("button", { class:"btn sm", text:"↓ Pull now", onclick: async () => {
+      pullBtn.textContent="Pulling…"; pullBtn.disabled=true;
+      const ok = await gistPull();
+      if (ok) { setSyncSt("✓ Pulled latest data", true); renderAll(); } else setSyncSt("Pull failed — check console", false);
+      pullBtn.textContent="↓ Pull now"; pullBtn.disabled=false;
+    }});
+    const disconnectSyncBtn = el("button", { class:"btn sm danger", text:"Disconnect", onclick:() => {
+      if (!confirm("Stop syncing? Local data is kept, Gist is not deleted.")) return;
+      state.sync = { token:"", gistId:"", lastSynced:null }; save(); render.settings();
+    }});
+    const actionRow = el("div", { class:"flex-row", style:{gap:"8px",marginBottom:"6px"} });
+    actionRow.append(copyBtn, pullBtn, disconnectSyncBtn);
+    v.append(actionRow);
+  }
+
+  v.append(syncStatusEl);
 
   // --- Data ---
   v.append(el("div", { class:"section-title", style:{marginTop:"24px"}, text:"Data" }));
