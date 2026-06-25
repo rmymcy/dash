@@ -291,6 +291,32 @@ header button.icon svg { width:18px; height:18px }
 .cal-sync-row input { flex:1; font-size:13px }
 .cal-hint { font-size:11px; color:var(--muted); margin-bottom:10px; line-height:1.6 }
 
+/* Pinned links */
+.links-bar { display:flex; flex-wrap:wrap; gap:8px; margin-bottom:18px; align-items:center }
+.link-chip { display:inline-flex; align-items:center; gap:5px; padding:6px 14px;
+  background:var(--surface); border:1px solid var(--border); border-radius:99px;
+  font-size:13px; font-weight:500; color:var(--ink); text-decoration:none; transition:.15s; flex-shrink:0 }
+.link-chip:hover { border-color:var(--accent); color:var(--accent); background:var(--accent-soft) }
+.link-chip .del { margin-left:4px; opacity:0; font-size:11px; line-height:1; color:var(--muted); background:none; border:none; cursor:pointer; padding:0 }
+.link-chip:hover .del { opacity:1 }
+.link-add-btn { padding:6px 12px; border-radius:99px; border:1px dashed var(--border); background:none;
+  color:var(--muted); font-size:13px; cursor:pointer; transition:.15s; flex-shrink:0 }
+.link-add-btn:hover { border-color:var(--accent); color:var(--accent) }
+
+/* Crew contacts */
+.crew-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(260px,1fr)); gap:14px }
+.crew-card { background:var(--surface); border-radius:var(--radius); padding:16px;
+  border:1px solid var(--border); box-shadow:var(--shadow) }
+.crew-card .crew-market { font-size:16px; font-weight:700; margin-bottom:10px; display:flex; justify-content:space-between; align-items:center }
+.crew-card .crew-detail { font-size:13px; color:var(--ink-2); margin-bottom:3px }
+.crew-card .crew-note { font-size:12px; color:var(--muted); margin-top:8px; font-style:italic; line-height:1.5 }
+.crew-card .crew-actions { display:flex; gap:6px; margin-top:12px }
+.crew-status { display:inline-block; padding:2px 9px; border-radius:99px; font-size:11px; font-weight:600 }
+.crew-status.active   { background:var(--success-soft); color:var(--success) }
+.crew-status.short    { background:var(--warning-soft); color:var(--warning) }
+.crew-status.hold     { background:var(--purple-soft); color:var(--purple) }
+.crew-status.inactive { background:var(--danger-soft); color:var(--danger) }
+
 /* Modals */
 .modal-overlay { position:fixed; inset:0; background:rgba(0,0,0,.4); z-index:50;
   display:none; align-items:center; justify-content:center; padding:16px; backdrop-filter:blur(2px) }
@@ -354,6 +380,7 @@ header button.icon svg { width:18px; height:18px }
     <button class="nav-btn" data-view="tasks"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>Tasks<span class="badge" id="navBadgeTasks" style="display:none">0</span></button>
     <button class="nav-btn" data-view="schedule"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>Schedule</button>
     <button class="nav-btn" data-view="weather"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17.5 19H9a7 7 0 113.6-13A5 5 0 0117.5 19z"/></svg>Weather</button>
+    <button class="nav-btn" data-view="crews"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg>Crews</button>
     <div class="group-label">Work</div>
     <button class="nav-btn" data-view="goals"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>Goals</button>
     <button class="nav-btn" data-view="notes"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/></svg>Notes</button>
@@ -377,6 +404,8 @@ header button.icon svg { width:18px; height:18px }
     <section class="view" id="view-notes"></section>
     <!-- REVIEW VIEW -->
     <section class="view" id="view-review"></section>
+    <!-- CREWS VIEW -->
+    <section class="view" id="view-crews"></section>
     <!-- SETTINGS VIEW -->
     <section class="view" id="view-settings"></section>
   </main>
@@ -388,6 +417,7 @@ header button.icon svg { width:18px; height:18px }
     <button data-view="tasks"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>Tasks</button>
     <button data-view="schedule"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="3" y1="10" x2="21" y2="10"/></svg>Plan</button>
     <button data-view="weather"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17.5 19H9a7 7 0 113.6-13A5 5 0 0117.5 19z"/></svg>Weather</button>
+    <button data-view="crews"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg>Crews</button>
     <button data-view="goals"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>Goals</button>
     <button data-view="notes"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/></svg>Notes</button>
     <button data-view="review"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 14l4-4 4 4 5-5"/></svg>Review</button>
@@ -614,6 +644,8 @@ function defaultState() {
     ]},
     review: { entries: [] },
     calendar: { icsUrl: "" },
+    crews: [],
+    links: [],
     settings: { theme: "auto", calmMode: false }
   };
 }
@@ -639,6 +671,8 @@ function normalizeState(s) {
   if (!s.tasks) s.tasks = [];
   if (!s.review) s.review = d.review;
   if (!s.calendar) s.calendar = d.calendar;
+  if (!s.crews) s.crews = [];
+  if (!s.links) s.links = [];
   return s;
 }
 function load() {
@@ -1166,6 +1200,33 @@ render.today = () => {
   gc.append(el("p", { text: bits.join(" · ") }));
   v.append(gc);
 
+  // Pinned links
+  {
+    const bar = el("div", { class:"links-bar", style:{marginTop:"12px"} });
+    for (const lk of state.links) {
+      const chip = el("a", { class:"link-chip", href:lk.url, target:"_blank", rel:"noopener" });
+      chip.append(document.createTextNode(lk.label));
+      const del = el("button", { class:"del", html:"&#x2715;", title:"Remove", onclick: e => {
+        e.preventDefault(); e.stopPropagation();
+        state.links = state.links.filter(x=>x.id!==lk.id); save(); render.today();
+      }});
+      chip.append(del);
+      bar.append(chip);
+    }
+    bar.append(el("button", { class:"link-add-btn", text:"+ Add link", onclick:() => {
+      const lbl = el("input", { type:"text", placeholder:"Label (e.g. ADP)" });
+      const url = el("input", { type:"url",  placeholder:"https://…" });
+      const body = el("div", { style:{display:"flex",flexDirection:"column",gap:"8px"} });
+      body.append(lbl, url);
+      modal("Add quick link", body, () => {
+        if (!lbl.value.trim() || !url.value.trim()) return false;
+        state.links.push({ id:genId("lk"), label:lbl.value.trim(), url:url.value.trim() });
+        save(); render.today();
+      }, { saveText:"Add" });
+    }}));
+    v.append(bar);
+  }
+
   const grid = el("div", { class:"today-grid", style:{marginTop:"14px"} });
 
   // Top tasks
@@ -1349,6 +1410,73 @@ render.settings = () => {
   v.append(dataRow);
 };
 
+// ============ CREWS ============
+render.crews = () => {
+  const v = $("#view-crews");
+  v.innerHTML = "";
+  v.append(el("h1", { text:"Crews" }));
+  v.append(el("div", { class:"view-sub", text:"One card per market. Tap a phone number to call." }));
+
+  const addBtn = el("button", { class:"btn primary", text:"+ Add crew", onclick:() => openCrewModal(null) });
+  v.append(addBtn);
+
+  if (!state.crews.length) {
+    v.append(el("div", { class:"empty", style:{marginTop:"24px"}, text:"No crews yet — add your first market above" }));
+    return;
+  }
+
+  const grid = el("div", { class:"crew-grid", style:{marginTop:"16px"} });
+  const STATUS_LABELS = { active:"Active", short:"Short-staffed", hold:"On hold", inactive:"Inactive" };
+  for (const c of state.crews) {
+    const card = el("div", { class:"crew-card" });
+    const topRow = el("div", { class:"crew-market" });
+    topRow.append(el("span", { text: c.market || "Unnamed market" }));
+    topRow.append(el("span", { class:`crew-status ${c.status||"active"}`, text: STATUS_LABELS[c.status||"active"] }));
+    card.append(topRow);
+    if (c.lead) card.append(el("div", { class:"crew-detail", text:`Lead: ${c.lead}` }));
+    if (c.phone) {
+      const ph = el("div", { class:"crew-detail" });
+      ph.append(document.createTextNode("Phone: "));
+      ph.append(el("a", { href:`tel:${c.phone.replace(/\D/g,"")}`, text:c.phone, style:{color:"var(--accent)"} }));
+      card.append(ph);
+    }
+    if (c.note) card.append(el("div", { class:"crew-note", text:c.note }));
+    const actions = el("div", { class:"crew-actions" });
+    actions.append(el("button", { class:"btn sm", text:"Edit", onclick:() => openCrewModal(c) }));
+    actions.append(el("button", { class:"btn sm ghost", text:"Delete", onclick:() => {
+      if (confirm(`Remove ${c.market}?`)) { state.crews = state.crews.filter(x=>x.id!==c.id); save(); render.crews(); }
+    }}));
+    card.append(actions);
+    grid.append(card);
+  }
+  v.append(grid);
+
+  function openCrewModal(crew) {
+    const isNew = !crew;
+    if (isNew) crew = { id:genId("cr"), market:"", lead:"", phone:"", status:"active", note:"" };
+    const mkt  = el("input", { type:"text", placeholder:"Market / city name", value:crew.market });
+    const lead = el("input", { type:"text", placeholder:"Crew lead name", value:crew.lead });
+    const ph   = el("input", { type:"tel",  placeholder:"555-867-5309", value:crew.phone });
+    const stat = el("select");
+    for (const [val,lbl] of [["active","Active"],["short","Short-staffed"],["hold","On hold"],["inactive","Inactive"]])
+      stat.append(el("option", { value:val, text:lbl, selected:crew.status===val }));
+    const note = el("textarea", { placeholder:"Notes (equipment shortage, recent hire, etc.)", style:{width:"100%",minHeight:"70px"} });
+    note.value = crew.note;
+    const body = el("div", { class:"flex-col", style:{gap:"8px",display:"flex",flexDirection:"column"} });
+    body.append(mkt, lead, ph, stat, note);
+    modal(isNew ? "Add crew" : "Edit crew", body, () => {
+      crew.market = mkt.value.trim();
+      crew.lead   = lead.value.trim();
+      crew.phone  = ph.value.trim();
+      crew.status = stat.value;
+      crew.note   = note.value.trim();
+      if (!crew.market) return false;
+      if (isNew) state.crews.push(crew);
+      save(); render.crews();
+    }, { saveText: isNew ? "Add" : "Save" });
+  }
+};
+
 // ============ COMMAND PALETTE ============
 const cmdActions = [
   { kind:"View", key:"today", label:"Today", icon:"🏠", action:()=>showView("today") },
@@ -1358,6 +1486,7 @@ const cmdActions = [
   { kind:"View", key:"goals", label:"Goals", icon:"🎯", action:()=>showView("goals") },
   { kind:"View", key:"notes", label:"Notes", icon:"📝", action:()=>showView("notes") },
   { kind:"View", key:"review", label:"Weekly Review", icon:"📊", action:()=>showView("review") },
+  { kind:"View", key:"crews", label:"Crews", icon:"👥", action:()=>showView("crews") },
   { kind:"View", key:"settings", label:"Settings", icon:"⚙", action:()=>showView("settings") },
   { kind:"Action", key:"pom", label:"Start/pause Pomodoro", icon:"⏱", action:pomToggle },
   { kind:"Action", key:"theme", label:"Toggle theme", icon:"🌓", action:()=>$("#themeBtn").click() },
@@ -1414,7 +1543,7 @@ document.addEventListener("keydown", e => {
   if ((e.metaKey||e.ctrlKey) && e.key==="k") { e.preventDefault(); openCmd(); }
   if (e.key==="Escape") closeCmd();
   if (!$("#modal").classList.contains("open") && !$("#cmd").classList.contains("open") && document.activeElement.tagName!=="INPUT" && document.activeElement.tagName!=="TEXTAREA") {
-    const map = { "1":"today","2":"tasks","3":"schedule","4":"weather","5":"goals","6":"notes","7":"review","8":"settings" };
+    const map = { "1":"today","2":"tasks","3":"schedule","4":"weather","5":"crews","6":"goals","7":"notes","8":"review","9":"settings" };
     if (map[e.key]) { showView(map[e.key]); }
   }
 });
