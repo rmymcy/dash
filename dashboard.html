@@ -126,7 +126,7 @@ header button.icon svg { width:18px; height:18px }
 @media(max-width:700px){ .today-grid .span-2 { grid-column:span 1 }}
 
 /* Stat strip */
-.stat-strip { display:grid; grid-template-columns:repeat(4,1fr); gap:12px; margin:14px 0 18px }
+.stat-strip { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; margin:14px 0 18px }
 @media(max-width:700px){ .stat-strip { grid-template-columns:repeat(2,1fr) } }
 .stat-box { border-radius:var(--radius); padding:22px 18px; display:flex; flex-direction:column; gap:6px; cursor:pointer; transition:.15s }
 .stat-box:hover { filter:brightness(.95) }
@@ -138,6 +138,12 @@ header button.icon svg { width:18px; height:18px }
 .s-warning { background:var(--warning-soft); color:var(--warning) }
 .s-teal    { background:var(--teal-soft);    color:var(--teal) }
 .s-accent  { background:var(--accent-soft);  color:var(--accent) }
+
+.next-meeting-banner { display:flex; align-items:center; gap:10px; background:var(--teal-soft); color:var(--teal); border-radius:var(--radius); padding:12px 16px; margin-bottom:12px; cursor:pointer; font-weight:600; transition:.15s }
+.next-meeting-banner:hover { filter:brightness(.95) }
+.nm-badge { background:var(--teal); color:#fff; border-radius:20px; padding:3px 10px; font-size:12px; font-weight:700; white-space:nowrap; flex-shrink:0 }
+.nm-title { font-size:15px; flex:1; white-space:nowrap; overflow:hidden; text-overflow:ellipsis }
+.nm-loc { font-size:13px; opacity:.7; white-space:nowrap; overflow:hidden; text-overflow:ellipsis }
 
 /* Today task rows */
 .today-task-row { display:flex; align-items:center; gap:10px; padding:10px 8px; border-radius:var(--radius-sm); margin-bottom:3px }
@@ -405,7 +411,6 @@ header button.icon svg { width:18px; height:18px }
     <button class="nav-btn active" data-view="today"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>Today</button>
     <button class="nav-btn" data-view="tasks"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>Tasks<span class="badge" id="navBadgeTasks" style="display:none">0</span></button>
     <button class="nav-btn" data-view="schedule"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>Schedule</button>
-    <button class="nav-btn" data-view="weather"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17.5 19H9a7 7 0 113.6-13A5 5 0 0117.5 19z"/></svg>Weather</button>
     <button class="nav-btn" data-view="crews"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg>Crews</button>
     <div class="group-label">Work</div>
     <button class="nav-btn" data-view="goals"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>Goals</button>
@@ -422,8 +427,6 @@ header button.icon svg { width:18px; height:18px }
     <section class="view" id="view-tasks"></section>
     <!-- SCHEDULE VIEW -->
     <section class="view" id="view-schedule"></section>
-    <!-- WEATHER VIEW -->
-    <section class="view" id="view-weather"></section>
     <!-- GOALS VIEW -->
     <section class="view" id="view-goals"></section>
     <!-- NOTES VIEW -->
@@ -442,7 +445,6 @@ header button.icon svg { width:18px; height:18px }
     <button data-view="today" class="active"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/></svg>Today</button>
     <button data-view="tasks"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>Tasks</button>
     <button data-view="schedule"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="3" y1="10" x2="21" y2="10"/></svg>Plan</button>
-    <button data-view="weather"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17.5 19H9a7 7 0 113.6-13A5 5 0 0117.5 19z"/></svg>Weather</button>
     <button data-view="crews"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg>Crews</button>
     <button data-view="goals"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>Goals</button>
     <button data-view="notes"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/></svg>Notes</button>
@@ -907,19 +909,7 @@ $("#modal").addEventListener("click", e => { if (e.target.id==="modal") closeMod
 
 // ============ TASKS ============
 const render = {};
-render.weather = () => {
-  const v = $("#view-weather");
-  v.innerHTML = "";
-  v.append(el("h1",{text:"Weather"}));
-  v.append(el("div",{class:"view-sub",text:"Live conditions + 7-day forecast for all crew markets. Click Set to save a city."}));
-  const hdr = el("div",{class:"flex-row",style:{justifyContent:"flex-end",marginBottom:"14px"}});
-  hdr.append(el("button",{class:"btn sm",text:"↻ Refresh all",onclick:()=>{ Object.keys(wxCache).forEach(k=>delete wxCache[k]); render.weather(); }}));
-  v.append(hdr);
-  if (!state.weather) state.weather = defaultState().weather;
-  const grid = el("div",{class:"weather-grid"});
-  state.weather.cities.forEach((city, i) => grid.append(buildWxCard(city, i)));
-  v.append(grid);
-};
+render.weather = () => {};
 render.tasks = () => {
   const v = $("#view-tasks");
   v.innerHTML = "";
@@ -1375,6 +1365,25 @@ render.today = () => {
   }}));
   v.append(bar);
 
+  // Next meeting callout
+  if (calCache.ts && state.calendar?.icsUrl) {
+    const nowMs = Date.now();
+    const todayStr = today();
+    const upcoming = calCache.events.filter(e => !e.start.allDay && e.start.date === todayStr && (e.end ? e.end.ts > nowMs : e.start.ts > nowMs - 3600000));
+    upcoming.sort((a,b) => a.start.ts - b.start.ts);
+    const nxt = upcoming[0];
+    if (nxt) {
+      const diffMin = Math.round((nxt.start.ts - nowMs) / 60000);
+      const isNow = diffMin <= 0 && (!nxt.end || nxt.end.ts > nowMs);
+      const label = isNow ? "NOW" : diffMin < 60 ? `In ${diffMin}m` : `At ${nxt.start.timeStr}`;
+      const banner = el("div", { class:"next-meeting-banner", onclick:()=>showView("schedule") });
+      banner.append(el("span",{class:"nm-badge",text:label}));
+      banner.append(el("span",{class:"nm-title",text:nxt.summary}));
+      if (nxt.location) banner.append(el("span",{class:"nm-loc",text:"· "+nxt.location}));
+      v.append(banner);
+    }
+  }
+
   // Stat strip
   const dueToday  = state.tasks.filter(t=>t.status!=="done" && t.deadline===today()).length;
   const overdueN  = state.tasks.filter(t=>t.status!=="done" && t.deadline && t.deadline<today()).length;
@@ -1393,7 +1402,7 @@ render.today = () => {
 
   const wxIcon = el("div",{class:"s-icon",text:"🌡️"});
   const wxVal  = el("div",{class:"s-val",text:"—"});
-  const wxStat = el("div",{class:"stat-box s-teal",onclick:()=>showView("weather")});
+  const wxStat = el("div",{class:"stat-box s-teal",onclick:()=>{}});
   wxStat.append(wxIcon, wxVal, el("div",{class:"s-lbl",text:mainCity?.name||"weather"}));
   strip.append(wxStat);
   if (mainCity?.lat!=null) {
@@ -1404,6 +1413,17 @@ render.today = () => {
   }
 
   strip.append(mkStat("✔️", `${dailyDone}/${dailyItems.length||0}`, "daily done", "s-accent", ()=>showView("tasks")));
+
+  // Weekly progress box
+  const weeklyItems = state.recurring?.weekly||[];
+  const weeklyDone  = weeklyItems.filter(i=>i.lastChecked===currentWeek()).length;
+  strip.append(mkStat("🗓️", `${weeklyDone}/${weeklyItems.length||0}`, "weekly done", "s-accent", ()=>showView("tasks")));
+
+  // Monthly progress box
+  const monthlyItems = state.recurring?.monthly||[];
+  const monthlyDone  = monthlyItems.filter(i=>i.lastChecked===currentMonth()).length;
+  strip.append(mkStat("📆", `${monthlyDone}/${monthlyItems.length||0}`, "monthly done", "s-accent", ()=>showView("tasks")));
+
   v.append(strip);
 
   // Main grid
@@ -1474,6 +1494,17 @@ render.today = () => {
   grid.append(recurCard);
 
   v.append(grid);
+
+  // Crew weather — all markets
+  const wxSection = el("div", { style:{marginTop:"24px"} });
+  const wxHdr = el("div", { class:"flex-row", style:{justifyContent:"space-between",alignItems:"center",marginBottom:"12px"} });
+  wxHdr.append(el("div", { class:"section-title", style:{margin:0}, text:"Markets" }));
+  wxHdr.append(el("button", { class:"btn sm", text:"↻ Refresh", onclick:()=>{ Object.keys(wxCache).forEach(k=>delete wxCache[k]); render.today(); } }));
+  wxSection.append(wxHdr);
+  const wxGrid = el("div", { class:"weather-grid" });
+  (state.weather?.cities||[]).forEach((city, i) => wxGrid.append(buildWxCard(city, i)));
+  wxSection.append(wxGrid);
+  v.append(wxSection);
 };
 
 
@@ -1545,8 +1576,8 @@ render.settings = () => {
   v.append(el("div", { class:"section-title", style:{marginTop:"24px"}, text:"Keyboard Shortcuts" }));
   const kbGrid = el("div", { style:{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(180px,1fr))",gap:"6px 16px",marginBottom:"8px"} });
   const kbShortcuts = [
-    ["1","Today"],["2","Tasks"],["3","Schedule"],["4","Weather"],
-    ["5","Crews"],["6","Goals"],["7","Notes"],["8","Review"],["9","Settings"],
+    ["1","Today"],["2","Tasks"],["3","Schedule"],["4","Crews"],
+    ["5","Goals"],["6","Notes"],["7","Review"],["8","Settings"],
     ["Ctrl / ⌘ + K","Command palette"],["Esc","Close dialog"],
   ];
   for (const [key, label] of kbShortcuts) {
@@ -1570,6 +1601,13 @@ render.settings = () => {
     if (confirm("Delete everything and reset to defaults?")) { localStorage.removeItem(KEY); location.reload(); }
   }}));
   v.append(dataRow);
+
+  // --- Weather Cities ---
+  v.append(el("div", { class:"section-title", style:{marginTop:"24px"}, text:"Weather Cities" }));
+  v.append(el("div", { class:"muted", style:{fontSize:"13px",marginBottom:"10px"}, text:"Set up to 7 cities for the Markets widget on Today." }));
+  const wxCfgGrid = el("div", { class:"weather-grid" });
+  (state.weather?.cities||[]).forEach((city, i) => wxCfgGrid.append(buildWxCard(city, i)));
+  v.append(wxCfgGrid);
 };
 
 // ============ CREWS ============
@@ -1644,7 +1682,6 @@ const cmdActions = [
   { kind:"View", key:"today", label:"Today", icon:"🏠", action:()=>showView("today") },
   { kind:"View", key:"tasks", label:"Tasks", icon:"✓", action:()=>showView("tasks") },
   { kind:"View", key:"schedule", label:"Schedule / Pomodoro", icon:"📅", action:()=>showView("schedule") },
-  { kind:"View", key:"weather", label:"Weather — crew markets", icon:"⛅", action:()=>showView("weather") },
   { kind:"View", key:"goals", label:"Goals", icon:"🎯", action:()=>showView("goals") },
   { kind:"View", key:"notes", label:"Notes", icon:"📝", action:()=>showView("notes") },
   { kind:"View", key:"review", label:"Weekly Review", icon:"📊", action:()=>showView("review") },
@@ -1705,7 +1742,7 @@ document.addEventListener("keydown", e => {
   if ((e.metaKey||e.ctrlKey) && e.key==="k") { e.preventDefault(); openCmd(); }
   if (e.key==="Escape") closeCmd();
   if (!$("#modal").classList.contains("open") && !$("#cmd").classList.contains("open") && document.activeElement.tagName!=="INPUT" && document.activeElement.tagName!=="TEXTAREA") {
-    const map = { "1":"today","2":"tasks","3":"schedule","4":"weather","5":"crews","6":"goals","7":"notes","8":"review","9":"settings" };
+    const map = { "1":"today","2":"tasks","3":"schedule","4":"crews","5":"goals","6":"notes","7":"review","8":"settings" };
     if (map[e.key]) { showView(map[e.key]); }
   }
 });
