@@ -599,27 +599,154 @@ function parseICS(text) {
   const raw = text.replace(/\r\n/g, '\n').replace(/\n[ \t]/g, '');
   const unescape = s => s.replace(/\\n/g,' ').replace(/\\,/g,',').replace(/\\;/g,';').replace(/\\\\/g,'\\');
   const get = (block, k) => { const m = block.match(new RegExp('^' + k + '[^:]*:(.+)$','m')); return m ? m[1].trim() : ''; };
+
   const parseICSDate = dt => {
     if (!dt) return null;
+    // All-day: YYYYMMDD
     if (/^\d{8}$/.test(dt)) {
       const iso = `${dt.slice(0,4)}-${dt.slice(4,6)}-${dt.slice(6,8)}`;
       return { date: iso, allDay: true, ts: new Date(iso + 'T00:00:00').getTime() };
     }
-    const m = dt.match(/^(\d{4})(\d{2})(\d{2})T(\d{2})(\d{2})(\d{2})(Z?)$/);
+    // Date-time: YYYYMMDDTHHMMSS[Z] or with UTC offset
+    const m = dt.match(/^(\d{4})(\d{2})(\d{2})T(\d{2})(\d{2})(\d{2})(Z|[+-]\d{2}:?\d{2})?$/);
     if (!m) return null;
-    const d = new Date(`${m[1]}-${m[2]}-${m[3]}T${m[4]}:${m[5]}:${m[6]}${m[7]||''}`);
+    const suffix = m[7] ? (m[7] === 'Z' ? 'Z' : m[7].replace(/(\d{2})(\d{2})$/, '$1:$2')) : '';
+    const d = new Date(`${m[1]}-${m[2]}-${m[3]}T${m[4]}:${m[5]}:${m[6]}${suffix}`);
+    if (isNaN(d.getTime())) return null;
     return { date: dayStr(d), allDay: false, ts: d.getTime(),
       timeStr: d.toLocaleTimeString('en-US', { hour:'numeric', minute:'2-digit' }) };
   };
-  const events = [];
+
+  // Advance a Date by one RRULE interval
+  const advanceDate = (d, freq, interval) => {
+    const n = new Date(d);
+    if (freq === 'DAILY')   n.setDate(n.getDate() + interval);
+    else if (freq === 'WEEKLY')  n.setDate(n.getDate() + 7 * interval);
+    else if (freq === 'MONTHLY') n.setMonth(n.getMonth() + interval);
+    else if (freq === 'YEARLY')  n.setFullYear(n.getFullYear() + interval);
+    return n;
+  };
+
+  // Parse RRULE string into object
+  const parseRRule = rrule => {
+    const obj = {};
+    for (const part of rrule.split(';')) {
+      const [k, v] = part.split('=');
+      obj[k] = v;
+    }
+    return obj;
+  };
+
+  // Window: 30 days in the past through 90 days in the future
+  const winStart = Date.now() - 30 * 86400000;
+  const winEnd   = Date.now() + 90 * 86400000;
+
+  // Collect raw VEVENT blocks grouped by UID
+  const byUid = {};
   for (const block of (raw.match(/BEGIN:VEVENT[\s\S]*?END:VEVENT/g) || [])) {
-    const summary = unescape(get(block, 'SUMMARY'));
-    const location = unescape(get(block, 'LOCATION'));
-    const start = parseICSDate(get(block, 'DTSTART'));
-    const end = parseICSDate(get(block, 'DTEND'));
-    if (!summary || !start) continue;
-    events.push({ summary, location, start, end });
+    const uid = get(block, 'UID') || block;
+    if (!byUid[uid]) byUid[uid] = [];
+    byUid[uid].push(block);
   }
+
+  const events = [];
+  for (const blocks of Object.values(byUid)) {
+    // Separate the master event from RECURRENCE-ID exceptions
+    const master = blocks.find(b => !get(b, 'RECURRENCE-ID')) || blocks[0];
+    const exceptions = {};
+    for (const b of blocks) {
+      const rid = get(b, 'RECURRENCE-ID');
+      if (rid) exceptions[rid] = b;
+    }
+
+    const summary  = unescape(get(master, 'SUMMARY'));
+    const location = unescape(get(master, 'LOCATION'));
+    const startParsed = parseICSDate(get(master, 'DTSTART'));
+    const endParsed   = parseICSDate(get(master, 'DTEND'));
+    if (!summary || !startParsed) continue;
+
+    // Parse EXDATE list
+    const exdateRaw = get(master, 'EXDATE');
+    const exdates = new Set(exdateRaw ? exdateRaw.split(',').map(s => s.trim()) : []);
+
+    const rruleRaw = get(master, 'RRULE');
+    if (!rruleRaw) {
+      // Non-recurring — include if it falls in window
+      if (startParsed.ts >= winStart && startParsed.ts <= winEnd) {
+        events.push({ summary, location, start: startParsed, end: endParsed });
+      }
+      continue;
+    }
+
+    const rr = parseRRule(rruleRaw);
+    const freq = rr['FREQ'];
+    if (!freq) continue;
+    const interval = parseInt(rr['INTERVAL'] || '1', 10);
+    const count    = rr['COUNT'] ? parseInt(rr['COUNT'], 10) : null;
+    const until    = rr['UNTIL'] ? parseICSDate(rr['UNTIL']) : null;
+    const durMs    = endParsed ? (endParsed.ts - startParsed.ts) : 0;
+
+    // Handle BYDAY for weekly recurrences (e.g. BYDAY=MO,WE)
+    const byDay = rr['BYDAY'] ? rr['BYDAY'].split(',') : null;
+    const dayNames = ['SU','MO','TU','WE','TH','FR','SA'];
+
+    let cur = new Date(startParsed.ts);
+    let occ = 0;
+    const MAX_OCC = 500;
+
+    while (occ < MAX_OCC) {
+      if (count !== null && occ >= count) break;
+      if (until && cur.getTime() > until.ts) break;
+      if (cur.getTime() > winEnd) break;
+
+      const candidates = byDay && freq === 'WEEKLY'
+        ? byDay.map(day => {
+            const targetDay = dayNames.indexOf(day.replace(/[+-\d]/g,''));
+            if (targetDay < 0) return null;
+            const diff = (targetDay - cur.getDay() + 7) % 7;
+            const d = new Date(cur);
+            d.setDate(d.getDate() + diff);
+            return d;
+          }).filter(Boolean)
+        : [cur];
+
+      for (const candidate of candidates) {
+        const ts = candidate.getTime();
+        if (ts < startParsed.ts) continue; // before series start
+        if (count !== null && occ >= count) break;
+        if (until && ts > until.ts) break;
+        if (ts < winStart || ts > winEnd) continue;
+
+        // Build original DTSTART string key to check EXDATE / exceptions
+        const candKey = get(master, 'DTSTART').replace(/^[^:]*:/, '');
+        const origDtStr = `${candidate.getFullYear()}${String(candidate.getMonth()+1).padStart(2,'0')}${String(candidate.getDate()).padStart(2,'0')}T${String(candidate.getHours()).padStart(2,'0')}${String(candidate.getMinutes()).padStart(2,'0')}${String(candidate.getSeconds()).padStart(2,'0')}`;
+
+        if (exdates.has(origDtStr) || exdates.has(origDtStr+'Z')) continue;
+
+        // Check for RECURRENCE-ID override
+        const excBlock = exceptions[origDtStr] || exceptions[origDtStr+'Z'];
+        if (excBlock) {
+          const es = parseICSDate(get(excBlock, 'DTSTART'));
+          const ee = parseICSDate(get(excBlock, 'DTEND'));
+          if (es && es.ts >= winStart && es.ts <= winEnd) {
+            events.push({ summary: unescape(get(excBlock,'SUMMARY'))||summary,
+              location: unescape(get(excBlock,'LOCATION'))||location, start: es, end: ee });
+          }
+        } else {
+          const startD = new Date(ts);
+          const endTs = durMs ? ts + durMs : null;
+          const startObj = { date: dayStr(startD), allDay: startParsed.allDay, ts,
+            timeStr: startParsed.allDay ? undefined : startD.toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'}) };
+          const endObj = endTs ? { date: dayStr(new Date(endTs)), allDay: startParsed.allDay, ts: endTs } : null;
+          events.push({ summary, location, start: startObj, end: endObj });
+        }
+        occ++;
+      }
+
+      cur = advanceDate(cur, freq, interval);
+    }
+  }
+
   return events.sort((a, b) => a.start.ts - b.start.ts);
 }
 
@@ -1304,27 +1431,6 @@ render.today = () => {
   }
   if (!topTasks.length) tasksCard.append(el("div",{class:"empty",text:"All clear ✓"}));
   grid.append(tasksCard);
-
-  // Weather — big hero display
-  const wxCard = el("div",{class:"card today-wx-card"});
-  wxCard.append(el("h3",{},[el("span",{text:mainCity?.name?"Weather · "+mainCity.name:"Weather"}),el("button",{class:"btn ghost sm",text:"All cities →",onclick:()=>showView("weather")})]));
-  const wxBody = el("div");
-  wxCard.append(wxBody);
-  if (mainCity?.lat!=null) {
-    const heroWx = d => {
-      wxBody.innerHTML="";
-      wxBody.append(el("div",{class:"wx-hero-emoji",text:wmoEmoji(d.current.code)}));
-      wxBody.append(el("div",{class:"wx-hero-temp",text:`${d.current.temp}°F`}));
-      wxBody.append(el("div",{class:"wx-hero-cond",text:wmoLabel(d.current.code)}));
-      wxBody.append(el("div",{class:"wx-details",text:`↑${d.daily[0]?.hi}° ↓${d.daily[0]?.lo}° · Wind ${d.current.wind} mph`}));
-    };
-    const cached = wxCache[mainCity.id];
-    if (cached && Date.now()-cached.ts<WX_TTL) heroWx(cached);
-    else { wxBody.append(el("div",{class:"wx-loading",text:"Loading…"})); fetchCityWx(mainCity).then(heroWx).catch(()=>{}); }
-  } else {
-    wxBody.append(el("div",{class:"empty",text:"Set up cities in Weather"}));
-  }
-  grid.append(wxCard);
 
   // Calendar today
   const calCard = el("div",{class:"card"});
