@@ -590,6 +590,8 @@ function buildWxCard(city, idx) {
     wxArea.append(el("div",{class:"wx-loading",text:"Loading weather…"}));
     fetchCityWx(city).then(data => { wxArea.innerHTML=""; showWxData(wxArea, data); }).catch(() => { wxArea.innerHTML=""; wxArea.append(el("div",{class:"wx-err",text:"Failed to load — check connection"})); });
   }
+  const nwsUrl = `https://forecast.weather.gov/MapClick.php?lat=${city.lat}&lon=${city.lng}`;
+  card.append(el("a", { href:nwsUrl, target:"_blank", rel:"noopener", class:"btn ghost sm", text:"Hourly + Radar →", style:{marginTop:"8px",display:"inline-block"} }));
   return card;
 }
 
