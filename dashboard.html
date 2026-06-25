@@ -893,7 +893,8 @@ function defaultState() {
     calendar: { icsUrl: "" },
     crews: [],
     links: [],
-    settings: { theme: "auto", calmMode: false }
+    settings: { theme: "auto", calmMode: false },
+    sync: { token: "", gistId: "", lastSynced: null }
   };
 }
 function normalizeState(s) {
@@ -920,6 +921,10 @@ function normalizeState(s) {
   if (!s.calendar) s.calendar = d.calendar;
   if (!s.crews) s.crews = [];
   if (!s.links) s.links = [];
+  if (!s.sync) s.sync = { token:"", gistId:"", lastSynced:null };
+  if (s.sync.token === undefined) s.sync.token = "";
+  if (s.sync.gistId === undefined) s.sync.gistId = "";
+  if (s.sync.lastSynced === undefined) s.sync.lastSynced = null;
   return s;
 }
 function load() {
@@ -940,7 +945,80 @@ function load() {
   } catch(e) { console.error(e); }
   return defaultState();
 }
-function save() { try { localStorage.setItem(KEY, JSON.stringify(state)); } catch(e) { console.error(e); } }
+function save() {
+  try { localStorage.setItem(KEY, JSON.stringify(state)); } catch(e) { console.error(e); }
+  if (state.sync?.token && state.sync?.gistId) {
+    clearTimeout(save._t);
+    save._t = setTimeout(gistPush, 2000);
+  }
+}
+
+const GIST_FILE = 'dashboard-state.json';
+const GIST_HDR = token => ({ 'Authorization':`Bearer ${token}`, 'Accept':'application/vnd.github+json', 'Content-Type':'application/json' });
+
+async function gistPush() {
+  const { token, gistId } = state.sync || {};
+  if (!token || !gistId) return;
+  try {
+    const r = await fetch(`https://api.github.com/gists/${gistId}`, {
+      method:'PATCH', headers: GIST_HDR(token),
+      body: JSON.stringify({ files: { [GIST_FILE]: { content: JSON.stringify(state) } } })
+    });
+    if (!r.ok) return;
+    state.sync.lastSynced = new Date().toISOString();
+    try { localStorage.setItem(KEY, JSON.stringify(state)); } catch(e) {}
+    const el2 = document.getElementById('gistSyncStatus');
+    if (el2) { el2.textContent = `Last synced ${new Date().toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'})}`; el2.style.color='var(--success)'; }
+  } catch(e) {}
+}
+
+async function gistPull() {
+  const { token, gistId } = state.sync || {};
+  if (!token || !gistId) return false;
+  try {
+    const r = await fetch(`https://api.github.com/gists/${gistId}`, { headers: GIST_HDR(token) });
+    if (!r.ok) return false;
+    const d = await r.json();
+    const raw = d.files?.[GIST_FILE]?.content;
+    if (!raw) return false;
+    const remote = JSON.parse(raw);
+    const localSync = state.sync;
+    state = normalizeState(Object.assign(defaultState(), remote));
+    state.sync = localSync;
+    try { localStorage.setItem(KEY, JSON.stringify(state)); } catch(e) {}
+    return true;
+  } catch(e) { return false; }
+}
+
+async function connectGist(token, existingGistId) {
+  if (existingGistId) {
+    const r = await fetch(`https://api.github.com/gists/${existingGistId}`, { headers: GIST_HDR(token) });
+    if (!r.ok) throw new Error('Gist not found — check the ID and token');
+    const d = await r.json();
+    const raw = d.files?.[GIST_FILE]?.content;
+    state.sync.token = token; state.sync.gistId = existingGistId;
+    if (raw) {
+      const remote = JSON.parse(raw);
+      const localSync = state.sync;
+      state = normalizeState(Object.assign(defaultState(), remote));
+      state.sync = localSync;
+    } else {
+      await gistPush();
+    }
+  } else {
+    const r = await fetch('https://api.github.com/gists', {
+      method:'POST', headers: GIST_HDR(token),
+      body: JSON.stringify({ description:'Dashboard state (auto-managed)', public:false,
+        files: { [GIST_FILE]: { content: JSON.stringify(state) } } })
+    });
+    if (!r.ok) throw new Error('Failed to create Gist — check the token has gist scope');
+    const d = await r.json();
+    state.sync.token = token; state.sync.gistId = d.id;
+  }
+  state.sync.lastSynced = new Date().toISOString();
+  try { localStorage.setItem(KEY, JSON.stringify(state)); } catch(e) {}
+  return state.sync.gistId;
+}
 let state = load();
 
 
@@ -1720,6 +1798,46 @@ render.settings = () => {
   }
   v.append(kbGrid);
 
+  // --- Cloud Sync ---
+  v.append(el("div", { class:"section-title", style:{marginTop:"24px"}, text:"Cloud Sync (GitHub Gist)" }));
+  v.append(el("div", { class:"cal-hint", html:'Syncs your data to a private GitHub Gist so every device stays in sync. <a href="https://github.com/settings/tokens/new?scopes=gist&description=Dashboard+Sync" target="_blank" rel="noopener">Create a token</a> with only the <code>gist</code> scope checked.' }));
+  const tokenInp = el("input", { type:"password", placeholder:"GitHub token  (ghp_…)", value:state.sync?.token||"", style:{flex:"1"} });
+  const gistInp  = el("input", { type:"text",     placeholder:"Gist ID — auto-filled on first connect", value:state.sync?.gistId||"", style:{flex:"1",marginTop:"6px",fontFamily:"monospace",fontSize:"12px"} });
+  const syncStatusEl = el("span", { id:"gistSyncStatus", style:{fontSize:"12px"} });
+  const setSyncSt = (msg, ok) => { syncStatusEl.textContent = msg; syncStatusEl.style.color = ok?"var(--success)":"var(--danger)"; };
+  if (state.sync?.lastSynced) setSyncSt(`Last synced ${new Date(state.sync.lastSynced).toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'})}`, true);
+  else if (state.sync?.gistId) setSyncSt("Connected — not yet synced this session", true);
+
+  const connectBtn = el("button", { class:"btn primary sm", text:"Connect", onclick: async () => {
+    const token = tokenInp.value.trim();
+    if (!token) { setSyncSt("Paste your token first", false); return; }
+    connectBtn.textContent="Connecting…"; connectBtn.disabled=true; setSyncSt("","true");
+    try {
+      const gistId = await connectGist(token, gistInp.value.trim()||null);
+      gistInp.value = gistId;
+      setSyncSt("✓ Connected", true);
+      renderAll();
+    } catch(e) { setSyncSt(e.message||"Failed — check token", false); }
+    connectBtn.textContent="Connect"; connectBtn.disabled=false;
+  }});
+  const disconnectSyncBtn = el("button", { class:"btn sm", text:"Disconnect", onclick:() => {
+    if (!confirm("Stop syncing? Local data is kept, Gist is not deleted.")) return;
+    state.sync = { token:"", gistId:"", lastSynced:null };
+    save(); render.settings();
+  }});
+  const pullBtn = el("button", { class:"btn sm", text:"↓ Pull now", title:"Overwrite local data with Gist", onclick: async () => {
+    pullBtn.textContent="Pulling…"; pullBtn.disabled=true;
+    const ok = await gistPull();
+    if (ok) { setSyncSt("✓ Pulled", true); renderAll(); } else setSyncSt("Pull failed", false);
+    pullBtn.textContent="↓ Pull now"; pullBtn.disabled=false;
+  }});
+  const syncRow1 = el("div", { class:"flex-row", style:{gap:"8px",alignItems:"center"} });
+  syncRow1.append(tokenInp, connectBtn);
+  if (state.sync?.gistId) syncRow1.append(pullBtn, disconnectSyncBtn);
+  v.append(syncRow1);
+  v.append(gistInp);
+  v.append(el("div", { style:{marginTop:"4px"} }, [syncStatusEl]));
+
   // --- Data ---
   v.append(el("div", { class:"section-title", style:{marginTop:"24px"}, text:"Data" }));
   const dataRow = el("div", { class:"flex-row", style:{gap:"8px"} });
@@ -1899,8 +2017,12 @@ function renderAll() {
     try { render[k]?.(); } catch(e) { console.error("render." + k + " failed:", e); }
   }
 }
-renderAll();
-showView(localStorage.getItem("_view") || "today");
+if (state.sync?.token && state.sync?.gistId) {
+  gistPull().then(() => { renderAll(); showView(localStorage.getItem("_view") || "today"); });
+} else {
+  renderAll();
+  showView(localStorage.getItem("_view") || "today");
+}
 </script>
 </body>
 </html>
