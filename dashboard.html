@@ -121,9 +121,35 @@ header button.icon svg { width:18px; height:18px }
 .row.between { justify-content:space-between }
 
 /* Today view */
-.today-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(280px,1fr)); gap:14px }
+.today-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(300px,1fr)); gap:16px }
 .today-grid .span-2 { grid-column:span 2 }
 @media(max-width:700px){ .today-grid .span-2 { grid-column:span 1 }}
+
+/* Stat strip */
+.stat-strip { display:grid; grid-template-columns:repeat(4,1fr); gap:12px; margin:14px 0 18px }
+@media(max-width:700px){ .stat-strip { grid-template-columns:repeat(2,1fr) } }
+.stat-box { border-radius:var(--radius); padding:22px 18px; display:flex; flex-direction:column; gap:6px; cursor:pointer; transition:.15s }
+.stat-box:hover { filter:brightness(.95) }
+.stat-box .s-icon { font-size:32px; line-height:1 }
+.stat-box .s-val { font-size:44px; font-weight:800; line-height:1 }
+.stat-box .s-lbl { font-size:11px; font-weight:600; letter-spacing:.5px; text-transform:uppercase; opacity:.75 }
+.s-danger  { background:var(--danger-soft);  color:var(--danger) }
+.s-success { background:var(--success-soft); color:var(--success) }
+.s-warning { background:var(--warning-soft); color:var(--warning) }
+.s-teal    { background:var(--teal-soft);    color:var(--teal) }
+.s-accent  { background:var(--accent-soft);  color:var(--accent) }
+
+/* Today task rows */
+.today-task-row { display:flex; align-items:center; gap:10px; padding:10px 8px; border-radius:var(--radius-sm); margin-bottom:3px }
+.today-task-bar { width:5px; min-height:32px; border-radius:3px; flex-shrink:0; align-self:stretch }
+.today-task-title { flex:1; font-size:15px; font-weight:500 }
+.today-check { font-size:22px; color:var(--muted); flex-shrink:0; padding:0 4px }
+.today-check:hover { color:var(--accent) }
+
+/* Today weather hero */
+.wx-hero-emoji { font-size:60px; line-height:1; margin:6px 0 2px }
+.wx-hero-temp  { font-size:52px; font-weight:800; line-height:1; margin-bottom:4px }
+.wx-hero-cond  { font-size:15px; color:var(--ink-2); margin-bottom:6px }
 .stat-big { font-size:28px; font-weight:700; line-height:1.1 }
 .stat-sub { font-size:11px; color:var(--muted); text-transform:uppercase; letter-spacing:.5px; font-weight:600 }
 .stat-row { display:flex; align-items:baseline; gap:8px }
@@ -729,6 +755,7 @@ function showView(name) {
   for (const v of $$(".view")) v.classList.toggle("active", v.id === "view-"+name);
   for (const b of $$("#sidebar .nav-btn,#mtabs button")) b.classList.toggle("active", b.dataset.view===name);
   render[name]?.();
+  try { localStorage.setItem("_view", name); } catch(e) {}
 }
 for (const b of $$("#sidebar .nav-btn, #mtabs button")) {
   b.addEventListener("click", () => showView(b.dataset.view));
@@ -1188,148 +1215,157 @@ render.today = () => {
   const v = $("#view-today");
   v.innerHTML = "";
 
+  // Greeting
   const h = new Date().getHours();
-  const greet = h<12 ? "Good morning" : h<17 ? "Good afternoon" : h<21 ? "Good evening" : "Hello";
+  const greet = h<12?"Good morning":h<17?"Good afternoon":h<21?"Good evening":"Working late";
   const gc = el("div", { class:"greeting-card" });
-  gc.append(el("h2", { text: `${greet}!` }));
-  const todoCount = state.tasks.filter(t=>t.status!=="done").length;
-  const dueToday = state.tasks.filter(t=>t.status!=="done" && t.deadline===today()).length;
-  const bits = [];
-  if (dueToday) bits.push(`${dueToday} task${dueToday>1?"s":""} due today`);
-  if (!bits.length) bits.push(`${todoCount} task${todoCount!==1?"s":""} on your plate`);
-  gc.append(el("p", { text: bits.join(" · ") }));
+  gc.append(el("h2", { text: greet }));
+  gc.append(el("p", { text: new Date().toLocaleDateString("en-US",{weekday:"long",month:"long",day:"numeric"}) }));
   v.append(gc);
 
   // Pinned links
-  {
-    const bar = el("div", { class:"links-bar", style:{marginTop:"12px"} });
-    for (const lk of state.links) {
-      const chip = el("a", { class:"link-chip", href:lk.url, target:"_blank", rel:"noopener" });
-      chip.append(document.createTextNode(lk.label));
-      const del = el("button", { class:"del", html:"&#x2715;", title:"Remove", onclick: e => {
-        e.preventDefault(); e.stopPropagation();
-        state.links = state.links.filter(x=>x.id!==lk.id); save(); render.today();
-      }});
-      chip.append(del);
-      bar.append(chip);
-    }
-    bar.append(el("button", { class:"link-add-btn", text:"+ Add link", onclick:() => {
-      const lbl = el("input", { type:"text", placeholder:"Label (e.g. ADP)" });
-      const url = el("input", { type:"url",  placeholder:"https://…" });
-      const body = el("div", { style:{display:"flex",flexDirection:"column",gap:"8px"} });
-      body.append(lbl, url);
-      modal("Add quick link", body, () => {
-        if (!lbl.value.trim() || !url.value.trim()) return false;
-        state.links.push({ id:genId("lk"), label:lbl.value.trim(), url:url.value.trim() });
-        save(); render.today();
-      }, { saveText:"Add" });
-    }}));
-    v.append(bar);
+  const bar = el("div", { class:"links-bar", style:{marginTop:"12px"} });
+  for (const lk of state.links) {
+    const chip = el("a", { class:"link-chip", href:lk.url, target:"_blank", rel:"noopener" });
+    chip.append(document.createTextNode(lk.label));
+    const del = el("button", { class:"del", html:"&#x2715;", title:"Remove", onclick: e => {
+      e.preventDefault(); e.stopPropagation();
+      state.links = state.links.filter(x=>x.id!==lk.id); save(); render.today();
+    }});
+    chip.append(del);
+    bar.append(chip);
+  }
+  bar.append(el("button", { class:"link-add-btn", text:"+ Add link", onclick:() => {
+    const lbl = el("input", { type:"text", placeholder:"Label (e.g. ADP)" });
+    const url = el("input", { type:"url", placeholder:"https://…" });
+    const body = el("div", { style:{display:"flex",flexDirection:"column",gap:"8px"} });
+    body.append(lbl, url);
+    modal("Add quick link", body, () => {
+      if (!lbl.value.trim() || !url.value.trim()) return false;
+      state.links.push({ id:genId("lk"), label:lbl.value.trim(), url:url.value.trim() });
+      save(); render.today();
+    }, { saveText:"Add" });
+  }}));
+  v.append(bar);
+
+  // Stat strip
+  const dueToday  = state.tasks.filter(t=>t.status!=="done" && t.deadline===today()).length;
+  const overdueN  = state.tasks.filter(t=>t.status!=="done" && t.deadline && t.deadline<today()).length;
+  const dailyItems = state.recurring?.daily||[];
+  const dailyDone  = dailyItems.filter(i=>i.lastChecked===today()).length;
+  const mainCity   = state.weather?.cities?.[0];
+
+  const mkStat = (icon, val, lbl, cls, action) => {
+    const b = el("div", { class:`stat-box ${cls}`, onclick: action });
+    b.append(el("div",{class:"s-icon",text:icon}), el("div",{class:"s-val",text:String(val)}), el("div",{class:"s-lbl",text:lbl}));
+    return b;
+  };
+  const strip = el("div", { class:"stat-strip" });
+  strip.append(mkStat(overdueN>0?"⚠️":"✅", overdueN, "overdue", overdueN>0?"s-danger":"s-success", ()=>showView("tasks")));
+  strip.append(mkStat("📋", dueToday, "due today", "s-warning", ()=>showView("tasks")));
+
+  const wxIcon = el("div",{class:"s-icon",text:"🌡️"});
+  const wxVal  = el("div",{class:"s-val",text:"—"});
+  const wxStat = el("div",{class:"stat-box s-teal",onclick:()=>showView("weather")});
+  wxStat.append(wxIcon, wxVal, el("div",{class:"s-lbl",text:mainCity?.name||"weather"}));
+  strip.append(wxStat);
+  if (mainCity?.lat!=null) {
+    const fillWx = d => { wxIcon.textContent=wmoEmoji(d.current.code); wxVal.textContent=`${d.current.temp}°`; };
+    const cached = wxCache[mainCity.id];
+    if (cached && Date.now()-cached.ts<WX_TTL) fillWx(cached);
+    else fetchCityWx(mainCity).then(fillWx).catch(()=>{});
   }
 
-  const grid = el("div", { class:"today-grid", style:{marginTop:"14px"} });
+  strip.append(mkStat("✔️", `${dailyDone}/${dailyItems.length||0}`, "daily done", "s-accent", ()=>showView("tasks")));
+  v.append(strip);
 
-  // Top tasks
+  // Main grid
+  const grid = el("div", { class:"today-grid" });
+
+  // Tasks — full width, overdue highlighted
   const tasksCard = el("div", { class:"card span-2" });
-  tasksCard.append(el("h3", {}, [el("span",{text:"Today's Tasks"}), el("button",{class:"btn ghost sm",text:"All →",onclick:()=>showView("tasks")})]));
-  const topTasks = state.tasks.filter(t=>t.status!=="done").sort((a,b) => {
-    const ad = a.deadline ? new Date(a.deadline) : new Date(8640000000000000);
-    const bd = b.deadline ? new Date(b.deadline) : new Date(8640000000000000);
+  tasksCard.append(el("h3",{},[el("span",{text:"Tasks"}),el("button",{class:"btn ghost sm",text:"All →",onclick:()=>showView("tasks")})]));
+  const topTasks = state.tasks.filter(t=>t.status!=="done").sort((a,b)=>{
+    const far = new Date(8640000000000000);
+    const ad = a.deadline?new Date(a.deadline):far, bd = b.deadline?new Date(b.deadline):far;
     if (ad-bd) return ad-bd;
-    const pr = { high:0, medium:1, low:2 };
-    return pr[a.priority]-pr[b.priority];
-  }).slice(0,5);
+    return ({high:0,medium:1,low:2}[a.priority]||1)-({high:0,medium:1,low:2}[b.priority]||1);
+  }).slice(0,7);
   for (const t of topTasks) {
-    const r = el("div", { class:"row", style:{padding:"6px 0",borderBottom:"1px solid var(--border)"} });
-    const check = el("button", { class:"btn icon-only ghost", html:"&#9711;", onclick:() => { t.status="done"; t.completedAt=new Date().toISOString(); save(); render.today(); renderHeader(); }});
-    r.append(check);
-    r.append(el("span", { class:`priority ${t.priority}`, style:{width:"6px",height:"6px",borderRadius:"50%",background:t.priority==="high"?"var(--danger)":t.priority==="medium"?"var(--warning)":"var(--accent)"} }));
-    r.append(el("span", { style:{flex:"1",fontSize:"14px"}, text: t.title }));
-    if (t.deadline) {
-      const diff = daysBetween(today(), t.deadline);
-      r.append(el("span", { class: diff<0?"chip danger":diff===0?"chip warning":"chip", text: diff<0?`${-diff}d late`:diff===0?"Today":fmtDate(t.deadline) }));
-    }
+    const diff = t.deadline ? daysBetween(today(), t.deadline) : null;
+    const isOD = diff!==null && diff<0, isDT = diff===0;
+    const priColor = t.priority==="high"?"var(--danger)":t.priority==="medium"?"var(--warning)":"var(--accent)";
+    const r = el("div", { class:"today-task-row", style:{background:isOD?"var(--danger-soft)":isDT?"var(--warning-soft)":"transparent"} });
+    r.append(el("div",{class:"today-task-bar",style:{background:priColor}}));
+    r.append(el("button",{class:"btn today-check",html:"&#9711;",onclick:()=>{ t.status="done"; t.completedAt=new Date().toISOString(); save(); render.today(); renderHeader(); }}));
+    r.append(el("span",{class:"today-task-title",text:t.title}));
+    if (diff!==null) r.append(el("span",{class:isOD?"chip danger":isDT?"chip warning":"chip",text:isOD?`${-diff}d late`:isDT?"Today":fmtDate(t.deadline)}));
     tasksCard.append(r);
   }
-  if (!topTasks.length) tasksCard.append(el("div", { class:"empty", text:"All clear ✓" }));
+  if (!topTasks.length) tasksCard.append(el("div",{class:"empty",text:"All clear ✓"}));
   grid.append(tasksCard);
 
-  // Main city weather
-  const wxTodayCard = el("div", { class:"card" });
-  const mainCity = state.weather?.cities?.[0];
-  wxTodayCard.append(el("h3",{},[el("span",{text: mainCity?.name ? `Weather · ${mainCity.name}` : "Weather"}), el("button",{class:"btn ghost sm",text:"All cities →",onclick:()=>showView("weather")})]));
-  const wxTodayBody = el("div");
-  wxTodayCard.append(wxTodayBody);
-  if (mainCity?.lat !== null && mainCity?.lat !== undefined) {
+  // Weather — big hero display
+  const wxCard = el("div",{class:"card today-wx-card"});
+  wxCard.append(el("h3",{},[el("span",{text:mainCity?.name?"Weather · "+mainCity.name:"Weather"}),el("button",{class:"btn ghost sm",text:"All cities →",onclick:()=>showView("weather")})]));
+  const wxBody = el("div");
+  wxCard.append(wxBody);
+  if (mainCity?.lat!=null) {
+    const heroWx = d => {
+      wxBody.innerHTML="";
+      wxBody.append(el("div",{class:"wx-hero-emoji",text:wmoEmoji(d.current.code)}));
+      wxBody.append(el("div",{class:"wx-hero-temp",text:`${d.current.temp}°F`}));
+      wxBody.append(el("div",{class:"wx-hero-cond",text:wmoLabel(d.current.code)}));
+      wxBody.append(el("div",{class:"wx-details",text:`↑${d.daily[0]?.hi}° ↓${d.daily[0]?.lo}° · Wind ${d.current.wind} mph`}));
+    };
     const cached = wxCache[mainCity.id];
-    if (cached && Date.now()-cached.ts < WX_TTL) {
-      showWxData(wxTodayBody, cached, true);
-    } else {
-      wxTodayBody.append(el("div",{class:"wx-loading",text:"Loading weather…"}));
-      fetchCityWx(mainCity).then(data => { wxTodayBody.innerHTML=""; showWxData(wxTodayBody, data, true); }).catch(()=>{ wxTodayBody.innerHTML=""; wxTodayBody.append(el("div",{class:"wx-err",text:"Could not load weather"})); });
-    }
+    if (cached && Date.now()-cached.ts<WX_TTL) heroWx(cached);
+    else { wxBody.append(el("div",{class:"wx-loading",text:"Loading…"})); fetchCityWx(mainCity).then(heroWx).catch(()=>{}); }
   } else {
-    wxTodayBody.append(el("div",{class:"empty",text:"Set up cities in Weather view"}));
+    wxBody.append(el("div",{class:"empty",text:"Set up cities in Weather"}));
   }
-  grid.append(wxTodayCard);
+  grid.append(wxCard);
 
-  // Today's schedule
-  const schedCard = el("div", { class:"card" });
-  schedCard.append(el("h3", {}, [el("span",{text:"Today's Schedule"}), el("button",{class:"btn ghost sm",text:"Plan →",onclick:()=>showView("schedule")})]));
-  const todayBlocks = state.schedule.blocks.filter(b => b.date===today()).sort((a,b)=>a.startTime.localeCompare(b.startTime));
-  for (const b of todayBlocks) {
-    const r = el("div", { class:"row", style:{padding:"6px 0",borderBottom:"1px solid var(--border)"} });
-    r.append(el("div", { style:{width:"4px",height:"24px",background:b.color,borderRadius:"2px",flexShrink:"0"} }));
-    r.append(el("span", { class:"muted", text: `${b.startTime}-${b.endTime}`, style:{fontSize:"12px",minWidth:"90px"} }));
-    r.append(el("span", { style:{flex:"1",fontSize:"14px"}, text: b.title }));
-    schedCard.append(r);
+  // Calendar today
+  const calCard = el("div",{class:"card"});
+  calCard.append(el("h3",{},[el("span",{text:"Calendar · Today"}),el("button",{class:"btn ghost sm",text:"Schedule →",onclick:()=>showView("schedule")})]));
+  const calBody = el("div");
+  calCard.append(calBody);
+  const showTodayCal = () => {
+    calBody.innerHTML="";
+    renderCalEvents(calBody, calCache.events.filter(e=>e.start.date===today()),
+      state.calendar?.icsUrl?"No events today":"Connect calendar in Settings");
+  };
+  if (calCache.ts) showTodayCal();
+  else if (state.calendar?.icsUrl) {
+    calBody.append(el("div",{class:"wx-loading",text:"Loading calendar…"}));
+    syncCalendar().then(()=>{ calBody.innerHTML=""; showTodayCal(); }).catch(()=>{ calBody.innerHTML=""; calBody.append(el("div",{class:"wx-err",text:"Could not load"})); });
+  } else {
+    calBody.append(el("div",{class:"empty",text:"Connect calendar in Settings"}));
   }
-  if (!todayBlocks.length) schedCard.append(el("div", { class:"empty", text:"No blocks scheduled" }));
-  grid.append(schedCard);
+  grid.append(calCard);
 
-  // Daily recurring snapshot
-  const recurCard = el("div", { class:"card" });
-  const dailyItems = state.recurring?.daily || [];
-  const dailyDone = dailyItems.filter(i => i.lastChecked === today()).length;
-  recurCard.append(el("h3", {}, [el("span",{text:"Daily Tasks"}), el("button",{class:"btn ghost sm",text:"All →",onclick:()=>showView("tasks")})]));
+  // Daily checklist
+  const recurCard = el("div",{class:"card"});
+  recurCard.append(el("h3",{},[el("span",{text:"Daily Checklist"}),el("button",{class:"btn ghost sm",text:"All →",onclick:()=>showView("tasks")})]));
   if (dailyItems.length) {
-    const prog = el("div", { class:"recur-progress" });
-    prog.append(el("div", { class:"fill", style:{width:`${Math.round(dailyDone/dailyItems.length*100)}%`} }));
-    recurCard.append(prog);
-    for (const item of dailyItems.slice(0,6)) {
-      const done = item.lastChecked === today();
-      const r = el("div", { class:`recur-item${done?" done":""}`, style:{borderBottom:"1px solid var(--border)",padding:"6px 0"} });
-      const cb = el("div", { class:`cb${done?" done":""}` });
-      if (done) cb.innerHTML = "&#x2713;";
-      cb.addEventListener("click", () => { item.lastChecked = done ? null : today(); save(); render.today(); });
-      r.append(cb, el("span", { class:"lbl", text:item.title }));
+    const pct = Math.round(dailyDone/dailyItems.length*100);
+    const pw = el("div",{class:"recur-progress",style:{height:"8px",marginBottom:"10px"}});
+    pw.append(el("div",{class:"fill",style:{width:`${pct}%`}}));
+    recurCard.append(pw);
+    recurCard.append(el("div",{class:"muted",style:{fontSize:"12px",marginBottom:"8px"},text:`${dailyDone} of ${dailyItems.length} done`}));
+    for (const item of dailyItems.slice(0,8)) {
+      const done = item.lastChecked===today();
+      const r = el("div",{class:`recur-item${done?" done":""}`,style:{padding:"8px 0",borderBottom:"1px solid var(--border)"}});
+      const cb = el("div",{class:`cb${done?" done":""}`}); if (done) cb.innerHTML="&#x2713;";
+      cb.addEventListener("click",()=>{ item.lastChecked=done?null:today(); save(); render.today(); });
+      r.append(cb, el("span",{class:"lbl",style:{fontSize:"15px"},text:item.title}));
       recurCard.append(r);
     }
-    recurCard.append(el("div", { class:"muted", style:{fontSize:"11px",marginTop:"8px"}, text:`${dailyDone}/${dailyItems.length} done today` }));
   } else {
-    recurCard.append(el("div", { class:"empty", text:"No daily tasks yet" }));
+    recurCard.append(el("div",{class:"empty",text:"No daily tasks yet — add them in Tasks"}));
   }
   grid.append(recurCard);
-
-  // Calendar
-  if (state.calendar?.icsUrl) {
-    const calCard = el("div", { class:"card" });
-    calCard.append(el("h3", {}, [el("span",{text:"Calendar · Today"}), el("button",{class:"btn ghost sm",text:"Sync →",onclick:()=>showView("schedule")})]));
-    const calBody = el("div");
-    calCard.append(calBody);
-    const showTodayCal = () => {
-      calBody.innerHTML = "";
-      const todayEv = calCache.events.filter(e => e.start.date === today());
-      renderCalEvents(calBody, todayEv, "No events today");
-    };
-    if (calCache.ts) {
-      showTodayCal();
-    } else {
-      calBody.append(el("div",{class:"wx-loading",text:"Loading calendar…"}));
-      syncCalendar().then(() => { calBody.innerHTML=""; showTodayCal(); }).catch(()=>{ calBody.innerHTML=""; calBody.append(el("div",{class:"wx-err",text:"Could not load calendar"})); });
-    }
-    grid.append(calCard);
-  }
 
   v.append(grid);
 };
@@ -1573,7 +1609,7 @@ function renderAll() {
   }
 }
 renderAll();
-showView("today");
+showView(localStorage.getItem("_view") || "today");
 </script>
 </body>
 </html>
