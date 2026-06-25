@@ -604,22 +604,37 @@ function parseICS(text) {
   // Extract TZID param from e.g. "DTSTART;TZID=America/New_York:..."
   const getTzid = (block, k) => { const m = block.match(new RegExp('^' + k + '[^:]*TZID=([^;:]+)','m')); return m ? m[1].trim() : null; };
 
-  // Convert a wall-clock time in a named IANA timezone to a JS Date (UTC).
-  // Uses the Intl formatToParts trick — works in all modern browsers.
+  // Outlook exports Windows timezone IDs, not IANA names. Map the common ones.
+  const WIN_TZ = {
+    'Eastern Standard Time':'America/New_York','Eastern Daylight Time':'America/New_York',
+    'Central Standard Time':'America/Chicago','Central Daylight Time':'America/Chicago',
+    'Mountain Standard Time':'America/Denver','Mountain Daylight Time':'America/Denver',
+    'US Mountain Standard Time':'America/Phoenix',
+    'Pacific Standard Time':'America/Los_Angeles','Pacific Daylight Time':'America/Los_Angeles',
+    'Alaskan Standard Time':'America/Anchorage','Hawaii-Aleutian Standard Time':'Pacific/Honolulu',
+    'GMT Standard Time':'Europe/London','Greenwich Standard Time':'Atlantic/Reykjavik',
+    'Romance Standard Time':'Europe/Paris','W. Europe Standard Time':'Europe/Berlin',
+    'Central European Standard Time':'Europe/Warsaw','E. Europe Standard Time':'Asia/Nicosia',
+    'UTC':'UTC','UTC-11':'Etc/GMT+11','UTC+12':'Etc/GMT-12',
+    'Atlantic Standard Time':'America/Halifax','Canada Central Standard Time':'America/Regina',
+    'SA Pacific Standard Time':'America/Bogota','SA Eastern Standard Time':'America/Cayenne',
+  };
+
+  // Convert a wall-clock time in a named timezone to a JS Date (UTC).
   const wallClockToUtc = (y, mo, d, h, mn, s, tzid) => {
+    const ianaId = WIN_TZ[tzid] || tzid;
     try {
       const approx = new Date(Date.UTC(+y, +mo-1, +d, +h, +mn, +s));
       const parts = new Intl.DateTimeFormat('en-US', {
-        timeZone: tzid, year:'numeric', month:'2-digit', day:'2-digit',
+        timeZone: ianaId, year:'numeric', month:'2-digit', day:'2-digit',
         hour:'2-digit', minute:'2-digit', second:'2-digit', hour12:false
       }).formatToParts(approx);
       const p = {};
       for (const {type, value} of parts) p[type] = +value;
-      // p.hour can be 24 at midnight in some implementations
       const tzApprox = Date.UTC(p.year, p.month-1, p.day, p.hour % 24, p.minute, p.second);
       return new Date(approx.getTime() + (approx.getTime() - tzApprox));
     } catch(e) {
-      // Unknown timezone — fall back to treating as local
+      // Unrecognised timezone — treat as local (best we can do without a full tz database)
       return new Date(+y, +mo-1, +d, +h, +mn, +s);
     }
   };
