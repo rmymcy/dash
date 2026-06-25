@@ -797,7 +797,16 @@ async function syncCalendar(forceRefresh = false) {
     if (!r.ok) throw new Error(`HTTP ${r.status}`);
     text = await r.text();
   }
-  calCache.events = parseICS(text);
+  const parsed = parseICS(text);
+  // Deduplicate events with same title and start time (Outlook sends both
+  // organizer's and attendee's copy of shared meetings as separate VEVENTs)
+  const seen = new Set();
+  calCache.events = parsed.filter(e => {
+    const key = `${e.start.ts}|${e.summary}`;
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
   calCache.ts = Date.now();
 }
 
@@ -1570,8 +1579,15 @@ render.settings = () => {
     }
     syncBtn.textContent = "Sync"; syncBtn.disabled = false;
   }});
+  const disconnectBtn = el("button", { class:"btn sm danger", text:"Disconnect", onclick:() => {
+    if (!confirm("Remove calendar and clear all synced events?")) return;
+    state.calendar.icsUrl = ""; save();
+    calCache.events = []; calCache.ts = 0;
+    urlInp.value = ""; setSyncStatus("", true);
+    renderPreview(); render.today?.();
+  }});
   urlInp.addEventListener("keydown", e => { if (e.key==="Enter") syncBtn.click(); });
-  syncRow.append(urlInp, syncBtn, syncStatus);
+  syncRow.append(urlInp, syncBtn, disconnectBtn, syncStatus);
   v.append(syncRow);
   const previewEl = el("div", { style:{marginTop:"6px"} });
   v.append(previewEl);
