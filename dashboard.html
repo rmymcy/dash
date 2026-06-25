@@ -482,6 +482,7 @@ header button.icon svg { width:18px; height:18px }
 <script>
 "use strict";
 const KEY = "dashboard_v2";
+const SYNC_KEY = "dashboard_sync_creds"; // separate key so creds survive state resets
 const $ = s => document.querySelector(s);
 const $$ = s => Array.from(document.querySelectorAll(s));
 const el = (t,p={},k=[]) => {
@@ -928,26 +929,39 @@ function normalizeState(s) {
   return s;
 }
 function load() {
+  let s;
   try {
     const raw = localStorage.getItem(KEY);
-    if (raw) return normalizeState(Object.assign(defaultState(), JSON.parse(raw)));
-    // migrate v1
-    const v1 = localStorage.getItem("dashboard_v1");
-    if (v1) {
-      const d = JSON.parse(v1);
-      const s = defaultState();
-      s.tasks = d.tasks || [];
-      s.schedule = d.schedule || s.schedule;
-      s.goals = d.goals || [];
-      s.notes = d.notes || [];
-      return normalizeState(s);
+    if (raw) s = normalizeState(Object.assign(defaultState(), JSON.parse(raw)));
+    else {
+      // migrate v1
+      const v1 = localStorage.getItem("dashboard_v1");
+      if (v1) {
+        const d = JSON.parse(v1);
+        s = defaultState();
+        s.tasks = d.tasks || []; s.schedule = d.schedule || s.schedule;
+        s.goals = d.goals || []; s.notes = d.notes || [];
+        s = normalizeState(s);
+      }
     }
   } catch(e) { console.error(e); }
-  return defaultState();
+  s = s || defaultState();
+  // Always restore credentials from the dedicated key — they must survive state resets
+  const creds = loadCreds();
+  if (creds?.token && creds?.gistId) s.sync = { ...s.sync, ...creds };
+  return s;
+}
+function saveCreds() {
+  try { localStorage.setItem(SYNC_KEY, JSON.stringify(state.sync)); } catch(e) {}
+}
+function loadCreds() {
+  try { const r = localStorage.getItem(SYNC_KEY); if (r) return JSON.parse(r); } catch(e) {}
+  return null;
 }
 function save() {
   try { localStorage.setItem(KEY, JSON.stringify(state)); } catch(e) { console.error(e); }
   if (state.sync?.token && state.sync?.gistId) {
+    saveCreds();
     clearTimeout(save._t);
     save._t = setTimeout(gistPush, 2000);
   }
@@ -956,13 +970,18 @@ function save() {
 const GIST_FILE = 'dashboard-state.json';
 const GIST_HDR = token => ({ 'Authorization':`Bearer ${token}`, 'Accept':'application/vnd.github+json', 'Content-Type':'application/json' });
 
+function stateForGist() {
+  // Never store credentials in the Gist — they live only in localStorage
+  const { sync: _omit, ...rest } = state;
+  return rest;
+}
 async function gistPush() {
   const { token, gistId } = state.sync || {};
   if (!token || !gistId) return;
   try {
     const r = await fetch(`https://api.github.com/gists/${gistId}`, {
       method:'PATCH', headers: GIST_HDR(token),
-      body: JSON.stringify({ files: { [GIST_FILE]: { content: JSON.stringify(state) } } })
+      body: JSON.stringify({ files: { [GIST_FILE]: { content: JSON.stringify(stateForGist()) } } })
     });
     if (!r.ok) { console.warn('gistPush failed', r.status, await r.text()); return; }
     state.sync.lastSynced = new Date().toISOString();
@@ -973,19 +992,18 @@ async function gistPush() {
 }
 
 async function gistPull() {
-  const { token, gistId } = state.sync || {};
-  if (!token || !gistId) return false;
+  const creds = state.sync?.token && state.sync?.gistId ? state.sync : loadCreds();
+  if (!creds?.token || !creds?.gistId) return false;
   try {
-    const r = await fetch(`https://api.github.com/gists/${gistId}`, { headers: GIST_HDR(token) });
+    const r = await fetch(`https://api.github.com/gists/${creds.gistId}`, { headers: GIST_HDR(creds.token) });
     if (!r.ok) { console.warn('gistPull failed', r.status, await r.text()); return false; }
     const d = await r.json();
     const raw = d.files?.[GIST_FILE]?.content;
     if (!raw) return false;
     const remote = JSON.parse(raw);
-    const localSync = state.sync;
     state = normalizeState(Object.assign(defaultState(), remote));
-    state.sync = localSync;
-    try { localStorage.setItem(KEY, JSON.stringify(state)); } catch(e) {}
+    state.sync = { ...creds, lastSynced: new Date().toISOString() };
+    try { localStorage.setItem(KEY, JSON.stringify(state)); saveCreds(); } catch(e) {}
     return true;
   } catch(e) { console.warn('gistPull error', e); return false; }
 }
@@ -1013,14 +1031,14 @@ async function connectGist(token, existingGistId) {
     const r = await fetch('https://api.github.com/gists', {
       method:'POST', headers: GIST_HDR(token),
       body: JSON.stringify({ description:'Dashboard state (auto-managed)', public:false,
-        files: { [GIST_FILE]: { content: JSON.stringify(state) } } })
+        files: { [GIST_FILE]: { content: JSON.stringify(stateForGist()) } } })
     });
     if (!r.ok) throw new Error(`Failed to create Gist (${r.status}) — token may be missing gist scope`);
     const d = await r.json();
     state.sync.token = token; state.sync.gistId = d.id;
   }
   state.sync.lastSynced = new Date().toISOString();
-  try { localStorage.setItem(KEY, JSON.stringify(state)); } catch(e) {}
+  try { localStorage.setItem(KEY, JSON.stringify(state)); saveCreds(); } catch(e) {}
   return state.sync.gistId;
 }
 let state = load();
