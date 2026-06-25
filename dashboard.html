@@ -601,19 +601,51 @@ function parseICS(text) {
   const raw = text.replace(/\r\n/g, '\n').replace(/\n[ \t]/g, '');
   const unescape = s => s.replace(/\\n/g,' ').replace(/\\,/g,',').replace(/\\;/g,';').replace(/\\\\/g,'\\');
   const get = (block, k) => { const m = block.match(new RegExp('^' + k + '[^:]*:(.+)$','m')); return m ? m[1].trim() : ''; };
+  // Extract TZID param from e.g. "DTSTART;TZID=America/New_York:..."
+  const getTzid = (block, k) => { const m = block.match(new RegExp('^' + k + '[^:]*TZID=([^;:]+)','m')); return m ? m[1].trim() : null; };
 
-  const parseICSDate = dt => {
+  // Convert a wall-clock time in a named IANA timezone to a JS Date (UTC).
+  // Uses the Intl formatToParts trick — works in all modern browsers.
+  const wallClockToUtc = (y, mo, d, h, mn, s, tzid) => {
+    try {
+      const approx = new Date(Date.UTC(+y, +mo-1, +d, +h, +mn, +s));
+      const parts = new Intl.DateTimeFormat('en-US', {
+        timeZone: tzid, year:'numeric', month:'2-digit', day:'2-digit',
+        hour:'2-digit', minute:'2-digit', second:'2-digit', hour12:false
+      }).formatToParts(approx);
+      const p = {};
+      for (const {type, value} of parts) p[type] = +value;
+      // p.hour can be 24 at midnight in some implementations
+      const tzApprox = Date.UTC(p.year, p.month-1, p.day, p.hour % 24, p.minute, p.second);
+      return new Date(approx.getTime() + (approx.getTime() - tzApprox));
+    } catch(e) {
+      // Unknown timezone — fall back to treating as local
+      return new Date(+y, +mo-1, +d, +h, +mn, +s);
+    }
+  };
+
+  const parseICSDate = (dt, tzid) => {
     if (!dt) return null;
     // All-day: YYYYMMDD
     if (/^\d{8}$/.test(dt)) {
       const iso = `${dt.slice(0,4)}-${dt.slice(4,6)}-${dt.slice(6,8)}`;
       return { date: iso, allDay: true, ts: new Date(iso + 'T00:00:00').getTime() };
     }
-    // Date-time: YYYYMMDDTHHMMSS[Z] or with UTC offset
+    // Date-time: YYYYMMDDTHHMMSS[Z|offset]
     const m = dt.match(/^(\d{4})(\d{2})(\d{2})T(\d{2})(\d{2})(\d{2})(Z|[+-]\d{2}:?\d{2})?$/);
     if (!m) return null;
-    const suffix = m[7] ? (m[7] === 'Z' ? 'Z' : m[7].replace(/(\d{2})(\d{2})$/, '$1:$2')) : '';
-    const d = new Date(`${m[1]}-${m[2]}-${m[3]}T${m[4]}:${m[5]}:${m[6]}${suffix}`);
+    let d;
+    if (m[7]) {
+      // Explicit UTC or numeric offset — parse directly
+      const suffix = m[7] === 'Z' ? 'Z' : m[7].replace(/(\d{2})(\d{2})$/, '$1:$2');
+      d = new Date(`${m[1]}-${m[2]}-${m[3]}T${m[4]}:${m[5]}:${m[6]}${suffix}`);
+    } else if (tzid) {
+      // Named timezone (e.g. America/New_York) — convert wall-clock to UTC
+      d = wallClockToUtc(m[1], m[2], m[3], m[4], m[5], m[6], tzid);
+    } else {
+      // Floating — treat as local
+      d = new Date(`${m[1]}-${m[2]}-${m[3]}T${m[4]}:${m[5]}:${m[6]}`);
+    }
     if (isNaN(d.getTime())) return null;
     return { date: dayStr(d), allDay: false, ts: d.getTime(),
       timeStr: d.toLocaleTimeString('en-US', { hour:'numeric', minute:'2-digit' }) };
@@ -663,8 +695,9 @@ function parseICS(text) {
 
     const summary  = unescape(get(master, 'SUMMARY'));
     const location = unescape(get(master, 'LOCATION'));
-    const startParsed = parseICSDate(get(master, 'DTSTART'));
-    const endParsed   = parseICSDate(get(master, 'DTEND'));
+    const startTzid = getTzid(master, 'DTSTART');
+    const startParsed = parseICSDate(get(master, 'DTSTART'), startTzid);
+    const endParsed   = parseICSDate(get(master, 'DTEND'), getTzid(master, 'DTEND') || startTzid);
     if (!summary || !startParsed) continue;
 
     // Parse EXDATE list
@@ -728,8 +761,9 @@ function parseICS(text) {
         // Check for RECURRENCE-ID override
         const excBlock = exceptions[origDtStr] || exceptions[origDtStr+'Z'];
         if (excBlock) {
-          const es = parseICSDate(get(excBlock, 'DTSTART'));
-          const ee = parseICSDate(get(excBlock, 'DTEND'));
+          const excTzid = getTzid(excBlock, 'DTSTART') || startTzid;
+          const es = parseICSDate(get(excBlock, 'DTSTART'), excTzid);
+          const ee = parseICSDate(get(excBlock, 'DTEND'), getTzid(excBlock, 'DTEND') || excTzid);
           if (es && es.ts >= winStart && es.ts <= winEnd) {
             events.push({ summary: unescape(get(excBlock,'SUMMARY'))||summary,
               location: unescape(get(excBlock,'LOCATION'))||location, start: es, end: ee });
