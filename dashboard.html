@@ -1541,6 +1541,26 @@ render.settings = () => {
   calmRow.append(calmBtn);
   v.append(calmRow);
 
+  // --- Keyboard Shortcuts ---
+  v.append(el("div", { class:"section-title", style:{marginTop:"24px"}, text:"Keyboard Shortcuts" }));
+  const kbGrid = el("div", { style:{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(180px,1fr))",gap:"6px 16px",marginBottom:"8px"} });
+  const kbShortcuts = [
+    ["1","Today"],["2","Tasks"],["3","Schedule"],["4","Weather"],
+    ["5","Crews"],["6","Goals"],["7","Notes"],["8","Review"],["9","Settings"],
+    ["Ctrl / ⌘ + K","Command palette"],["Esc","Close dialog"],
+  ];
+  for (const [key, label] of kbShortcuts) {
+    const row = el("div", { style:{display:"flex",gap:"8px",alignItems:"center",fontSize:"13px"} });
+    row.append(el("kbd", { text:key, style:{
+      background:"var(--bg-2)",border:"1px solid var(--border)",borderRadius:"5px",
+      padding:"2px 7px",fontFamily:"monospace",fontSize:"12px",whiteSpace:"nowrap",
+      color:"var(--ink-1)",boxShadow:"0 1px 0 var(--border)"
+    }}));
+    row.append(el("span", { text:label, style:{color:"var(--ink-2)"} }));
+    kbGrid.append(row);
+  }
+  v.append(kbGrid);
+
   // --- Data ---
   v.append(el("div", { class:"section-title", style:{marginTop:"24px"}, text:"Data" }));
   const dataRow = el("div", { class:"flex-row", style:{gap:"8px"} });
