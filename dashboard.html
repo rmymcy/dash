@@ -3,8 +3,12 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Dashboard">
 <meta name="theme-color" content="#3b6df0">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon.svg">
 <title>Dashboard</title>
 <style>
 :root {
@@ -141,6 +145,15 @@ header button.icon svg { width:18px; height:18px }
 
 .next-meeting-banner { display:flex; align-items:center; gap:10px; background:var(--teal-soft); color:var(--teal); border-radius:var(--radius); padding:12px 16px; margin-bottom:12px; cursor:pointer; font-weight:600; transition:.15s }
 .next-meeting-banner:hover { filter:brightness(.95) }
+.alert-strip { display:flex; flex-direction:column; gap:6px; margin-bottom:10px }
+.alert-row { display:flex; align-items:center; gap:10px; border-radius:var(--radius); padding:10px 14px; font-weight:600; font-size:13px }
+.alert-row.sev { background:var(--danger-soft); color:var(--danger) }
+.alert-row.mod { background:var(--warning-soft); color:var(--warning) }
+.alert-row .a-badge { border-radius:20px; padding:2px 8px; font-size:11px; font-weight:700; flex-shrink:0 }
+.alert-row.sev .a-badge { background:var(--danger); color:#fff }
+.alert-row.mod .a-badge { background:var(--warning); color:#fff }
+.alert-row .a-city { font-size:12px; opacity:.75; flex-shrink:0 }
+.alert-row .a-event { flex:1 }
 .nm-badge { background:var(--teal); color:#fff; border-radius:20px; padding:3px 10px; font-size:12px; font-weight:700; white-space:nowrap; flex-shrink:0 }
 .nm-title { font-size:15px; flex:1; white-space:nowrap; overflow:hidden; text-overflow:ellipsis }
 .nm-loc { font-size:13px; opacity:.7; white-space:nowrap; overflow:hidden; text-overflow:ellipsis }
@@ -499,6 +512,10 @@ const currentMonth = () => today().slice(0,7);
 // ============ WEATHER HELPERS ============
 const wxCache = {};
 const WX_TTL = 30 * 60 * 1000;
+const alertCache = {};
+const ALERT_TTL = 15 * 60 * 1000;
+
+if ('serviceWorker' in navigator) navigator.serviceWorker.register('./sw.js').catch(() => {});
 function wmoEmoji(c) {
   if (c===0) return "☀️"; if (c<=2) return "🌤️"; if (c===3) return "☁️";
   if (c<=48) return "🌫️"; if (c<=55) return "🌦️"; if (c<=65) return "🌧️";
@@ -529,6 +546,21 @@ async function fetchCityWx(city) {
   };
   wxCache[city.id] = entry;
   return entry;
+}
+async function fetchAlerts(city) {
+  if (!city.lat || !city.lng) return [];
+  const cached = alertCache[city.id];
+  if (cached && Date.now() - cached.ts < ALERT_TTL) return cached.alerts;
+  try {
+    const r = await fetch(`https://api.weather.gov/alerts/active?point=${city.lat},${city.lng}`, { headers:{'Accept':'application/geo+json','User-Agent':'DashboardApp'} });
+    if (!r.ok) return [];
+    const d = await r.json();
+    const alerts = (d.features||[])
+      .filter(f => ['Extreme','Severe','Moderate'].includes(f.properties.severity))
+      .map(f => ({ event:f.properties.event, severity:f.properties.severity, expires:f.properties.expires }));
+    alertCache[city.id] = { alerts, ts: Date.now() };
+    return alerts;
+  } catch(e) { return []; }
 }
 function showWxData(container, data, compact=false) {
   const { current, daily } = data;
@@ -1424,6 +1456,35 @@ render.today = () => {
     }, { saveText:"Add" });
   }}));
   v.append(bar);
+
+  // NWS weather alerts for all markets
+  const alertStrip = el("div", { class:"alert-strip" });
+  v.append(alertStrip);
+  const alertCities = (state.weather?.cities||[]).filter(c => c.lat !== null && c.name);
+  let alertPending = alertCities.length;
+  const allAlerts = [];
+  const renderAlertStrip = () => {
+    alertStrip.innerHTML = "";
+    allAlerts.sort((a,b) => (a.a.severity==='Extreme'?0:a.a.severity==='Severe'?1:2)-(b.a.severity==='Extreme'?0:b.a.severity==='Severe'?1:2));
+    for (const {city, a} of allAlerts) {
+      const isSev = a.severity==='Extreme'||a.severity==='Severe';
+      const row = el("div",{class:`alert-row ${isSev?"sev":"mod"}`});
+      row.append(el("span",{class:"a-badge",text:a.severity==='Extreme'?"🚨 EXTREME":a.severity==='Severe'?"⚠ SEVERE":"⚠ MODERATE"}));
+      row.append(el("span",{class:"a-city",text:city.name}));
+      row.append(el("span",{class:"a-event",text:a.event}));
+      alertStrip.append(row);
+    }
+  };
+  if (alertCities.length === 0) {
+    alertPending = 0;
+  } else {
+    alertCities.forEach(city => {
+      fetchAlerts(city).then(alerts => {
+        for (const a of alerts) allAlerts.push({city, a});
+        if (--alertPending === 0) renderAlertStrip();
+      }).catch(() => { if (--alertPending === 0) renderAlertStrip(); });
+    });
+  }
 
   // Next meeting callout
   if (calCache.ts && state.calendar?.icsUrl) {
