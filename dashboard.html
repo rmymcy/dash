@@ -1009,13 +1009,14 @@ async function gistPull() {
 }
 
 async function connectGist(token, existingGistId) {
-  // Validate token first
-  const meR = await fetch('https://api.github.com/user', { headers: GIST_HDR(token) });
-  if (!meR.ok) throw new Error(`Token rejected by GitHub (${meR.status}) — make sure it's a Classic token with gist scope`);
-
   if (existingGistId) {
     const r = await fetch(`https://api.github.com/gists/${existingGistId}`, { headers: GIST_HDR(token) });
-    if (!r.ok) throw new Error(`Gist not found (${r.status}) — check the Gist ID is correct`);
+    if (!r.ok) {
+      const msg = r.status === 401 ? `Token invalid or expired (401) — regenerate your token at github.com/settings/tokens`
+                : r.status === 404 ? `Gist not found (404) — double-check the Gist ID`
+                : `GitHub error ${r.status}`;
+      throw new Error(msg);
+    }
     const d = await r.json();
     const raw = d.files?.[GIST_FILE]?.content;
     state.sync.token = token; state.sync.gistId = existingGistId;
@@ -1033,7 +1034,12 @@ async function connectGist(token, existingGistId) {
       body: JSON.stringify({ description:'Dashboard state (auto-managed)', public:false,
         files: { [GIST_FILE]: { content: JSON.stringify(stateForGist()) } } })
     });
-    if (!r.ok) throw new Error(`Failed to create Gist (${r.status}) — token may be missing gist scope`);
+    if (!r.ok) {
+      const msg = r.status === 401 ? `Token invalid or expired (401) — regenerate at github.com/settings/tokens`
+                : r.status === 403 ? `Token missing gist scope (403) — create a Classic token with only "gist" checked`
+                : `GitHub error ${r.status}`;
+      throw new Error(msg);
+    }
     const d = await r.json();
     state.sync.token = token; state.sync.gistId = d.id;
   }
