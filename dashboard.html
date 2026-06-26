@@ -3,8 +3,12 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Dashboard">
 <meta name="theme-color" content="#3b6df0">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon.svg">
 <title>Dashboard</title>
 <style>
 :root {
@@ -121,9 +125,50 @@ header button.icon svg { width:18px; height:18px }
 .row.between { justify-content:space-between }
 
 /* Today view */
-.today-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(280px,1fr)); gap:14px }
+.today-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(300px,1fr)); gap:16px }
 .today-grid .span-2 { grid-column:span 2 }
 @media(max-width:700px){ .today-grid .span-2 { grid-column:span 1 }}
+
+/* Stat strip */
+.stat-strip { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; margin:14px 0 18px }
+@media(max-width:700px){ .stat-strip { grid-template-columns:repeat(2,1fr) } }
+.stat-box { border-radius:var(--radius); padding:22px 18px; display:flex; flex-direction:column; gap:6px; cursor:pointer; transition:.15s }
+.stat-box:hover { filter:brightness(.95) }
+.stat-box .s-icon { font-size:32px; line-height:1 }
+.stat-box .s-val { font-size:44px; font-weight:800; line-height:1 }
+.stat-box .s-lbl { font-size:11px; font-weight:600; letter-spacing:.5px; text-transform:uppercase; opacity:.75 }
+.s-danger  { background:var(--danger-soft);  color:var(--danger) }
+.s-success { background:var(--success-soft); color:var(--success) }
+.s-warning { background:var(--warning-soft); color:var(--warning) }
+.s-teal    { background:var(--teal-soft);    color:var(--teal) }
+.s-accent  { background:var(--accent-soft);  color:var(--accent) }
+
+.next-meeting-banner { display:flex; align-items:center; gap:10px; background:var(--teal-soft); color:var(--teal); border-radius:var(--radius); padding:12px 16px; margin-bottom:12px; cursor:pointer; font-weight:600; transition:.15s }
+.next-meeting-banner:hover { filter:brightness(.95) }
+.alert-strip { display:flex; flex-direction:column; gap:6px; margin-bottom:10px }
+.alert-row { display:flex; align-items:center; gap:10px; border-radius:var(--radius); padding:10px 14px; font-weight:600; font-size:13px }
+.alert-row.sev { background:var(--danger-soft); color:var(--danger) }
+.alert-row.mod { background:var(--warning-soft); color:var(--warning) }
+.alert-row .a-badge { border-radius:20px; padding:2px 8px; font-size:11px; font-weight:700; flex-shrink:0 }
+.alert-row.sev .a-badge { background:var(--danger); color:#fff }
+.alert-row.mod .a-badge { background:var(--warning); color:#fff }
+.alert-row .a-city { font-size:12px; opacity:.75; flex-shrink:0 }
+.alert-row .a-event { flex:1 }
+.nm-badge { background:var(--teal); color:#fff; border-radius:20px; padding:3px 10px; font-size:12px; font-weight:700; white-space:nowrap; flex-shrink:0 }
+.nm-title { font-size:15px; flex:1; white-space:nowrap; overflow:hidden; text-overflow:ellipsis }
+.nm-loc { font-size:13px; opacity:.7; white-space:nowrap; overflow:hidden; text-overflow:ellipsis }
+
+/* Today task rows */
+.today-task-row { display:flex; align-items:center; gap:10px; padding:10px 8px; border-radius:var(--radius-sm); margin-bottom:3px }
+.today-task-bar { width:5px; min-height:32px; border-radius:3px; flex-shrink:0; align-self:stretch }
+.today-task-title { flex:1; font-size:15px; font-weight:500 }
+.today-check { font-size:22px; color:var(--muted); flex-shrink:0; padding:0 4px }
+.today-check:hover { color:var(--accent) }
+
+/* Today weather hero */
+.wx-hero-emoji { font-size:60px; line-height:1; margin:6px 0 2px }
+.wx-hero-temp  { font-size:52px; font-weight:800; line-height:1; margin-bottom:4px }
+.wx-hero-cond  { font-size:15px; color:var(--ink-2); margin-bottom:6px }
 .stat-big { font-size:28px; font-weight:700; line-height:1.1 }
 .stat-sub { font-size:11px; color:var(--muted); text-transform:uppercase; letter-spacing:.5px; font-weight:600 }
 .stat-row { display:flex; align-items:baseline; gap:8px }
@@ -180,83 +225,24 @@ header button.icon svg { width:18px; height:18px }
   border-radius:var(--radius-sm); min-height:40px; margin-bottom:6px; display:none }
 .kanban-col.drag-over .drop-zone { display:block }
 
-/* Heatmap */
-.heatmap { display:flex; gap:2px; flex-wrap:wrap }
-.heatmap .day { width:12px; height:12px; border-radius:2px; background:var(--surface-2); border:1px solid var(--border) }
-.heatmap .day.l1 { background:#c6e3d2; border-color:#c6e3d2 }
-.heatmap .day.l2 { background:#7fc69b; border-color:#7fc69b }
-.heatmap .day.l3 { background:#2f7a4a; border-color:#2f7a4a }
-.heatmap .day.l4 { background:#1a5230; border-color:#1a5230 }
-:root.dark .heatmap .day { background:#222 }
-:root.dark .heatmap .day.l1 { background:#1e3527; border-color:#1e3527 }
-:root.dark .heatmap .day.l2 { background:#2d5d3e; border-color:#2d5d3e }
-:root.dark .heatmap .day.l3 { background:#4caf6a; border-color:#4caf6a }
-:root.dark .heatmap .day.l4 { background:#7dd49b; border-color:#7dd49b }
-
-/* Habit grid */
-.habit-row { display:flex; align-items:center; gap:10px; padding:10px; background:var(--surface-2);
-  border-radius:var(--radius-sm); margin-bottom:6px }
-.habit-row .icon { font-size:22px; width:30px; text-align:center }
-.habit-row .name { flex:1; font-weight:500; font-size:14px }
-.habit-row .streak { font-size:12px; color:var(--success); font-weight:600; white-space:nowrap;
-  background:var(--success-soft); padding:2px 8px; border-radius:99px }
-.habit-row .week { display:flex; gap:3px }
-.habit-row .dot { width:24px; height:24px; border-radius:50%; border:2px solid var(--border);
-  display:flex; align-items:center; justify-content:center; font-size:9px; color:var(--muted);
-  cursor:pointer; transition:.1s }
-.habit-row .dot.done { background:var(--success); border-color:var(--success); color:#fff }
-.habit-row .dot.today { border-color:var(--accent); border-width:2px }
-.habit-row .del { color:var(--muted); padding:4px; opacity:.5 }
-.habit-row .del:hover { opacity:1; color:var(--danger) }
-@media(max-width:600px){ .habit-row .week { display:none } }
-
-/* Cleaning */
-.clean-room { margin-bottom:14px }
-.clean-room h3 { font-size:13px; font-weight:600; margin-bottom:8px; color:var(--ink); text-transform:none; letter-spacing:0 }
-.clean-task { display:flex; align-items:center; gap:10px; padding:9px 12px; background:var(--surface);
-  border:1px solid var(--border); border-radius:var(--radius-sm); margin-bottom:4px }
-.clean-task.overdue { border-color:var(--danger); background:var(--danger-soft) }
-.clean-task.due { border-color:var(--warning); background:var(--warning-soft) }
-.clean-task .check { width:24px; height:24px; border-radius:50%; border:2px solid var(--border);
-  cursor:pointer; flex-shrink:0; display:flex; align-items:center; justify-content:center }
-.clean-task .check.done { background:var(--success); border-color:var(--success); color:#fff }
-.clean-task .name { flex:1; font-size:14px }
-.clean-task .freq { font-size:11px; color:var(--muted) }
-.clean-task .age { font-size:11px; padding:2px 7px; border-radius:99px; background:var(--surface-2); color:var(--muted) }
-.clean-task.overdue .age { background:var(--danger); color:#fff }
-.clean-task.due .age { background:var(--warning); color:#fff }
-.clean-task .del { color:var(--muted); padding:4px; opacity:.4; font-size:13px }
-.clean-task .del:hover { opacity:1; color:var(--danger) }
-
-/* Diet */
-.macros { display:grid; grid-template-columns:repeat(4,1fr); gap:10px; margin-bottom:14px }
-.macro-card { background:var(--surface-2); border-radius:var(--radius-sm); padding:10px; text-align:center }
-.macro-card .val { font-size:18px; font-weight:700 }
-.macro-card .max { font-size:11px; color:var(--muted) }
-.macro-card .bar { height:4px; background:var(--border); border-radius:2px; margin-top:6px; overflow:hidden }
-.macro-card .bar .fill { height:100%; background:var(--accent) }
-.macro-card.cal .fill { background:var(--warning) }
-.macro-card.protein .fill { background:var(--success) }
-.macro-card.carbs .fill { background:var(--accent) }
-.macro-card.fat .fill { background:var(--purple) }
-.water-tracker { display:flex; gap:6px; margin:10px 0; flex-wrap:wrap }
-.water-glass { width:30px; height:36px; border:2px solid var(--accent); border-top:none;
-  border-radius:0 0 6px 6px; cursor:pointer; transition:.15s; position:relative }
-.water-glass.filled { background:linear-gradient(180deg,transparent 20%,var(--accent) 20%) }
-.meal-row { display:flex; align-items:center; gap:10px; padding:10px; background:var(--surface-2);
-  border-radius:var(--radius-sm); margin-bottom:4px }
-.meal-row .meal-time { font-size:11px; color:var(--muted); text-transform:uppercase; min-width:60px; font-weight:600 }
-.meal-row .meal-name { flex:1; font-size:14px }
-.meal-row .meal-cal { font-variant-numeric:tabular-nums; font-weight:600; font-size:13px }
-
-/* Health */
-.health-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(260px,1fr)); gap:12px; margin-bottom:14px }
-.sparkline { width:100%; height:50px; display:block }
-.mood-row { display:flex; gap:8px; margin:10px 0 }
-.mood-btn { flex:1; padding:14px 8px; border-radius:var(--radius-sm); font-size:24px; cursor:pointer;
-  background:var(--surface-2); border:2px solid transparent; transition:.15s }
-.mood-btn.selected { border-color:var(--accent); background:var(--accent-soft) }
-.mood-btn:hover { background:var(--surface-2); filter:brightness(.95) }
+/* Recurring tasks */
+.recur-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; margin-top:20px }
+@media(max-width:760px) { .recur-grid { grid-template-columns:1fr } }
+.recur-card { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:14px }
+.recur-card h3 { font-size:11px; text-transform:uppercase; letter-spacing:.6px; color:var(--muted); font-weight:600; margin-bottom:6px; display:flex; justify-content:space-between; align-items:center }
+.recur-progress { height:4px; background:var(--border); border-radius:2px; margin-bottom:10px; overflow:hidden }
+.recur-progress .fill { height:100%; background:var(--success); border-radius:2px; transition:.3s }
+.recur-item { display:flex; align-items:center; gap:8px; padding:7px 0; border-bottom:1px solid var(--border) }
+.recur-item:last-child { border-bottom:none }
+.recur-item .cb { width:20px; height:20px; border-radius:4px; border:2px solid var(--border); cursor:pointer; flex-shrink:0; display:flex; align-items:center; justify-content:center; transition:.1s; font-size:11px }
+.recur-item .cb.done { background:var(--success); border-color:var(--success); color:#fff }
+.recur-item .lbl { flex:1; font-size:14px }
+.recur-item.done .lbl { text-decoration:line-through; color:var(--muted) }
+.recur-item .del { color:var(--muted); opacity:.35; padding:2px 5px; font-size:12px; border-radius:3px }
+.recur-item .del:hover { opacity:1; color:var(--danger); background:var(--danger-soft) }
+.recur-add { display:flex; gap:6px; margin-top:10px }
+.recur-add input { flex:1; padding:7px 10px; font-size:13px; min-height:32px }
+.recur-add button { font-size:13px; min-height:32px }
 
 /* Schedule */
 .week-grid { display:grid; grid-template-columns:60px repeat(7,1fr); gap:0; background:var(--border) }
@@ -268,6 +254,7 @@ header button.icon svg { width:18px; height:18px }
 .week-grid .cell:hover { background:var(--accent-soft) }
 .week-block { position:absolute; left:2px; right:2px; padding:3px 5px;
   background:var(--accent); color:#fff; font-size:10px; border-radius:3px; overflow:hidden; cursor:pointer }
+.cal-block { background:var(--teal) !important; border-left:3px solid rgba(255,255,255,.4); cursor:default }
 @media(max-width:760px){ .week-grid { grid-template-columns:40px repeat(7,1fr); font-size:10px }
   .week-grid .hr { font-size:9px } }
 
@@ -313,25 +300,67 @@ header button.icon svg { width:18px; height:18px }
 .note-card .bottom button:hover { color:var(--accent); background:var(--accent-soft) }
 .note-card .tags { display:flex; gap:4px; margin-top:6px; flex-wrap:wrap }
 
-/* Reading */
-.book-row { display:flex; gap:12px; padding:12px; background:var(--surface); border:1px solid var(--border);
-  border-radius:var(--radius-sm); margin-bottom:6px; align-items:center }
-.book-row .cover { width:38px; height:50px; background:linear-gradient(135deg,var(--purple),var(--accent));
-  border-radius:3px; flex-shrink:0; display:flex; align-items:center; justify-content:center;
-  color:#fff; font-size:14px; font-weight:700 }
-.book-row .info { flex:1 }
-.book-row .title { font-weight:600; font-size:14px }
-.book-row .author { font-size:12px; color:var(--muted) }
-.book-row .progress { font-size:11px; color:var(--accent); font-weight:600 }
 
-/* Finance */
-.budget-card { padding:14px }
-.budget-card .top { display:flex; justify-content:space-between; align-items:baseline; margin-bottom:8px }
-.spend-row { display:flex; align-items:center; gap:10px; padding:8px 10px; background:var(--surface-2);
-  border-radius:var(--radius-sm); margin-bottom:4px; font-size:13px }
-.spend-row .amt { font-weight:700; font-variant-numeric:tabular-nums }
-.spend-row .cat { color:var(--muted); font-size:11px }
-.spend-row .date { color:var(--muted); font-size:11px }
+
+/* Weather */
+.weather-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(300px,1fr)); gap:14px }
+.wx-card { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:16px }
+.wx-card.wx-main { border-color:var(--accent); border-left-width:3px }
+.wx-label { font-size:10px; text-transform:uppercase; letter-spacing:.6px; color:var(--accent); font-weight:700; margin-bottom:6px }
+.wx-location { font-size:11px; color:var(--muted); margin:-6px 0 8px; letter-spacing:.2px }
+.wx-city-row { display:flex; gap:6px; align-items:center; margin-bottom:10px }
+.wx-city-row input { flex:1; font-size:14px; font-weight:600; padding:6px 10px; min-height:34px }
+.wx-city-row button { min-height:34px; font-size:12px }
+.wx-current { display:flex; align-items:center; gap:14px; margin:10px 0 }
+.wx-emoji { font-size:44px; line-height:1; flex-shrink:0 }
+.wx-temp { font-size:40px; font-weight:200; font-variant-numeric:tabular-nums; line-height:1 }
+.wx-cond { font-size:13px; font-weight:600; color:var(--ink); margin-top:2px }
+.wx-details { font-size:11px; color:var(--muted); margin-top:2px }
+.wx-week { display:grid; grid-template-columns:repeat(7,1fr); gap:3px; margin-top:12px; padding-top:12px; border-top:1px solid var(--border) }
+.wx-day { text-align:center }
+.wx-day .wd { font-size:10px; color:var(--muted); text-transform:uppercase; letter-spacing:.3px; font-weight:600 }
+.wx-day .we { font-size:20px; margin:4px 0 2px }
+.wx-day .wh { font-size:12px; font-weight:700 }
+.wx-day .wl { font-size:11px; color:var(--muted) }
+.wx-loading { color:var(--muted); font-size:13px; padding:18px 0; text-align:center }
+.wx-err { color:var(--danger); font-size:12px; margin:4px 0 }
+.wx-ts { font-size:10px; color:var(--muted); margin-top:10px; text-align:right }
+
+/* Calendar */
+.cal-event { display:flex; align-items:baseline; gap:8px; padding:6px 0; border-bottom:1px solid var(--border) }
+.cal-event:last-child { border-bottom:none }
+.cal-time { font-size:12px; color:var(--muted); min-width:72px; flex-shrink:0 }
+.cal-title { font-size:14px; flex:1 }
+.cal-loc { font-size:11px; color:var(--muted); display:block; margin-top:1px }
+.cal-sync-row { display:flex; gap:8px; align-items:center; margin-bottom:10px }
+.cal-sync-row input { flex:1; font-size:13px }
+.cal-hint { font-size:11px; color:var(--muted); margin-bottom:10px; line-height:1.6 }
+
+/* Pinned links */
+.links-bar { display:flex; flex-wrap:wrap; gap:8px; margin-bottom:18px; align-items:center }
+.link-chip { display:inline-flex; align-items:center; gap:5px; padding:6px 14px;
+  background:var(--surface); border:1px solid var(--border); border-radius:99px;
+  font-size:13px; font-weight:500; color:var(--ink); text-decoration:none; transition:.15s; flex-shrink:0 }
+.link-chip:hover { border-color:var(--accent); color:var(--accent); background:var(--accent-soft) }
+.link-chip .del { margin-left:4px; opacity:0; font-size:11px; line-height:1; color:var(--muted); background:none; border:none; cursor:pointer; padding:0 }
+.link-chip:hover .del { opacity:1 }
+.link-add-btn { padding:6px 12px; border-radius:99px; border:1px dashed var(--border); background:none;
+  color:var(--muted); font-size:13px; cursor:pointer; transition:.15s; flex-shrink:0 }
+.link-add-btn:hover { border-color:var(--accent); color:var(--accent) }
+
+/* Crew contacts */
+.crew-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(260px,1fr)); gap:14px }
+.crew-card { background:var(--surface); border-radius:var(--radius); padding:16px;
+  border:1px solid var(--border); box-shadow:var(--shadow) }
+.crew-card .crew-market { font-size:16px; font-weight:700; margin-bottom:10px; display:flex; justify-content:space-between; align-items:center }
+.crew-card .crew-detail { font-size:13px; color:var(--ink-2); margin-bottom:3px }
+.crew-card .crew-note { font-size:12px; color:var(--muted); margin-top:8px; font-style:italic; line-height:1.5 }
+.crew-card .crew-actions { display:flex; gap:6px; margin-top:12px }
+.crew-status { display:inline-block; padding:2px 9px; border-radius:99px; font-size:11px; font-weight:600 }
+.crew-status.active   { background:var(--success-soft); color:var(--success) }
+.crew-status.short    { background:var(--warning-soft); color:var(--warning) }
+.crew-status.hold     { background:var(--purple-soft); color:var(--purple) }
+.crew-status.inactive { background:var(--danger-soft); color:var(--danger) }
 
 /* Modals */
 .modal-overlay { position:fixed; inset:0; background:rgba(0,0,0,.4); z-index:50;
@@ -376,8 +405,7 @@ header button.icon svg { width:18px; height:18px }
   <span class="greeting" id="greeting"></span>
   <span class="spacer"></span>
   <span class="h-stat" id="stat-tasks"><span>Tasks today: <strong id="hsTasks">0</strong></span></span>
-  <span class="h-stat streak" id="stat-streak" style="display:none"></span>
-  <button class="icon" id="cmdBtn" title="Quick add (Ctrl+K)">
+<button class="icon" id="cmdBtn" title="Quick add (Ctrl+K)">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
   </button>
   <button class="icon" id="exportBtn" title="Export data">
@@ -396,18 +424,13 @@ header button.icon svg { width:18px; height:18px }
     <button class="nav-btn active" data-view="today"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>Today</button>
     <button class="nav-btn" data-view="tasks"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>Tasks<span class="badge" id="navBadgeTasks" style="display:none">0</span></button>
     <button class="nav-btn" data-view="schedule"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>Schedule</button>
-    <div class="group-label">Wellness</div>
-    <button class="nav-btn" data-view="habits"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>Habits</button>
-    <button class="nav-btn" data-view="diet"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a10 10 0 100 20 10 10 0 000-20zm0 0v10l5 3"/></svg>Diet</button>
-    <button class="nav-btn" data-view="health"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>Health</button>
-    <div class="group-label">Home</div>
-    <button class="nav-btn" data-view="cleaning"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12l2-2 4 4 8-8 4 4-12 12-6-6 0-4z"/></svg>Cleaning<span class="badge" id="navBadgeClean" style="display:none">0</span></button>
-    <button class="nav-btn" data-view="finance"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>Finance</button>
-    <div class="group-label">Mind</div>
+    <button class="nav-btn" data-view="crews"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg>Crews</button>
+    <div class="group-label">Work</div>
     <button class="nav-btn" data-view="goals"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>Goals</button>
     <button class="nav-btn" data-view="notes"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/></svg>Notes</button>
-    <button class="nav-btn" data-view="reading"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 016.5 17H20M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/></svg>Reading</button>
     <button class="nav-btn" data-view="review"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 14l4-4 4 4 5-5"/></svg>Review</button>
+    <div style="flex:1"></div>
+    <button class="nav-btn" data-view="settings"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>Settings</button>
   </aside>
 
   <main id="content">
@@ -417,24 +440,16 @@ header button.icon svg { width:18px; height:18px }
     <section class="view" id="view-tasks"></section>
     <!-- SCHEDULE VIEW -->
     <section class="view" id="view-schedule"></section>
-    <!-- HABITS VIEW -->
-    <section class="view" id="view-habits"></section>
-    <!-- DIET VIEW -->
-    <section class="view" id="view-diet"></section>
-    <!-- HEALTH VIEW -->
-    <section class="view" id="view-health"></section>
-    <!-- CLEANING VIEW -->
-    <section class="view" id="view-cleaning"></section>
-    <!-- FINANCE VIEW -->
-    <section class="view" id="view-finance"></section>
     <!-- GOALS VIEW -->
     <section class="view" id="view-goals"></section>
     <!-- NOTES VIEW -->
     <section class="view" id="view-notes"></section>
-    <!-- READING VIEW -->
-    <section class="view" id="view-reading"></section>
     <!-- REVIEW VIEW -->
     <section class="view" id="view-review"></section>
+    <!-- CREWS VIEW -->
+    <section class="view" id="view-crews"></section>
+    <!-- SETTINGS VIEW -->
+    <section class="view" id="view-settings"></section>
   </main>
 </div>
 
@@ -443,15 +458,11 @@ header button.icon svg { width:18px; height:18px }
     <button data-view="today" class="active"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/></svg>Today</button>
     <button data-view="tasks"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>Tasks</button>
     <button data-view="schedule"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="3" y1="10" x2="21" y2="10"/></svg>Plan</button>
-    <button data-view="habits"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>Habits</button>
-    <button data-view="diet"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a10 10 0 100 20 10 10 0 000-20zm0 0v10l5 3"/></svg>Diet</button>
-    <button data-view="health"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>Health</button>
-    <button data-view="cleaning"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12l2-2 4 4 8-8 4 4-12 12-6-6 0-4z"/></svg>Clean</button>
-    <button data-view="finance"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>$</button>
+    <button data-view="crews"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg>Crews</button>
     <button data-view="goals"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>Goals</button>
     <button data-view="notes"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/></svg>Notes</button>
-    <button data-view="reading"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 016.5 17H20M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/></svg>Read</button>
     <button data-view="review"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 14l4-4 4 4 5-5"/></svg>Review</button>
+    <button data-view="settings"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>Settings</button>
   </div>
 </nav>
 
@@ -463,7 +474,7 @@ header button.icon svg { width:18px; height:18px }
 <!-- Command palette -->
 <div id="cmd">
   <div class="panel">
-    <input id="cmdInput" type="text" placeholder="Quick add: 'task buy milk', 'water', 'note ...', 'meal ...', 'spend 10 coffee', or jump to view">
+    <input id="cmdInput" type="text" placeholder="Quick add: 'task buy milk', 'note ...', or jump to a view">
     <div class="results" id="cmdResults"></div>
   </div>
 </div>
@@ -471,6 +482,7 @@ header button.icon svg { width:18px; height:18px }
 <script>
 "use strict";
 const KEY = "dashboard_v2";
+const SYNC_KEY = "dashboard_sync_creds"; // separate key so creds survive state resets
 const $ = s => document.querySelector(s);
 const $$ = s => Array.from(document.querySelectorAll(s));
 const el = (t,p={},k=[]) => {
@@ -487,84 +499,556 @@ const el = (t,p={},k=[]) => {
   return e;
 };
 const genId = p => p+"_"+Date.now().toString(36)+"_"+Math.random().toString(36).slice(2,7);
-const today = () => new Date().toISOString().slice(0,10);
-const dayStr = d => d.toISOString().slice(0,10);
+const today = () => { const d = new Date(); return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`; };
+const dayStr = d => `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
 const fmtDate = d => { if(!d) return ""; const dt = new Date(d+"T00:00:00"); return dt.toLocaleDateString("en-US",{month:"short",day:"numeric"}); };
 const fmtDateTime = iso => new Date(iso).toLocaleString("en-US",{month:"short",day:"numeric",hour:"numeric",minute:"2-digit"});
 const daysBetween = (a,b) => Math.round((new Date(b)-new Date(a))/864e5);
 const esc = s => { const d = document.createElement("div"); d.textContent = s||""; return d.innerHTML; };
 const clamp = (v,a,b) => Math.max(a, Math.min(b,v));
 const sum = arr => arr.reduce((a,b)=>a+(+b||0),0);
+const currentWeek = () => { const d = new Date(), day = d.getDay(), m = new Date(d); m.setDate(d.getDate()-(day===0?6:day-1)); return dayStr(m); };
+const currentMonth = () => today().slice(0,7);
+
+// ============ WEATHER HELPERS ============
+const wxCache = {};
+const WX_TTL = 30 * 60 * 1000;
+const alertCache = {};
+const ALERT_TTL = 15 * 60 * 1000;
+
+if ('serviceWorker' in navigator) navigator.serviceWorker.register('./sw.js').catch(() => {});
+function wmoEmoji(c) {
+  if (c===0) return "☀️"; if (c<=2) return "🌤️"; if (c===3) return "☁️";
+  if (c<=48) return "🌫️"; if (c<=55) return "🌦️"; if (c<=65) return "🌧️";
+  if (c<=77) return "❄️"; if (c<=82) return "🌧️"; if (c<=86) return "🌨️";
+  return "⛈️";
+}
+function wmoLabel(c) {
+  if (c===0) return "Clear"; if (c===1) return "Mainly clear"; if (c===2) return "Partly cloudy";
+  if (c===3) return "Overcast"; if (c<=48) return "Foggy"; if (c<=55) return "Drizzle";
+  if (c<=65) return "Rain"; if (c<=77) return "Snow"; if (c<=82) return "Showers";
+  if (c<=86) return "Snow showers"; return "Thunderstorm";
+}
+async function geocodeCity(name) {
+  const r = await fetch(`https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(name)}&count=1&language=en&format=json`);
+  const d = await r.json();
+  if (!d.results?.length) throw new Error("not found");
+  const res = d.results[0];
+  return { lat: res.latitude, lng: res.longitude, region: res.admin1 || "", country: res.country_code || "" };
+}
+async function fetchCityWx(city) {
+  const url = `https://api.open-meteo.com/v1/forecast?latitude=${city.lat}&longitude=${city.lng}&current=temperature_2m,weathercode,windspeed_10m&daily=weathercode,temperature_2m_max,temperature_2m_min&temperature_unit=fahrenheit&windspeed_unit=mph&timezone=auto&forecast_days=7`;
+  const r = await fetch(url);
+  const d = await r.json();
+  const entry = {
+    ts: Date.now(),
+    current: { temp: Math.round(d.current.temperature_2m), code: d.current.weathercode, wind: Math.round(d.current.windspeed_10m) },
+    daily: d.daily.time.map((dt, i) => ({ date: dt, code: d.daily.weathercode[i], hi: Math.round(d.daily.temperature_2m_max[i]), lo: Math.round(d.daily.temperature_2m_min[i]) }))
+  };
+  wxCache[city.id] = entry;
+  return entry;
+}
+async function fetchAlerts(city) {
+  if (!city.lat || !city.lng) return [];
+  const cached = alertCache[city.id];
+  if (cached && Date.now() - cached.ts < ALERT_TTL) return cached.alerts;
+  try {
+    const r = await fetch(`https://api.weather.gov/alerts/active?point=${city.lat},${city.lng}`, { headers:{'Accept':'application/geo+json','User-Agent':'DashboardApp'} });
+    if (!r.ok) return [];
+    const d = await r.json();
+    const alerts = (d.features||[])
+      .filter(f => ['Extreme','Severe','Moderate'].includes(f.properties.severity))
+      .map(f => ({ event:f.properties.event, severity:f.properties.severity, expires:f.properties.expires }));
+    alertCache[city.id] = { alerts, ts: Date.now() };
+    return alerts;
+  } catch(e) { return []; }
+}
+function showWxData(container, data, compact=false) {
+  const { current, daily } = data;
+  const d0 = daily[0];
+  const curr = el("div", { class:"wx-current" });
+  curr.append(el("div", { class:"wx-emoji", text: wmoEmoji(current.code) }));
+  const inf = el("div");
+  inf.append(el("div", { class:"wx-temp", text:`${current.temp}°F` }));
+  inf.append(el("div", { class:"wx-cond", text: wmoLabel(current.code) }));
+  inf.append(el("div", { class:"wx-details", text:`↑${d0?.hi}° ↓${d0?.lo}° · Wind ${current.wind} mph` }));
+  curr.append(inf);
+  container.append(curr);
+  if (!compact) {
+    const week = el("div", { class:"wx-week" });
+    const DN = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
+    for (const d of daily) {
+      const dt = new Date(d.date+"T12:00:00");
+      const dc = el("div", { class:"wx-day" });
+      dc.append(el("div",{class:"wd",text:d.date===today()?"Today":DN[dt.getDay()]}));
+      dc.append(el("div",{class:"we",text:wmoEmoji(d.code)}));
+      dc.append(el("div",{class:"wh",text:`${d.hi}°`}));
+      dc.append(el("div",{class:"wl",text:`${d.lo}°`}));
+      week.append(dc);
+    }
+    container.append(week);
+  }
+  container.append(el("div",{class:"wx-ts",text:`Updated ${new Date(data.ts).toLocaleTimeString("en-US",{hour:"numeric",minute:"2-digit"})}`}));
+}
+function buildWxCard(city, idx) {
+  const card = el("div", { class:`wx-card${idx===0?" wx-main":""}` });
+  const errEl = el("div", { class:"wx-err" });
+  const cityRow = el("div", { class:"wx-city-row" });
+  const inp = el("input", { type:"text", placeholder:`City ${idx+1}…`, value: city.name||"" });
+  const setBtn = el("button", { class:"btn sm primary", text:"Set", onclick: async () => {
+    const name = inp.value.trim(); if (!name) return;
+    setBtn.textContent = "…"; setBtn.disabled = true; errEl.textContent = "";
+    try {
+      const { lat, lng, region, country } = await geocodeCity(name);
+      city.name = name; city.lat = lat; city.lng = lng; city.region = region; city.country = country;
+      delete wxCache[city.id]; save();
+      const newCard = buildWxCard(city, idx); card.replaceWith(newCard);
+    } catch(e) {
+      errEl.textContent = "City not found — check spelling"; setBtn.textContent = "Set"; setBtn.disabled = false;
+    }
+  }});
+  inp.addEventListener("keydown", e => { if (e.key==="Enter") setBtn.click(); });
+  cityRow.append(inp, setBtn); card.append(cityRow, errEl);
+  if (city.name && city.lat !== null) {
+    const parts = [city.region, city.country].filter(Boolean).join(", ");
+    if (parts) card.append(el("div", { class:"wx-location", text: parts }));
+  }
+  if (!city.name || city.lat===null) { card.append(el("div",{class:"wx-loading",text:"Enter a city name above"})); return card; }
+  const wxArea = el("div");
+  card.append(wxArea);
+  const cached = wxCache[city.id];
+  if (cached && Date.now()-cached.ts < WX_TTL) {
+    showWxData(wxArea, cached);
+  } else {
+    wxArea.append(el("div",{class:"wx-loading",text:"Loading weather…"}));
+    fetchCityWx(city).then(data => { wxArea.innerHTML=""; showWxData(wxArea, data); }).catch(() => { wxArea.innerHTML=""; wxArea.append(el("div",{class:"wx-err",text:"Failed to load — check connection"})); });
+  }
+  const nwsUrl = `https://forecast.weather.gov/MapClick.php?lat=${city.lat}&lon=${city.lng}`;
+  card.append(el("a", { href:nwsUrl, target:"_blank", rel:"noopener", class:"btn ghost sm", text:"Hourly + Radar →", style:{marginTop:"8px",display:"inline-block"} }));
+  return card;
+}
+
+// ============ CALENDAR (ICS) ============
+const calCache = { events: [], ts: 0 };
+const CAL_TTL = 30 * 60 * 1000;
+
+function parseICS(text) {
+  const raw = text.replace(/\r\n/g, '\n').replace(/\n[ \t]/g, '');
+  const unescape = s => s.replace(/\\n/g,' ').replace(/\\,/g,',').replace(/\\;/g,';').replace(/\\\\/g,'\\');
+  const get = (block, k) => { const m = block.match(new RegExp('^' + k + '[^:]*:(.+)$','m')); return m ? m[1].trim() : ''; };
+  // Extract TZID param from e.g. "DTSTART;TZID=America/New_York:..."
+  const getTzid = (block, k) => { const m = block.match(new RegExp('^' + k + '[^:]*TZID=([^;:]+)','m')); return m ? m[1].trim() : null; };
+
+  // Outlook exports Windows timezone IDs, not IANA names. Map the common ones.
+  const WIN_TZ = {
+    'Eastern Standard Time':'America/New_York','Eastern Daylight Time':'America/New_York',
+    'Central Standard Time':'America/Chicago','Central Daylight Time':'America/Chicago',
+    'Mountain Standard Time':'America/Denver','Mountain Daylight Time':'America/Denver',
+    'US Mountain Standard Time':'America/Phoenix',
+    'Pacific Standard Time':'America/Los_Angeles','Pacific Daylight Time':'America/Los_Angeles',
+    'Alaskan Standard Time':'America/Anchorage','Hawaii-Aleutian Standard Time':'Pacific/Honolulu',
+    'GMT Standard Time':'Europe/London','Greenwich Standard Time':'Atlantic/Reykjavik',
+    'Romance Standard Time':'Europe/Paris','W. Europe Standard Time':'Europe/Berlin',
+    'Central European Standard Time':'Europe/Warsaw','E. Europe Standard Time':'Asia/Nicosia',
+    'UTC':'UTC','UTC-11':'Etc/GMT+11','UTC+12':'Etc/GMT-12',
+    'Atlantic Standard Time':'America/Halifax','Canada Central Standard Time':'America/Regina',
+    'SA Pacific Standard Time':'America/Bogota','SA Eastern Standard Time':'America/Cayenne',
+  };
+
+  // Convert a wall-clock time in a named timezone to a JS Date (UTC).
+  const wallClockToUtc = (y, mo, d, h, mn, s, tzid) => {
+    const ianaId = WIN_TZ[tzid] || tzid;
+    try {
+      const approx = new Date(Date.UTC(+y, +mo-1, +d, +h, +mn, +s));
+      const parts = new Intl.DateTimeFormat('en-US', {
+        timeZone: ianaId, year:'numeric', month:'2-digit', day:'2-digit',
+        hour:'2-digit', minute:'2-digit', second:'2-digit', hour12:false
+      }).formatToParts(approx);
+      const p = {};
+      for (const {type, value} of parts) p[type] = +value;
+      const tzApprox = Date.UTC(p.year, p.month-1, p.day, p.hour % 24, p.minute, p.second);
+      return new Date(approx.getTime() + (approx.getTime() - tzApprox));
+    } catch(e) {
+      // Unrecognised timezone — treat as local (best we can do without a full tz database)
+      return new Date(+y, +mo-1, +d, +h, +mn, +s);
+    }
+  };
+
+  const parseICSDate = (dt, tzid) => {
+    if (!dt) return null;
+    // All-day: YYYYMMDD
+    if (/^\d{8}$/.test(dt)) {
+      const iso = `${dt.slice(0,4)}-${dt.slice(4,6)}-${dt.slice(6,8)}`;
+      return { date: iso, allDay: true, ts: new Date(iso + 'T00:00:00').getTime() };
+    }
+    // Date-time: YYYYMMDDTHHMMSS[Z|offset]
+    const m = dt.match(/^(\d{4})(\d{2})(\d{2})T(\d{2})(\d{2})(\d{2})(Z|[+-]\d{2}:?\d{2})?$/);
+    if (!m) return null;
+    let d;
+    if (m[7]) {
+      // Explicit UTC or numeric offset — parse directly
+      const suffix = m[7] === 'Z' ? 'Z' : m[7].replace(/(\d{2})(\d{2})$/, '$1:$2');
+      d = new Date(`${m[1]}-${m[2]}-${m[3]}T${m[4]}:${m[5]}:${m[6]}${suffix}`);
+    } else if (tzid) {
+      // Named timezone (e.g. America/New_York) — convert wall-clock to UTC
+      d = wallClockToUtc(m[1], m[2], m[3], m[4], m[5], m[6], tzid);
+    } else {
+      // Floating — treat as local
+      d = new Date(`${m[1]}-${m[2]}-${m[3]}T${m[4]}:${m[5]}:${m[6]}`);
+    }
+    if (isNaN(d.getTime())) return null;
+    return { date: dayStr(d), allDay: false, ts: d.getTime(),
+      timeStr: d.toLocaleTimeString('en-US', { hour:'numeric', minute:'2-digit' }) };
+  };
+
+  // Advance a Date by one RRULE interval
+  const advanceDate = (d, freq, interval) => {
+    const n = new Date(d);
+    if (freq === 'DAILY')   n.setDate(n.getDate() + interval);
+    else if (freq === 'WEEKLY')  n.setDate(n.getDate() + 7 * interval);
+    else if (freq === 'MONTHLY') n.setMonth(n.getMonth() + interval);
+    else if (freq === 'YEARLY')  n.setFullYear(n.getFullYear() + interval);
+    return n;
+  };
+
+  // Parse RRULE string into object
+  const parseRRule = rrule => {
+    const obj = {};
+    for (const part of rrule.split(';')) {
+      const [k, v] = part.split('=');
+      obj[k] = v;
+    }
+    return obj;
+  };
+
+  // Window: 30 days in the past through 90 days in the future
+  const winStart = Date.now() - 30 * 86400000;
+  const winEnd   = Date.now() + 90 * 86400000;
+
+  // Collect raw VEVENT blocks grouped by UID
+  const byUid = {};
+  for (const block of (raw.match(/BEGIN:VEVENT[\s\S]*?END:VEVENT/g) || [])) {
+    const uid = get(block, 'UID') || block;
+    if (!byUid[uid]) byUid[uid] = [];
+    byUid[uid].push(block);
+  }
+
+  const events = [];
+  for (const blocks of Object.values(byUid)) {
+    // Separate the master event from RECURRENCE-ID exceptions
+    const master = blocks.find(b => !get(b, 'RECURRENCE-ID')) || blocks[0];
+    const exceptions = {};
+    for (const b of blocks) {
+      const rid = get(b, 'RECURRENCE-ID');
+      if (rid) exceptions[rid] = b;
+    }
+
+    const summary  = unescape(get(master, 'SUMMARY'));
+    const location = unescape(get(master, 'LOCATION'));
+    const startTzid = getTzid(master, 'DTSTART');
+    const startParsed = parseICSDate(get(master, 'DTSTART'), startTzid);
+    const endParsed   = parseICSDate(get(master, 'DTEND'), getTzid(master, 'DTEND') || startTzid);
+    if (!summary || !startParsed) continue;
+
+    // Parse EXDATE list
+    const exdateRaw = get(master, 'EXDATE');
+    const exdates = new Set(exdateRaw ? exdateRaw.split(',').map(s => s.trim()) : []);
+
+    const rruleRaw = get(master, 'RRULE');
+    if (!rruleRaw) {
+      // Non-recurring — include if it falls in window
+      if (startParsed.ts >= winStart && startParsed.ts <= winEnd) {
+        events.push({ summary, location, start: startParsed, end: endParsed });
+      }
+      continue;
+    }
+
+    const rr = parseRRule(rruleRaw);
+    const freq = rr['FREQ'];
+    if (!freq) continue;
+    const interval = parseInt(rr['INTERVAL'] || '1', 10);
+    const count    = rr['COUNT'] ? parseInt(rr['COUNT'], 10) : null;
+    const until    = rr['UNTIL'] ? parseICSDate(rr['UNTIL']) : null;
+    const durMs    = endParsed ? (endParsed.ts - startParsed.ts) : 0;
+
+    // Handle BYDAY for weekly recurrences (e.g. BYDAY=MO,WE)
+    const byDay = rr['BYDAY'] ? rr['BYDAY'].split(',') : null;
+    const dayNames = ['SU','MO','TU','WE','TH','FR','SA'];
+
+    let cur = new Date(startParsed.ts);
+    let occ = 0;
+    const MAX_OCC = 500;
+
+    while (occ < MAX_OCC) {
+      if (count !== null && occ >= count) break;
+      if (until && cur.getTime() > until.ts) break;
+      if (cur.getTime() > winEnd) break;
+
+      const candidates = byDay && freq === 'WEEKLY'
+        ? byDay.map(day => {
+            const targetDay = dayNames.indexOf(day.replace(/[+-\d]/g,''));
+            if (targetDay < 0) return null;
+            const diff = (targetDay - cur.getDay() + 7) % 7;
+            const d = new Date(cur);
+            d.setDate(d.getDate() + diff);
+            return d;
+          }).filter(Boolean)
+        : [cur];
+
+      for (const candidate of candidates) {
+        const ts = candidate.getTime();
+        if (ts < startParsed.ts) continue; // before series start
+        if (count !== null && occ >= count) break;
+        if (until && ts > until.ts) break;
+        if (ts < winStart || ts > winEnd) continue;
+
+        // Build original DTSTART string key to check EXDATE / exceptions
+        const candKey = get(master, 'DTSTART').replace(/^[^:]*:/, '');
+        const origDtStr = `${candidate.getFullYear()}${String(candidate.getMonth()+1).padStart(2,'0')}${String(candidate.getDate()).padStart(2,'0')}T${String(candidate.getHours()).padStart(2,'0')}${String(candidate.getMinutes()).padStart(2,'0')}${String(candidate.getSeconds()).padStart(2,'0')}`;
+
+        if (exdates.has(origDtStr) || exdates.has(origDtStr+'Z')) continue;
+
+        // Check for RECURRENCE-ID override
+        const excBlock = exceptions[origDtStr] || exceptions[origDtStr+'Z'];
+        if (excBlock) {
+          const excTzid = getTzid(excBlock, 'DTSTART') || startTzid;
+          const es = parseICSDate(get(excBlock, 'DTSTART'), excTzid);
+          const ee = parseICSDate(get(excBlock, 'DTEND'), getTzid(excBlock, 'DTEND') || excTzid);
+          if (es && es.ts >= winStart && es.ts <= winEnd) {
+            events.push({ summary: unescape(get(excBlock,'SUMMARY'))||summary,
+              location: unescape(get(excBlock,'LOCATION'))||location, start: es, end: ee });
+          }
+        } else {
+          const startD = new Date(ts);
+          const endTs = durMs ? ts + durMs : null;
+          const startObj = { date: dayStr(startD), allDay: startParsed.allDay, ts,
+            timeStr: startParsed.allDay ? undefined : startD.toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'}) };
+          const endObj = endTs ? { date: dayStr(new Date(endTs)), allDay: startParsed.allDay, ts: endTs } : null;
+          events.push({ summary, location, start: startObj, end: endObj });
+        }
+        occ++;
+      }
+
+      cur = advanceDate(cur, freq, interval);
+    }
+  }
+
+  return events.sort((a, b) => a.start.ts - b.start.ts);
+}
+
+async function syncCalendar(forceRefresh = false) {
+  const url = state.calendar?.icsUrl?.trim();
+  if (!url) return;
+  if (!forceRefresh && calCache.ts && Date.now() - calCache.ts < CAL_TTL) return;
+  let text;
+  try { const r = await fetch(url, { cache:'no-store' }); if (r.ok) text = await r.text(); } catch(e) {}
+  if (!text) {
+    const r = await fetch(`https://corsproxy.io/?url=${encodeURIComponent(url)}`, { cache:'no-store' });
+    if (!r.ok) throw new Error(`HTTP ${r.status}`);
+    text = await r.text();
+  }
+  const parsed = parseICS(text);
+  // Deduplicate events with same title and start time (Outlook sends both
+  // organizer's and attendee's copy of shared meetings as separate VEVENTs)
+  const seen = new Set();
+  calCache.events = parsed.filter(e => {
+    const key = `${e.start.ts}|${e.summary}`;
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
+  calCache.ts = Date.now();
+}
+
+function renderCalEvents(container, events, emptyMsg) {
+  if (!events.length) { container.append(el('div',{class:'empty',text:emptyMsg})); return; }
+  for (const ev of events) {
+    const row = el('div', { class:'cal-event' });
+    row.append(el('span', { class:'cal-time', text: ev.start.allDay ? 'All day' : (ev.start.timeStr||'') }));
+    const info = el('span', { class:'cal-title' });
+    info.append(document.createTextNode(ev.summary));
+    if (ev.location) info.append(el('span', { class:'cal-loc', text: ev.location }));
+    row.append(info);
+    container.append(row);
+  }
+}
 
 function defaultState() {
   return {
     version: 2,
     tasks: [],
     schedule: { blocks: [], pomodoro: { work:25, brk:5, longBrk:15, sessions:4 } },
-    habits: [],
     goals: [],
     notes: [],
-    diet: { meals: [], water: {}, settings: { calGoal:2000, proteinGoal:120, carbGoal:250, fatGoal:65, waterGoal:8 } },
-    health: { sleep: [], exercise: [], weight: [], mood: [] },
-    cleaning: { rooms: [], history: {} },
-    finance: { entries: [], settings: { monthlyBudget: 2000 } },
-    reading: { books: [] },
+    recurring: { daily: [], weekly: [], monthly: [] },
+    weather: { cities: [
+      { id:"w0", name:"Orlando", lat:28.5383, lng:-81.3792, region:"Florida", country:"US" },
+      { id:"w1", name:"", lat:null, lng:null, region:"", country:"" },
+      { id:"w2", name:"", lat:null, lng:null, region:"", country:"" },
+      { id:"w3", name:"", lat:null, lng:null, region:"", country:"" },
+      { id:"w4", name:"", lat:null, lng:null, region:"", country:"" },
+      { id:"w5", name:"", lat:null, lng:null, region:"", country:"" },
+      { id:"w6", name:"", lat:null, lng:null, region:"", country:"" },
+    ]},
     review: { entries: [] },
-    settings: { theme: "auto", calmMode: false }
+    calendar: { icsUrl: "" },
+    crews: [],
+    links: [],
+    settings: { theme: "auto", calmMode: false },
+    sync: { token: "", gistId: "", lastSynced: null }
   };
 }
+function normalizeState(s) {
+  const d = defaultState();
+  if (!s.schedule) s.schedule = d.schedule;
+  if (!s.schedule.pomodoro) s.schedule.pomodoro = d.schedule.pomodoro;
+  if (!s.recurring) s.recurring = d.recurring;
+  if (!s.recurring.daily) s.recurring.daily = [];
+  if (!s.recurring.weekly) s.recurring.weekly = [];
+  if (!s.recurring.monthly) s.recurring.monthly = [];
+  if (!s.weather) s.weather = d.weather;
+  if (!s.weather.cities) s.weather.cities = d.weather.cities;
+  for (const c of s.weather.cities) {
+    if (c.region === undefined) c.region = "";
+    if (c.country === undefined) c.country = "";
+  }
+  if (!s.settings) s.settings = d.settings;
+  if (s.settings.theme === undefined) s.settings.theme = "auto";
+  if (s.settings.calmMode === undefined) s.settings.calmMode = false;
+  if (!s.goals) s.goals = [];
+  if (!s.notes) s.notes = [];
+  if (!s.tasks) s.tasks = [];
+  if (!s.review) s.review = d.review;
+  if (!s.calendar) s.calendar = d.calendar;
+  if (!s.crews) s.crews = [];
+  if (!s.links) s.links = [];
+  if (!s.sync) s.sync = { token:"", gistId:"", lastSynced:null };
+  if (s.sync.token === undefined) s.sync.token = "";
+  if (s.sync.gistId === undefined) s.sync.gistId = "";
+  if (s.sync.lastSynced === undefined) s.sync.lastSynced = null;
+  return s;
+}
 function load() {
+  let s;
   try {
     const raw = localStorage.getItem(KEY);
-    if (raw) return Object.assign(defaultState(), JSON.parse(raw));
-    // migrate v1
-    const v1 = localStorage.getItem("dashboard_v1");
-    if (v1) {
-      const d = JSON.parse(v1);
-      const s = defaultState();
-      s.tasks = d.tasks || [];
-      s.schedule = d.schedule || s.schedule;
-      s.habits = d.habits || [];
-      s.goals = d.goals || [];
-      s.notes = d.notes || [];
-      return s;
+    if (raw) s = normalizeState(Object.assign(defaultState(), JSON.parse(raw)));
+    else {
+      // migrate v1
+      const v1 = localStorage.getItem("dashboard_v1");
+      if (v1) {
+        const d = JSON.parse(v1);
+        s = defaultState();
+        s.tasks = d.tasks || []; s.schedule = d.schedule || s.schedule;
+        s.goals = d.goals || []; s.notes = d.notes || [];
+        s = normalizeState(s);
+      }
     }
   } catch(e) { console.error(e); }
-  return defaultState();
+  s = s || defaultState();
+  // Always restore credentials from the dedicated key — they must survive state resets
+  const creds = loadCreds();
+  if (creds?.token && creds?.gistId) s.sync = { ...s.sync, ...creds };
+  return s;
 }
-function save() { try { localStorage.setItem(KEY, JSON.stringify(state)); } catch(e) { console.error(e); } }
+function saveCreds() {
+  try { localStorage.setItem(SYNC_KEY, JSON.stringify(state.sync)); } catch(e) {}
+}
+function loadCreds() {
+  try { const r = localStorage.getItem(SYNC_KEY); if (r) return JSON.parse(r); } catch(e) {}
+  return null;
+}
+function save() {
+  try { localStorage.setItem(KEY, JSON.stringify(state)); } catch(e) { console.error(e); }
+  if (state.sync?.token && state.sync?.gistId) {
+    saveCreds();
+    clearTimeout(save._t);
+    save._t = setTimeout(gistPush, 2000);
+  }
+}
+
+const GIST_FILE = 'dashboard-state.json';
+const GIST_HDR = token => ({ 'Authorization':`Bearer ${token}`, 'Accept':'application/vnd.github+json', 'Content-Type':'application/json' });
+
+function stateForGist() {
+  // Never store credentials in the Gist — they live only in localStorage
+  const { sync: _omit, ...rest } = state;
+  return rest;
+}
+async function gistPush() {
+  const { token, gistId } = state.sync || {};
+  if (!token || !gistId) return;
+  try {
+    const r = await fetch(`https://api.github.com/gists/${gistId}`, {
+      method:'PATCH', headers: GIST_HDR(token),
+      body: JSON.stringify({ files: { [GIST_FILE]: { content: JSON.stringify(stateForGist()) } } })
+    });
+    if (!r.ok) { console.warn('gistPush failed', r.status, await r.text()); return; }
+    state.sync.lastSynced = new Date().toISOString();
+    try { localStorage.setItem(KEY, JSON.stringify(state)); } catch(e) {}
+    const el2 = document.getElementById('gistSyncStatus');
+    if (el2) { el2.textContent = `↑ Synced ${new Date().toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'})}`; el2.style.color='var(--success)'; }
+  } catch(e) { console.warn('gistPush error', e); }
+}
+
+async function gistPull() {
+  const creds = state.sync?.token && state.sync?.gistId ? state.sync : loadCreds();
+  if (!creds?.token || !creds?.gistId) return false;
+  try {
+    const r = await fetch(`https://api.github.com/gists/${creds.gistId}`, { headers: GIST_HDR(creds.token) });
+    if (!r.ok) { console.warn('gistPull failed', r.status, await r.text()); return false; }
+    const d = await r.json();
+    const raw = d.files?.[GIST_FILE]?.content;
+    if (!raw) return false;
+    const remote = JSON.parse(raw);
+    state = normalizeState(Object.assign(defaultState(), remote));
+    state.sync = { ...creds, lastSynced: new Date().toISOString() };
+    try { localStorage.setItem(KEY, JSON.stringify(state)); saveCreds(); } catch(e) {}
+    return true;
+  } catch(e) { console.warn('gistPull error', e); return false; }
+}
+
+async function connectGist(token, existingGistId) {
+  if (existingGistId) {
+    const r = await fetch(`https://api.github.com/gists/${existingGistId}`, { headers: GIST_HDR(token) });
+    if (!r.ok) {
+      const msg = r.status === 401 ? `Token invalid or expired (401) — regenerate your token at github.com/settings/tokens`
+                : r.status === 404 ? `Gist not found (404) — double-check the Gist ID`
+                : `GitHub error ${r.status}`;
+      throw new Error(msg);
+    }
+    const d = await r.json();
+    const raw = d.files?.[GIST_FILE]?.content;
+    state.sync.token = token; state.sync.gistId = existingGistId;
+    if (raw) {
+      const remote = JSON.parse(raw);
+      const localSync = state.sync;
+      state = normalizeState(Object.assign(defaultState(), remote));
+      state.sync = localSync;
+    } else {
+      await gistPush();
+    }
+  } else {
+    const r = await fetch('https://api.github.com/gists', {
+      method:'POST', headers: GIST_HDR(token),
+      body: JSON.stringify({ description:'Dashboard state (auto-managed)', public:false,
+        files: { [GIST_FILE]: { content: JSON.stringify(stateForGist()) } } })
+    });
+    if (!r.ok) {
+      const msg = r.status === 401 ? `Token invalid or expired (401) — regenerate at github.com/settings/tokens`
+                : r.status === 403 ? `Token missing gist scope (403) — create a Classic token with only "gist" checked`
+                : `GitHub error ${r.status}`;
+      throw new Error(msg);
+    }
+    const d = await r.json();
+    state.sync.token = token; state.sync.gistId = d.id;
+  }
+  state.sync.lastSynced = new Date().toISOString();
+  try { localStorage.setItem(KEY, JSON.stringify(state)); saveCreds(); } catch(e) {}
+  return state.sync.gistId;
+}
 let state = load();
 
-// Seed cleaning if empty (default household rotation)
-if (!state.cleaning.rooms.length) {
-  state.cleaning.rooms = [
-    { id: genId("r"), name: "Kitchen", tasks: [
-      { id: genId("ct"), name: "Wipe counters", freq: 1 },
-      { id: genId("ct"), name: "Dishes & sink", freq: 1 },
-      { id: genId("ct"), name: "Sweep floor", freq: 2 },
-      { id: genId("ct"), name: "Mop floor", freq: 7 },
-      { id: genId("ct"), name: "Clean fridge", freq: 30 },
-      { id: genId("ct"), name: "Clean oven", freq: 60 },
-    ]},
-    { id: genId("r"), name: "Bathroom", tasks: [
-      { id: genId("ct"), name: "Wipe sink & mirror", freq: 3 },
-      { id: genId("ct"), name: "Clean toilet", freq: 7 },
-      { id: genId("ct"), name: "Scrub shower / tub", freq: 7 },
-      { id: genId("ct"), name: "Mop floor", freq: 14 },
-    ]},
-    { id: genId("r"), name: "Bedroom", tasks: [
-      { id: genId("ct"), name: "Make bed", freq: 1 },
-      { id: genId("ct"), name: "Change sheets", freq: 14 },
-      { id: genId("ct"), name: "Vacuum / dust", freq: 7 },
-    ]},
-    { id: genId("r"), name: "Living room", tasks: [
-      { id: genId("ct"), name: "Tidy & put away", freq: 2 },
-      { id: genId("ct"), name: "Vacuum", freq: 7 },
-      { id: genId("ct"), name: "Dust surfaces", freq: 14 },
-    ]},
-  ];
-  save();
-}
 
 // ============ THEME ============
 function applyTheme() {
@@ -588,13 +1072,6 @@ function renderHeader() {
   $("#greeting").textContent = `${greet} — ${d}`;
   const todoToday = state.tasks.filter(t => t.status!=="done" && (!t.deadline || t.deadline<=today())).length;
   $("#hsTasks").textContent = todoToday;
-  const streaks = state.habits.map(h => getStreak(h.checkins||[])).filter(s=>s>0);
-  const sb = $("#stat-streak");
-  if (streaks.length) { sb.style.display=""; sb.innerHTML = `&#x1F525; <strong>${Math.max(...streaks)}d</strong>&nbsp;best streak`; }
-  else sb.style.display = "none";
-  const overdue = countOverdueCleaning();
-  if (overdue > 0) { $("#navBadgeClean").style.display=""; $("#navBadgeClean").textContent = overdue; }
-  else $("#navBadgeClean").style.display = "none";
   const taskBadge = state.tasks.filter(t => t.status!=="done" && t.deadline && t.deadline<today()).length;
   if (taskBadge > 0) { $("#navBadgeTasks").style.display=""; $("#navBadgeTasks").textContent = taskBadge; }
   else $("#navBadgeTasks").style.display = "none";
@@ -605,6 +1082,7 @@ function showView(name) {
   for (const v of $$(".view")) v.classList.toggle("active", v.id === "view-"+name);
   for (const b of $$("#sidebar .nav-btn,#mtabs button")) b.classList.toggle("active", b.dataset.view===name);
   render[name]?.();
+  try { localStorage.setItem("_view", name); } catch(e) {}
 }
 for (const b of $$("#sidebar .nav-btn, #mtabs button")) {
   b.addEventListener("click", () => showView(b.dataset.view));
@@ -629,6 +1107,7 @@ $("#modal").addEventListener("click", e => { if (e.target.id==="modal") closeMod
 
 // ============ TASKS ============
 const render = {};
+render.weather = () => {};
 render.tasks = () => {
   const v = $("#view-tasks");
   v.innerHTML = "";
@@ -691,11 +1170,62 @@ render.tasks = () => {
     kanban.append(col);
   }
   v.append(kanban);
+
+  v.append(el("div", { class:"section-title", style:{marginTop:"24px"}, text:"Recurring" }));
+  renderRecurring(v);
 };
+
+function renderRecurring(container) {
+  const sections = [
+    { key:"daily",   label:"Daily",   period:today(),        hint:"Resets each day" },
+    { key:"weekly",  label:"Weekly",  period:currentWeek(),  hint:"Resets each Monday" },
+    { key:"monthly", label:"Monthly", period:currentMonth(), hint:"Resets each month" },
+  ];
+  const grid = el("div", { class:"recur-grid" });
+  for (const { key, label, period, hint } of sections) {
+    if (!state.recurring[key]) state.recurring[key] = [];
+    const items = state.recurring[key];
+    const doneCount = items.filter(i => i.lastChecked === period).length;
+    const total = items.length;
+    const card = el("div", { class:"recur-card" });
+    const head = el("h3");
+    head.append(el("span", { text: label }));
+    head.append(el("span", { class: doneCount===total&&total>0?"chip success":"chip", text:`${doneCount}/${total}` }));
+    card.append(head);
+    const prog = el("div", { class:"recur-progress" });
+    prog.append(el("div", { class:"fill", style:{width: total ? `${Math.round(doneCount/total*100)}%`:"0%"} }));
+    card.append(prog);
+    const list = el("div");
+    for (const item of items) {
+      const done = item.lastChecked === period;
+      const row = el("div", { class:`recur-item${done?" done":""}` });
+      const cb = el("div", { class:`cb${done?" done":""}` });
+      if (done) cb.innerHTML = "&#x2713;";
+      cb.addEventListener("click", () => { item.lastChecked = done ? null : period; save(); render.tasks(); });
+      row.append(cb, el("span", { class:"lbl", text:item.title }));
+      row.append(el("button", { class:"del", html:"&#x2715;", onclick:() => { state.recurring[key]=state.recurring[key].filter(x=>x.id!==item.id); save(); render.tasks(); }}));
+      list.append(row);
+    }
+    if (!items.length) list.append(el("div", { class:"empty", style:{padding:"8px 0",fontSize:"13px"}, text:`No ${label.toLowerCase()} tasks yet` }));
+    card.append(list);
+    const addRow = el("div", { class:"recur-add" });
+    const inp = el("input", { type:"text", placeholder:`Add ${label.toLowerCase()} task…` });
+    const addBtn = el("button", { class:"btn primary sm", text:"Add", onclick:() => {
+      if (!inp.value.trim()) return;
+      state.recurring[key].push({ id:genId("rc"), title:inp.value.trim(), lastChecked:null });
+      inp.value=""; save(); render.tasks();
+    }});
+    inp.addEventListener("keydown", e => { if (e.key==="Enter") addBtn.click(); });
+    addRow.append(inp, addBtn);
+    card.append(addRow);
+    grid.append(card);
+  }
+  container.append(grid);
+}
 
 // ============ SCHEDULE ============
 let pomState = { running:false, remaining:0, mode:"work", session:1, interval:null, start:0, base:0 };
-function pomInit() { pomState.remaining = (state.schedule.pomodoro.work||25)*60; }
+function pomInit() { pomState.remaining = (state.schedule?.pomodoro?.work||25)*60; }
 function pomNext() {
   const p = state.schedule.pomodoro;
   if (pomState.mode === "work") {
@@ -785,7 +1315,12 @@ render.schedule = () => {
   v.append(form);
 
   // Week grid
-  v.append(el("div", { class:"section-title", text:"This Week" }));
+  const sectionHdr = el("div", { class:"section-title", text:"This Week" });
+  if (state.calendar?.icsUrl) {
+    const syncLbl = el("span", { class:"muted", style:{fontSize:"11px",fontWeight:"400"}, text: calCache.ts ? `Outlook synced ${new Date(calCache.ts).toLocaleTimeString("en-US",{hour:"numeric",minute:"2-digit"})}` : "Loading Outlook…" });
+    sectionHdr.append(syncLbl);
+  }
+  v.append(sectionHdr);
   const grid = el("div", { class:"week-grid" });
   grid.append(el("div", { class:"hd" }));
   const startOfWeek = new Date(); startOfWeek.setDate(startOfWeek.getDate() - startOfWeek.getDay());
@@ -801,6 +1336,7 @@ render.schedule = () => {
     for (let i=0;i<7;i++) {
       const d = days[i];
       const cell = el("div", { class:"cell" });
+      // Manual blocks
       const blocks = state.schedule.blocks.filter(b => b.date===dayStr(d) && parseInt(b.startTime)===h);
       for (const b of blocks) {
         const dur = (parseInt(b.endTime)-parseInt(b.startTime)) + (parseInt(b.endTime.slice(3))-parseInt(b.startTime.slice(3)))/60;
@@ -812,348 +1348,30 @@ render.schedule = () => {
         });
         cell.append(blk);
       }
+      // Outlook calendar events
+      for (const ev of calCache.events) {
+        if (ev.start.allDay || ev.start.date !== dayStr(d)) continue;
+        if (new Date(ev.start.ts).getHours() !== h) continue;
+        const durMs = ev.end ? (ev.end.ts - ev.start.ts) : 3600000;
+        const durH = Math.max(0.5, durMs / 3600000);
+        const blk = el("div", { class:"week-block cal-block", text:ev.summary, style:{height:`${durH*40-4}px`, zIndex:1} });
+        blk.title = `${ev.start.timeStr||''} ${ev.summary}${ev.location?' · '+ev.location:''}`;
+        cell.append(blk);
+      }
       grid.append(cell);
     }
   }
   v.append(grid);
+  // Trigger async calendar load if cache is cold
+  if (state.calendar?.icsUrl && !calCache.ts) {
+    syncCalendar().then(() => render.schedule()).catch(() => {});
+  }
   renderPomDisplay();
 };
 
-// ============ HABITS ============
-function getStreak(checkins) {
-  if (!checkins || !checkins.length) return 0;
-  const sorted = [...new Set(checkins)].sort().reverse();
-  let streak = 0;
-  let d = new Date();
-  if (sorted[0] !== today() && sorted[0] !== dayStr(new Date(Date.now()-864e5))) return 0;
-  if (sorted[0] === dayStr(new Date(Date.now()-864e5))) d.setDate(d.getDate()-1);
-  for (const ds of sorted) {
-    if (ds === dayStr(d)) { streak++; d.setDate(d.getDate()-1); }
-    else break;
-  }
-  return streak;
-}
-render.habits = () => {
-  const v = $("#view-habits");
-  v.innerHTML = "";
-  v.append(el("h1", { text: "Habits" }));
-  v.append(el("div", { class:"view-sub", text:"Small consistent wins. Tap a dot to check in." }));
 
-  const form = el("div", { class:"flex-row", style:{marginBottom:"16px"} });
-  const n = el("input", { type:"text", placeholder:"New habit (e.g. Read 20 minutes)", style:{flex:"1",minWidth:"200px"} });
-  const ic = el("input", { type:"text", placeholder:"📚", maxlength:"2", style:{width:"60px",textAlign:"center"} });
-  const add = el("button", { class:"btn primary", text:"Add", onclick:() => {
-    if (!n.value.trim()) return;
-    state.habits.push({ id:genId("h"), name:n.value.trim(), icon:ic.value.trim()||"⭐", checkins:[], createdAt:new Date().toISOString() });
-    n.value=""; ic.value=""; save(); render.habits(); renderHeader();
-  }});
-  n.addEventListener("keydown", e => { if (e.key==="Enter") add.click(); });
-  form.append(n, ic, add);
-  v.append(form);
 
-  // Habit rows
-  for (const h of state.habits) {
-    const row = el("div", { class:"habit-row" });
-    row.append(el("span", { class:"icon", text: h.icon || "⭐" }));
-    row.append(el("span", { class:"name", text: h.name }));
-    const week = el("div", { class:"week" });
-    for (let i=6;i>=0;i--) {
-      const d = new Date(); d.setDate(d.getDate()-i); const ds = dayStr(d);
-      const done = h.checkins?.includes(ds);
-      const isToday = ds === today();
-      const dot = el("div", { class:`dot${done?" done":""}${isToday?" today":""}`, text: d.toLocaleDateString("en",{weekday:"narrow"}) });
-      dot.addEventListener("click", () => {
-        if (!h.checkins) h.checkins = [];
-        if (h.checkins.includes(ds)) h.checkins = h.checkins.filter(x=>x!==ds);
-        else h.checkins.push(ds);
-        save(); render.habits(); renderHeader();
-      });
-      week.append(dot);
-    }
-    row.append(week);
-    const streak = getStreak(h.checkins);
-    if (streak > 0) row.append(el("span", { class:"streak", html: `🔥 ${streak}d` }));
-    row.append(el("button", { class:"del", html:"&#x2715;", onclick:() => {
-      if (confirm(`Delete "${h.name}"?`)) { state.habits = state.habits.filter(x=>x.id!==h.id); save(); render.habits(); renderHeader(); }
-    }}));
-    v.append(row);
 
-    // Heatmap (last 12 weeks)
-    const hm = el("div", { class:"heatmap", style:{marginBottom:"14px",marginLeft:"40px"} });
-    for (let i=83;i>=0;i--) {
-      const d = new Date(); d.setDate(d.getDate()-i); const ds = dayStr(d);
-      const done = h.checkins?.includes(ds);
-      hm.append(el("div", { class:`day${done?" l3":""}`, title:`${ds}${done?" ✓":""}` }));
-    }
-    v.append(hm);
-  }
-  if (!state.habits.length) v.append(el("div", { class:"empty", text:"No habits yet. Try \"Drink water\", \"Walk 10 min\", or \"Read 1 page\"." }));
-};
-
-// ============ DIET ============
-render.diet = () => {
-  const v = $("#view-diet");
-  v.innerHTML = "";
-  v.append(el("h1", { text:"Diet" }));
-  v.append(el("div", { class:"view-sub", text:"Log meals and water. Aim for steady progress, not perfection." }));
-
-  const todayMeals = state.diet.meals.filter(m => m.date===today());
-  const totals = { cal: sum(todayMeals.map(m=>m.cal)), protein: sum(todayMeals.map(m=>m.protein)),
-    carbs: sum(todayMeals.map(m=>m.carbs)), fat: sum(todayMeals.map(m=>m.fat)) };
-  const g = state.diet.settings;
-
-  // Macros
-  const macros = el("div", { class:"macros" });
-  for (const [k, label, max, cls] of [["cal","Calories",g.calGoal,"cal"],["protein","Protein (g)",g.proteinGoal,"protein"],["carbs","Carbs (g)",g.carbGoal,"carbs"],["fat","Fat (g)",g.fatGoal,"fat"]]) {
-    const mc = el("div", { class:`macro-card ${cls}` });
-    mc.append(el("div", { class:"val", text: Math.round(totals[k]) }));
-    mc.append(el("div", { class:"max", text: `/ ${max} ${label}` }));
-    const bar = el("div", { class:"bar" });
-    bar.append(el("div", { class:"fill", style: { width: `${clamp(totals[k]/max*100,0,100)}%` } }));
-    mc.append(bar);
-    macros.append(mc);
-  }
-  v.append(macros);
-
-  // Water
-  v.append(el("div", { class:"section-title", text: `Water — ${state.diet.water[today()]||0} / ${g.waterGoal} glasses` }));
-  const water = el("div", { class:"water-tracker" });
-  for (let i=0;i<Math.max(g.waterGoal,(state.diet.water[today()]||0));i++) {
-    const gl = el("div", { class: `water-glass${i < (state.diet.water[today()]||0) ? " filled":""}` });
-    gl.addEventListener("click", () => {
-      const cur = state.diet.water[today()]||0;
-      state.diet.water[today()] = cur > i ? i : i+1;
-      save(); render.diet();
-    });
-    water.append(gl);
-  }
-  v.append(water);
-
-  // Add meal
-  v.append(el("div", { class:"section-title", text:"Add Meal" }));
-  const form = el("div", { class:"flex-row" });
-  const time = el("select"); for (const x of ["Breakfast","Lunch","Dinner","Snack"]) time.append(el("option",{value:x,text:x}));
-  const name = el("input", { type:"text", placeholder:"What did you eat?", style:{flex:"1",minWidth:"180px"} });
-  const cal = el("input", { type:"number", placeholder:"Cal", style:{width:"80px"} });
-  const pro = el("input", { type:"number", placeholder:"P", style:{width:"60px"} });
-  const carb = el("input", { type:"number", placeholder:"C", style:{width:"60px"} });
-  const fat = el("input", { type:"number", placeholder:"F", style:{width:"60px"} });
-  const add = el("button", { class:"btn primary", text:"Log", onclick:() => {
-    if (!name.value.trim()) return;
-    state.diet.meals.push({ id:genId("m"), date:today(), time:time.value, name:name.value.trim(),
-      cal:+cal.value||0, protein:+pro.value||0, carbs:+carb.value||0, fat:+fat.value||0 });
-    name.value=""; cal.value=""; pro.value=""; carb.value=""; fat.value="";
-    save(); render.diet();
-  }});
-  form.append(time, name, cal, pro, carb, fat, add);
-  v.append(form);
-
-  // Today's meals
-  v.append(el("div", { class:"section-title", text:"Today" }));
-  for (const m of todayMeals) {
-    const row = el("div", { class:"meal-row" });
-    row.append(el("span", { class:"meal-time", text: m.time }));
-    row.append(el("span", { class:"meal-name", text: m.name }));
-    row.append(el("span", { class:"meal-cal", text: `${m.cal} cal` }));
-    row.append(el("button", { class:"btn ghost", html:"&#x2715;", style:{padding:"2px 6px",minHeight:"24px"}, onclick:() => {
-      state.diet.meals = state.diet.meals.filter(x=>x.id!==m.id); save(); render.diet();
-    }}));
-    v.append(row);
-  }
-  if (!todayMeals.length) v.append(el("div", { class:"empty", text:"No meals logged today" }));
-
-  // Weekly sparkline
-  v.append(el("div", { class:"section-title", text:"Past 14 Days — Calories" }));
-  const days = []; for (let i=13;i>=0;i--) { const d=new Date(); d.setDate(d.getDate()-i); days.push(dayStr(d)); }
-  const calsByDay = days.map(ds => sum(state.diet.meals.filter(m=>m.date===ds).map(m=>m.cal)));
-  const card = el("div", { class:"card" });
-  card.append(sparkline(calsByDay, { goal: g.calGoal, height: 80, label: "cal" }));
-  v.append(card);
-};
-
-// ============ HEALTH ============
-render.health = () => {
-  const v = $("#view-health");
-  v.innerHTML = "";
-  v.append(el("h1", { text:"Health" }));
-  v.append(el("div", { class:"view-sub", text:"Sleep, movement, weight, mood — daily ticks add up." }));
-
-  const days30 = []; for (let i=29;i>=0;i--) { const d=new Date(); d.setDate(d.getDate()-i); days30.push(dayStr(d)); }
-  const getLast = (arr) => arr.length ? arr[arr.length-1] : null;
-  const sleepVals = days30.map(ds => { const e = state.health.sleep.find(x=>x.date===ds); return e?e.hours:null; });
-  const weightVals = days30.map(ds => { const e = state.health.weight.find(x=>x.date===ds); return e?e.value:null; });
-  const exerciseVals = days30.map(ds => { const e = state.health.exercise.find(x=>x.date===ds); return e?e.minutes:0; });
-  const moodVals = days30.map(ds => { const e = state.health.mood.find(x=>x.date===ds); return e?e.value:null; });
-  const lastSleep = getLast(state.health.sleep);
-  const lastWeight = getLast(state.health.weight);
-  const lastMood = state.health.mood.find(x=>x.date===today());
-
-  // Stats grid
-  const grid = el("div", { class:"health-grid" });
-  for (const [label, val, unit, vals, color] of [
-    ["Sleep", lastSleep?lastSleep.hours:"—", "h last night", sleepVals, "#8b5cf6"],
-    ["Weight", lastWeight?lastWeight.value:"—", lastWeight?lastWeight.unit||"lb":"", weightVals.filter(v=>v!==null), "#3b6df0"],
-    ["Exercise", sum(exerciseVals.slice(-7)), "min this week", exerciseVals, "#2f7a4a"],
-    ["Mood", lastMood?["😞","😐","🙂","😊","🤩"][lastMood.value-1]:"—", "today", moodVals, "#d97706"],
-  ]) {
-    const c = el("div", { class:"card" });
-    c.append(el("div", { class:"stat-sub", text: label }));
-    c.append(el("div", { class:"stat-row" }, [el("span",{class:"stat-big",text:val}), el("span",{class:"muted",text:unit})]));
-    if (vals.length > 1 && vals.some(v=>v!==null)) c.append(sparkline(vals, { color, height: 40, fill:true }));
-    grid.append(c);
-  }
-  v.append(grid);
-
-  // Log forms
-  v.append(el("div", { class:"section-title", text:"Log" }));
-
-  // Sleep
-  const sleepRow = el("div", { class:"flex-row" });
-  sleepRow.append(el("span", { class:"chip", text:"Sleep last night" }));
-  const sh = el("input", { type:"number", step:"0.5", min:"0", max:"14", placeholder:"hours", style:{width:"90px"} });
-  const sq = el("select"); for (const [v,l] of [[3,"Good"],[2,"OK"],[1,"Poor"]]) sq.append(el("option",{value:v,text:l}));
-  sleepRow.append(sh, sq);
-  sleepRow.append(el("button", { class:"btn primary sm", text:"Save", onclick:() => {
-    if (!sh.value) return;
-    state.health.sleep = state.health.sleep.filter(x=>x.date!==today());
-    state.health.sleep.push({ date:today(), hours:+sh.value, quality:+sq.value });
-    sh.value=""; save(); render.health();
-  }}));
-  v.append(sleepRow);
-
-  // Exercise
-  const exRow = el("div", { class:"flex-row", style:{marginTop:"8px"} });
-  exRow.append(el("span", { class:"chip", text:"Exercise" }));
-  const exName = el("input", { type:"text", placeholder:"e.g. Walk, lifting…", style:{flex:"1",minWidth:"140px"} });
-  const exMin = el("input", { type:"number", placeholder:"min", style:{width:"80px"} });
-  exRow.append(exName, exMin);
-  exRow.append(el("button", { class:"btn primary sm", text:"Save", onclick:() => {
-    if (!exMin.value) return;
-    state.health.exercise.push({ id:genId("ex"), date:today(), name:exName.value||"Exercise", minutes:+exMin.value });
-    exName.value=""; exMin.value=""; save(); render.health();
-  }}));
-  v.append(exRow);
-
-  // Weight
-  const wRow = el("div", { class:"flex-row", style:{marginTop:"8px"} });
-  wRow.append(el("span", { class:"chip", text:"Weight" }));
-  const wv = el("input", { type:"number", step:"0.1", placeholder:"value", style:{width:"100px"} });
-  const wu = el("select"); for (const x of ["lb","kg"]) wu.append(el("option",{value:x,text:x}));
-  wRow.append(wv, wu);
-  wRow.append(el("button", { class:"btn primary sm", text:"Save", onclick:() => {
-    if (!wv.value) return;
-    state.health.weight = state.health.weight.filter(x=>x.date!==today());
-    state.health.weight.push({ date:today(), value:+wv.value, unit:wu.value });
-    wv.value=""; save(); render.health();
-  }}));
-  v.append(wRow);
-
-  // Mood
-  v.append(el("div", { class:"section-title", text:"Mood today" }));
-  const moods = el("div", { class:"mood-row" });
-  for (let i=1;i<=5;i++) {
-    const emoji = ["😞","😐","🙂","😊","🤩"][i-1];
-    const b = el("button", { class: `mood-btn${lastMood?.value===i?" selected":""}`, text: emoji });
-    b.addEventListener("click", () => {
-      state.health.mood = state.health.mood.filter(x=>x.date!==today());
-      state.health.mood.push({ date:today(), value:i });
-      save(); render.health();
-    });
-    moods.append(b);
-  }
-  v.append(moods);
-};
-
-// ============ CLEANING ============
-function lastCleaned(roomId, taskId) {
-  const hist = state.cleaning.history[`${roomId}_${taskId}`];
-  if (!hist || !hist.length) return null;
-  return hist[hist.length-1];
-}
-function daysSince(date) { return date ? daysBetween(date, today()) : null; }
-function cleanTaskStatus(task, roomId) {
-  const last = lastCleaned(roomId, task.id);
-  const ds = daysSince(last);
-  if (ds === null) return { cls:"overdue", label: "Never", overdue: true };
-  if (ds >= task.freq) return { cls:"overdue", label: `${ds}d ago`, overdue: true };
-  if (ds >= task.freq * 0.8) return { cls:"due", label: `${ds}d ago`, overdue: false };
-  return { cls:"", label: `${ds}d ago`, overdue: false };
-}
-function countOverdueCleaning() {
-  let c = 0;
-  for (const r of state.cleaning.rooms) for (const t of r.tasks) if (cleanTaskStatus(t, r.id).overdue) c++;
-  return c;
-}
-
-render.cleaning = () => {
-  const v = $("#view-cleaning");
-  v.innerHTML = "";
-  v.append(el("h1", { text:"Cleaning" }));
-  v.append(el("div", { class:"view-sub", text:"Rotate chores by recommended frequency. Check off — done is better than perfect." }));
-
-  // Quick overdue strip
-  const overdue = [];
-  for (const r of state.cleaning.rooms) for (const t of r.tasks) {
-    const s = cleanTaskStatus(t, r.id);
-    if (s.overdue) overdue.push({ room: r, task: t, status: s });
-  }
-  if (overdue.length) {
-    v.append(el("div", { class:"section-title", text: `Needs attention — ${overdue.length}` }));
-    for (const o of overdue.slice(0, 8)) {
-      v.append(cleanTaskRow(o.task, o.room, o.status));
-    }
-  }
-
-  for (const room of state.cleaning.rooms) {
-    const wrap = el("div", { class:"clean-room" });
-    const head = el("h3");
-    head.append(el("span", { text: room.name }));
-    head.append(el("button", { class:"btn ghost sm", text:"+ task", onclick:() => {
-      const c = el("div");
-      const n = el("input", { type:"text", placeholder:"Task name" }); c.append(el("label",{text:"Task"}), n);
-      const f = el("input", { type:"number", min:"1", value:"7" }); c.append(el("label",{text:"Frequency (days)"}), f);
-      modal("Add Cleaning Task", c, () => {
-        if (!n.value.trim()) return false;
-        room.tasks.push({ id:genId("ct"), name:n.value.trim(), freq:+f.value||7 });
-        save(); render.cleaning();
-      });
-    }}));
-    wrap.append(head);
-    for (const t of room.tasks) {
-      wrap.append(cleanTaskRow(t, room, cleanTaskStatus(t, room.id)));
-    }
-    v.append(wrap);
-  }
-  v.append(el("button", { class:"btn", text:"+ Room", style:{marginTop:"10px"}, onclick:() => {
-    const c = el("div");
-    const n = el("input", { type:"text", placeholder:"Room name" }); c.append(el("label",{text:"Name"}), n);
-    modal("Add Room", c, () => {
-      if (!n.value.trim()) return false;
-      state.cleaning.rooms.push({ id:genId("r"), name:n.value.trim(), tasks:[] });
-      save(); render.cleaning();
-    });
-  }}));
-};
-function cleanTaskRow(t, room, status) {
-  const row = el("div", { class: `clean-task ${status.cls}` });
-  const check = el("div", { class:"check" });
-  check.addEventListener("click", () => {
-    const k = `${room.id}_${t.id}`;
-    if (!state.cleaning.history[k]) state.cleaning.history[k] = [];
-    state.cleaning.history[k].push(today());
-    save(); render.cleaning(); renderHeader();
-  });
-  check.innerHTML = "&#x2714;";
-  check.style.color = "transparent";
-  row.append(check);
-  row.append(el("span", { class:"name", text: t.name }));
-  row.append(el("span", { class:"freq", text: t.freq===1 ? "Daily" : `Every ${t.freq}d` }));
-  row.append(el("span", { class:"age", text: status.label }));
-  row.append(el("button", { class:"del", html:"&#x2715;", onclick:() => {
-    room.tasks = room.tasks.filter(x=>x.id!==t.id); save(); render.cleaning();
-  }}));
-  return row;
-}
 
 // ============ GOALS ============
 render.goals = () => {
@@ -1236,6 +1454,14 @@ render.notes = () => {
       b.append(el("span", { text: fmtDateTime(n.createdAt) }));
       const btns = el("span");
       btns.append(el("button", { html: n.pinned?"&#x1F4CC;":"&#x1F4CD;", title: n.pinned?"Unpin":"Pin", onclick:() => { n.pinned = !n.pinned; save(); renderList(q); }}));
+      btns.append(el("button", { html:"&#x270E;", title:"Edit", onclick:() => {
+        const ta2 = el("textarea", { style:{width:"100%",minHeight:"120px"} });
+        ta2.value = n.content;
+        modal("Edit Note", ta2, () => {
+          const v2 = ta2.value.trim(); if (!v2) return false;
+          n.content = v2; save(); renderList(q);
+        });
+      }}));
       btns.append(el("button", { html:"&#x2715;", title:"Delete", onclick:() => { state.notes = state.notes.filter(x=>x.id!==n.id); save(); renderList(q); }}));
       b.append(btns);
       c.append(b);
@@ -1246,128 +1472,7 @@ render.notes = () => {
   renderList();
 };
 
-// ============ READING ============
-render.reading = () => {
-  const v = $("#view-reading");
-  v.innerHTML = "";
-  v.append(el("h1", { text:"Reading" }));
-  v.append(el("div", { class:"view-sub", text:"Track books in progress and what you've finished." }));
 
-  const form = el("div", { class:"flex-row", style:{marginBottom:"12px"} });
-  const t = el("input", { type:"text", placeholder:"Book title", style:{flex:"2",minWidth:"160px"} });
-  const a = el("input", { type:"text", placeholder:"Author", style:{flex:"1",minWidth:"120px"} });
-  const p = el("input", { type:"number", placeholder:"Pages", style:{width:"90px"} });
-  const add = el("button", { class:"btn primary", text:"Add", onclick:() => {
-    if (!t.value.trim()) return;
-    state.reading.books.push({ id:genId("bk"), title:t.value.trim(), author:a.value.trim(), pages:+p.value||0, read:0, status:"reading", addedAt:new Date().toISOString() });
-    t.value=""; a.value=""; p.value=""; save(); render.reading();
-  }});
-  form.append(t, a, p, add);
-  v.append(form);
-
-  for (const [status, label] of [["reading","Currently Reading"],["want","Want to Read"],["done","Finished"]]) {
-    const books = state.reading.books.filter(b => b.status===status);
-    if (!books.length && status==="done") continue;
-    v.append(el("div", { class:"section-title", text: `${label} — ${books.length}` }));
-    for (const b of books) {
-      const row = el("div", { class:"book-row" });
-      row.append(el("div", { class:"cover", text: (b.title[0]||"?").toUpperCase() }));
-      const info = el("div", { class:"info" });
-      info.append(el("div", { class:"title", text: b.title }));
-      info.append(el("div", { class:"author", text: b.author || "Unknown" }));
-      if (b.pages && status==="reading") info.append(el("div", { class:"progress", text: `${b.read || 0}/${b.pages} pages (${Math.round((b.read||0)/b.pages*100)}%)` }));
-      row.append(info);
-      if (status==="reading") {
-        const pg = el("input", { type:"number", placeholder:"page", style:{width:"70px"}, value:b.read||"" });
-        pg.addEventListener("change", () => { b.read = +pg.value; save(); });
-        row.append(pg);
-        row.append(el("button", { class:"btn sm", text:"Done", onclick:() => { b.status="done"; b.finishedAt=new Date().toISOString(); save(); render.reading(); }}));
-      } else if (status==="want") {
-        row.append(el("button", { class:"btn sm primary", text:"Start", onclick:() => { b.status="reading"; save(); render.reading(); }}));
-      }
-      row.append(el("button", { class:"btn ghost", html:"&#x2715;", onclick:() => { state.reading.books = state.reading.books.filter(x=>x.id!==b.id); save(); render.reading(); }}));
-      v.append(row);
-    }
-  }
-
-  if (!state.reading.books.length) v.append(el("div", { class:"empty", text:"No books yet" }));
-};
-
-// ============ FINANCE ============
-render.finance = () => {
-  const v = $("#view-finance");
-  v.innerHTML = "";
-  v.append(el("h1", { text:"Finance" }));
-  v.append(el("div", { class:"view-sub", text:"Track daily spending against a monthly budget." }));
-
-  const month = today().slice(0,7);
-  const monthEntries = state.finance.entries.filter(e => e.date.startsWith(month));
-  const monthTotal = sum(monthEntries.map(e=>e.amount));
-  const budget = state.finance.settings.monthlyBudget;
-  const pct = budget ? Math.round(monthTotal/budget*100) : 0;
-
-  const summary = el("div", { class:"card budget-card" });
-  summary.append(el("div", { class:"top" },
-    [el("span", { class:"stat-sub", text: `${new Date().toLocaleDateString("en",{month:"long"})} spent` }),
-     el("button", { class:"btn ghost sm", text:"Set budget", onclick:() => {
-        const c = el("div"); const i = el("input", { type:"number", value:budget });
-        c.append(el("label",{text:"Monthly budget"}), i);
-        modal("Set Budget", c, () => { state.finance.settings.monthlyBudget = +i.value||0; save(); render.finance(); });
-     }})]));
-  summary.append(el("div", { class:"stat-row" },
-    [el("span", { class:"stat-big", text: "$"+monthTotal.toFixed(0) }),
-     el("span", { class:"muted", text: ` / $${budget} budget` })]));
-  const bar = el("div", { class:"goal-bar", style:{marginTop:"10px"} });
-  bar.append(el("div", { class:"fill", style:{ width: `${clamp(pct,0,100)}%`, background: pct>100?"var(--danger)":pct>80?"var(--warning)":"var(--success)" } }));
-  summary.append(bar);
-  v.append(summary);
-
-  // Add entry
-  v.append(el("div", { class:"section-title", text:"Add expense" }));
-  const form = el("div", { class:"flex-row" });
-  const amt = el("input", { type:"number", step:"0.01", placeholder:"$", style:{width:"100px"} });
-  const cat = el("input", { type:"text", placeholder:"Category (groceries, gas…)", style:{flex:"1",minWidth:"160px"} });
-  const note = el("input", { type:"text", placeholder:"Note (optional)", style:{flex:"1",minWidth:"140px"} });
-  const ds = el("input", { type:"date", value: today() });
-  const add = el("button", { class:"btn primary", text:"Add", onclick:() => {
-    if (!amt.value) return;
-    state.finance.entries.push({ id:genId("f"), amount:+amt.value, category:cat.value.trim()||"misc", note:note.value.trim(), date:ds.value });
-    amt.value=""; cat.value=""; note.value=""; save(); render.finance();
-  }});
-  form.append(amt, cat, note, ds, add);
-  v.append(form);
-
-  // List
-  v.append(el("div", { class:"section-title", text:"Recent" }));
-  for (const e of monthEntries.slice(-20).reverse()) {
-    const row = el("div", { class:"spend-row" });
-    row.append(el("span", { class:"amt", text: "$"+e.amount.toFixed(2) }));
-    row.append(el("span", { class:"cat", text: e.category }));
-    row.append(el("span", { style:{flex:"1"}, text: e.note }));
-    row.append(el("span", { class:"date", text: fmtDate(e.date) }));
-    row.append(el("button", { class:"btn ghost", html:"&#x2715;", onclick:() => { state.finance.entries = state.finance.entries.filter(x=>x.id!==e.id); save(); render.finance(); }}));
-    v.append(row);
-  }
-  if (!monthEntries.length) v.append(el("div", { class:"empty", text:"No entries this month" }));
-
-  // Category breakdown
-  const byCat = {};
-  for (const e of monthEntries) byCat[e.category] = (byCat[e.category]||0) + e.amount;
-  if (Object.keys(byCat).length) {
-    v.append(el("div", { class:"section-title", text:"By Category" }));
-    const sorted = Object.entries(byCat).sort((a,b)=>b[1]-a[1]);
-    for (const [c, amt] of sorted) {
-      const p = monthTotal ? amt/monthTotal*100 : 0;
-      const r = el("div", { style:{padding:"6px 0"} });
-      r.append(el("div", { style:{display:"flex",justifyContent:"space-between",fontSize:"13px",marginBottom:"3px"} },
-        [el("span", { text: c }), el("span", { text: `$${amt.toFixed(0)} (${p.toFixed(0)}%)` })]));
-      const bar2 = el("div", { class:"goal-bar" });
-      bar2.append(el("div", { class:"fill", style: { width: `${p}%` } }));
-      r.append(bar2);
-      v.append(r);
-    }
-  }
-};
 
 // ============ REVIEW ============
 render.review = () => {
@@ -1379,20 +1484,12 @@ render.review = () => {
   // Last 7 days stats
   const last7 = []; for (let i=6;i>=0;i--) { const d = new Date(); d.setDate(d.getDate()-i); last7.push(dayStr(d)); }
   const tasksDone = state.tasks.filter(t => t.status==="done" && t.completedAt && t.completedAt.slice(0,10) >= last7[0]).length;
-  const habitChecks = state.habits.reduce((acc,h) => acc + (h.checkins||[]).filter(d => last7.includes(d)).length, 0);
-  const sleepWk = state.health.sleep.filter(s => last7.includes(s.date));
-  const sleepAvg = sleepWk.length ? sum(sleepWk.map(s=>s.hours))/sleepWk.length : 0;
-  const moodWk = state.health.mood.filter(m => last7.includes(m.date));
-  const moodAvg = moodWk.length ? sum(moodWk.map(m=>m.value))/moodWk.length : 0;
-  const exMins = sum(state.health.exercise.filter(e=>last7.includes(e.date)).map(e=>e.minutes));
 
   const grid = el("div", { class:"today-grid" });
+  const dailyDoneWk = (state.recurring?.daily||[]).filter(i => i.lastChecked && i.lastChecked >= last7[0]).length;
   for (const [label, val, sub] of [
     ["Tasks completed", tasksDone, "this week"],
-    ["Habit check-ins", habitChecks, "across all habits"],
-    ["Avg sleep", sleepAvg.toFixed(1)+"h", `${sleepWk.length}/7 nights`],
-    ["Avg mood", moodAvg.toFixed(1)+"/5", moodWk.length+" days logged"],
-    ["Exercise", exMins+" min", "total this week"],
+    ["Daily tasks done", dailyDoneWk, "across all days"],
     ["Notes added", state.notes.filter(n=>n.createdAt.slice(0,10) >= last7[0]).length, "captures"],
   ]) {
     const c = el("div", { class:"card" });
@@ -1433,216 +1530,450 @@ render.today = () => {
   const v = $("#view-today");
   v.innerHTML = "";
 
+  // Greeting
   const h = new Date().getHours();
-  const greet = h<12 ? "Good morning" : h<17 ? "Good afternoon" : h<21 ? "Good evening" : "Hello";
+  const greet = h<12?"Good morning":h<17?"Good afternoon":h<21?"Good evening":"Working late";
   const gc = el("div", { class:"greeting-card" });
-  gc.append(el("h2", { text: `${greet}!` }));
-  const todoCount = state.tasks.filter(t=>t.status!=="done").length;
-  const dueToday = state.tasks.filter(t=>t.status!=="done" && t.deadline===today()).length;
-  const overdueClean = countOverdueCleaning();
-  const bits = [];
-  if (dueToday) bits.push(`${dueToday} task${dueToday>1?"s":""} due today`);
-  if (overdueClean) bits.push(`${overdueClean} cleaning item${overdueClean>1?"s":""} overdue`);
-  if (!bits.length) bits.push(`${todoCount} task${todoCount!==1?"s":""} on your plate`);
-  gc.append(el("p", { text: bits.join(" · ") }));
+  gc.append(el("h2", { text: greet }));
+  gc.append(el("p", { text: new Date().toLocaleDateString("en-US",{weekday:"long",month:"long",day:"numeric"}) }));
   v.append(gc);
 
-  const grid = el("div", { class:"today-grid", style:{marginTop:"14px"} });
+  // Pinned links
+  const bar = el("div", { class:"links-bar", style:{marginTop:"12px"} });
+  for (const lk of state.links) {
+    const chip = el("a", { class:"link-chip", href:lk.url, target:"_blank", rel:"noopener" });
+    chip.append(document.createTextNode(lk.label));
+    const del = el("button", { class:"del", html:"&#x2715;", title:"Remove", onclick: e => {
+      e.preventDefault(); e.stopPropagation();
+      state.links = state.links.filter(x=>x.id!==lk.id); save(); render.today();
+    }});
+    chip.append(del);
+    bar.append(chip);
+  }
+  bar.append(el("button", { class:"link-add-btn", text:"+ Add link", onclick:() => {
+    const lbl = el("input", { type:"text", placeholder:"Label (e.g. ADP)" });
+    const url = el("input", { type:"url", placeholder:"https://…" });
+    const body = el("div", { style:{display:"flex",flexDirection:"column",gap:"8px"} });
+    body.append(lbl, url);
+    modal("Add quick link", body, () => {
+      if (!lbl.value.trim() || !url.value.trim()) return false;
+      state.links.push({ id:genId("lk"), label:lbl.value.trim(), url:url.value.trim() });
+      save(); render.today();
+    }, { saveText:"Add" });
+  }}));
+  v.append(bar);
 
-  // Top tasks
-  const tasksCard = el("div", { class:"card span-2" });
-  tasksCard.append(el("h3", {}, [el("span",{text:"Today's Tasks"}), el("button",{class:"btn ghost sm",text:"All →",onclick:()=>showView("tasks")})]));
-  const topTasks = state.tasks.filter(t=>t.status!=="done").sort((a,b) => {
-    const ad = a.deadline ? new Date(a.deadline) : new Date(8640000000000000);
-    const bd = b.deadline ? new Date(b.deadline) : new Date(8640000000000000);
-    if (ad-bd) return ad-bd;
-    const pr = { high:0, medium:1, low:2 };
-    return pr[a.priority]-pr[b.priority];
-  }).slice(0,5);
-  for (const t of topTasks) {
-    const r = el("div", { class:"row", style:{padding:"6px 0",borderBottom:"1px solid var(--border)"} });
-    const check = el("button", { class:"btn icon-only ghost", html:"&#9711;", onclick:() => { t.status="done"; t.completedAt=new Date().toISOString(); save(); render.today(); renderHeader(); }});
-    r.append(check);
-    r.append(el("span", { class:`priority ${t.priority}`, style:{width:"6px",height:"6px",borderRadius:"50%",background:t.priority==="high"?"var(--danger)":t.priority==="medium"?"var(--warning)":"var(--accent)"} }));
-    r.append(el("span", { style:{flex:"1",fontSize:"14px"}, text: t.title }));
-    if (t.deadline) {
-      const diff = daysBetween(today(), t.deadline);
-      r.append(el("span", { class: diff<0?"chip danger":diff===0?"chip warning":"chip", text: diff<0?`${-diff}d late`:diff===0?"Today":fmtDate(t.deadline) }));
+  // NWS weather alerts for all markets
+  const alertStrip = el("div", { class:"alert-strip" });
+  v.append(alertStrip);
+  const alertCities = (state.weather?.cities||[]).filter(c => c.lat !== null && c.name);
+  let alertPending = alertCities.length;
+  const allAlerts = [];
+  const renderAlertStrip = () => {
+    alertStrip.innerHTML = "";
+    allAlerts.sort((a,b) => (a.a.severity==='Extreme'?0:a.a.severity==='Severe'?1:2)-(b.a.severity==='Extreme'?0:b.a.severity==='Severe'?1:2));
+    for (const {city, a} of allAlerts) {
+      const isSev = a.severity==='Extreme'||a.severity==='Severe';
+      const row = el("div",{class:`alert-row ${isSev?"sev":"mod"}`});
+      row.append(el("span",{class:"a-badge",text:a.severity==='Extreme'?"🚨 EXTREME":a.severity==='Severe'?"⚠ SEVERE":"⚠ MODERATE"}));
+      row.append(el("span",{class:"a-city",text:city.name}));
+      row.append(el("span",{class:"a-event",text:a.event}));
+      alertStrip.append(row);
     }
+  };
+  if (alertCities.length === 0) {
+    alertPending = 0;
+  } else {
+    alertCities.forEach(city => {
+      fetchAlerts(city).then(alerts => {
+        for (const a of alerts) allAlerts.push({city, a});
+        if (--alertPending === 0) renderAlertStrip();
+      }).catch(() => { if (--alertPending === 0) renderAlertStrip(); });
+    });
+  }
+
+  // Next meeting callout
+  if (calCache.ts && state.calendar?.icsUrl) {
+    const nowMs = Date.now();
+    const todayStr = today();
+    const upcoming = calCache.events.filter(e => !e.start.allDay && e.start.date === todayStr && (e.end ? e.end.ts > nowMs : e.start.ts > nowMs - 3600000));
+    upcoming.sort((a,b) => a.start.ts - b.start.ts);
+    const nxt = upcoming[0];
+    if (nxt) {
+      const diffMin = Math.round((nxt.start.ts - nowMs) / 60000);
+      const isNow = diffMin <= 0 && (!nxt.end || nxt.end.ts > nowMs);
+      const label = isNow ? "NOW" : diffMin < 60 ? `In ${diffMin}m` : `At ${nxt.start.timeStr}`;
+      const banner = el("div", { class:"next-meeting-banner", onclick:()=>showView("schedule") });
+      banner.append(el("span",{class:"nm-badge",text:label}));
+      banner.append(el("span",{class:"nm-title",text:nxt.summary}));
+      if (nxt.location) banner.append(el("span",{class:"nm-loc",text:"· "+nxt.location}));
+      v.append(banner);
+    }
+  }
+
+  // Stat strip
+  const dueToday  = state.tasks.filter(t=>t.status!=="done" && t.deadline===today()).length;
+  const overdueN  = state.tasks.filter(t=>t.status!=="done" && t.deadline && t.deadline<today()).length;
+  const dailyItems = state.recurring?.daily||[];
+  const dailyDone  = dailyItems.filter(i=>i.lastChecked===today()).length;
+  const mainCity   = state.weather?.cities?.[0];
+
+  const mkStat = (icon, val, lbl, cls, action) => {
+    const b = el("div", { class:`stat-box ${cls}`, onclick: action });
+    b.append(el("div",{class:"s-icon",text:icon}), el("div",{class:"s-val",text:String(val)}), el("div",{class:"s-lbl",text:lbl}));
+    return b;
+  };
+  const strip = el("div", { class:"stat-strip" });
+  strip.append(mkStat(overdueN>0?"⚠️":"✅", overdueN, "overdue", overdueN>0?"s-danger":"s-success", ()=>showView("tasks")));
+  strip.append(mkStat("📋", dueToday, "due today", "s-warning", ()=>showView("tasks")));
+
+  const wxIcon = el("div",{class:"s-icon",text:"🌡️"});
+  const wxVal  = el("div",{class:"s-val",text:"—"});
+  const wxStat = el("div",{class:"stat-box s-teal",onclick:()=>{}});
+  wxStat.append(wxIcon, wxVal, el("div",{class:"s-lbl",text:mainCity?.name||"weather"}));
+  strip.append(wxStat);
+  if (mainCity?.lat!=null) {
+    const fillWx = d => { wxIcon.textContent=wmoEmoji(d.current.code); wxVal.textContent=`${d.current.temp}°`; };
+    const cached = wxCache[mainCity.id];
+    if (cached && Date.now()-cached.ts<WX_TTL) fillWx(cached);
+    else fetchCityWx(mainCity).then(fillWx).catch(()=>{});
+  }
+
+  strip.append(mkStat("✔️", `${dailyDone}/${dailyItems.length||0}`, "daily done", "s-accent", ()=>showView("tasks")));
+
+  // Weekly progress box
+  const weeklyItems = state.recurring?.weekly||[];
+  const weeklyDone  = weeklyItems.filter(i=>i.lastChecked===currentWeek()).length;
+  strip.append(mkStat("🗓️", `${weeklyDone}/${weeklyItems.length||0}`, "weekly done", "s-accent", ()=>showView("tasks")));
+
+  // Monthly progress box
+  const monthlyItems = state.recurring?.monthly||[];
+  const monthlyDone  = monthlyItems.filter(i=>i.lastChecked===currentMonth()).length;
+  strip.append(mkStat("📆", `${monthlyDone}/${monthlyItems.length||0}`, "monthly done", "s-accent", ()=>showView("tasks")));
+
+  v.append(strip);
+
+  // Main grid
+  const grid = el("div", { class:"today-grid" });
+
+  // Tasks — full width, overdue highlighted
+  const tasksCard = el("div", { class:"card span-2" });
+  tasksCard.append(el("h3",{},[el("span",{text:"Tasks"}),el("button",{class:"btn ghost sm",text:"All →",onclick:()=>showView("tasks")})]));
+  const topTasks = state.tasks.filter(t=>t.status!=="done").sort((a,b)=>{
+    const far = new Date(8640000000000000);
+    const ad = a.deadline?new Date(a.deadline):far, bd = b.deadline?new Date(b.deadline):far;
+    if (ad-bd) return ad-bd;
+    return ({high:0,medium:1,low:2}[a.priority]||1)-({high:0,medium:1,low:2}[b.priority]||1);
+  }).slice(0,7);
+  for (const t of topTasks) {
+    const diff = t.deadline ? daysBetween(today(), t.deadline) : null;
+    const isOD = diff!==null && diff<0, isDT = diff===0;
+    const priColor = t.priority==="high"?"var(--danger)":t.priority==="medium"?"var(--warning)":"var(--accent)";
+    const r = el("div", { class:"today-task-row", style:{background:isOD?"var(--danger-soft)":isDT?"var(--warning-soft)":"transparent"} });
+    r.append(el("div",{class:"today-task-bar",style:{background:priColor}}));
+    r.append(el("button",{class:"btn today-check",html:"&#9711;",onclick:()=>{ t.status="done"; t.completedAt=new Date().toISOString(); save(); render.today(); renderHeader(); }}));
+    r.append(el("span",{class:"today-task-title",text:t.title}));
+    if (diff!==null) r.append(el("span",{class:isOD?"chip danger":isDT?"chip warning":"chip",text:isOD?`${-diff}d late`:isDT?"Today":fmtDate(t.deadline)}));
     tasksCard.append(r);
   }
-  if (!topTasks.length) tasksCard.append(el("div", { class:"empty", text:"All clear ✓" }));
+  if (!topTasks.length) tasksCard.append(el("div",{class:"empty",text:"All clear ✓"}));
   grid.append(tasksCard);
 
-  // Habits today
-  const habCard = el("div", { class:"card" });
-  habCard.append(el("h3", {}, [el("span",{text:"Habits"}), el("button",{class:"btn ghost sm",text:"All →",onclick:()=>showView("habits")})]));
-  for (const h of state.habits.slice(0,6)) {
-    const done = h.checkins?.includes(today());
-    const r = el("div", { class:"row", style:{padding:"6px 0"} });
-    const dot = el("div", { class:"dot"+(done?" done":""), style:{width:"22px",height:"22px",borderRadius:"50%",border:"2px solid "+(done?"var(--success)":"var(--border)"),background:done?"var(--success)":"transparent",display:"flex",alignItems:"center",justifyContent:"center",color:"#fff",fontSize:"11px",cursor:"pointer",flexShrink:"0"} });
-    if (done) dot.innerHTML = "&#x2713;";
-    dot.addEventListener("click", () => {
-      if (!h.checkins) h.checkins=[];
-      if (done) h.checkins = h.checkins.filter(x=>x!==today()); else h.checkins.push(today());
-      save(); render.today(); renderHeader();
-    });
-    r.append(dot);
-    r.append(el("span", { text: h.icon||"⭐", style:{fontSize:"18px"} }));
-    r.append(el("span", { style:{flex:"1",fontSize:"14px"}, text: h.name }));
-    const s = getStreak(h.checkins);
-    if (s>0) r.append(el("span", { class:"chip success", text: `🔥 ${s}d` }));
-    habCard.append(r);
+  // Calendar today
+  const calCard = el("div",{class:"card"});
+  calCard.append(el("h3",{},[el("span",{text:"Calendar · Today"}),el("button",{class:"btn ghost sm",text:"Schedule →",onclick:()=>showView("schedule")})]));
+  const calBody = el("div");
+  calCard.append(calBody);
+  const showTodayCal = () => {
+    calBody.innerHTML="";
+    renderCalEvents(calBody, calCache.events.filter(e=>e.start.date===today()),
+      state.calendar?.icsUrl?"No events today":"Connect calendar in Settings");
+  };
+  if (calCache.ts) showTodayCal();
+  else if (state.calendar?.icsUrl) {
+    calBody.append(el("div",{class:"wx-loading",text:"Loading calendar…"}));
+    syncCalendar().then(()=>{ calBody.innerHTML=""; showTodayCal(); }).catch(()=>{ calBody.innerHTML=""; calBody.append(el("div",{class:"wx-err",text:"Could not load"})); });
+  } else {
+    calBody.append(el("div",{class:"empty",text:"Connect calendar in Settings"}));
   }
-  if (!state.habits.length) habCard.append(el("div", { class:"empty", text:"Add habits to track" }));
-  grid.append(habCard);
+  grid.append(calCard);
 
-  // Water
-  const waterCard = el("div", { class:"card" });
-  const wc = state.diet.water[today()]||0; const wg = state.diet.settings.waterGoal;
-  waterCard.append(el("h3", {}, [el("span",{text:"Water"}), el("span",{class:"chip"+(wc>=wg?" success":""),text:`${wc}/${wg}`})]));
-  const wrow = el("div", { class:"water-tracker" });
-  for (let i=0;i<wg;i++) {
-    const g = el("div", { class:"water-glass"+(i<wc?" filled":"") });
-    g.addEventListener("click", () => {
-      state.diet.water[today()] = wc>i ? i : i+1; save(); render.today();
-    });
-    wrow.append(g);
+  // Daily checklist
+  const recurCard = el("div",{class:"card"});
+  recurCard.append(el("h3",{},[el("span",{text:"Daily Checklist"}),el("button",{class:"btn ghost sm",text:"All →",onclick:()=>showView("tasks")})]));
+  if (dailyItems.length) {
+    const pct = Math.round(dailyDone/dailyItems.length*100);
+    const pw = el("div",{class:"recur-progress",style:{height:"8px",marginBottom:"10px"}});
+    pw.append(el("div",{class:"fill",style:{width:`${pct}%`}}));
+    recurCard.append(pw);
+    recurCard.append(el("div",{class:"muted",style:{fontSize:"12px",marginBottom:"8px"},text:`${dailyDone} of ${dailyItems.length} done`}));
+    for (const item of dailyItems.slice(0,8)) {
+      const done = item.lastChecked===today();
+      const r = el("div",{class:`recur-item${done?" done":""}`,style:{padding:"8px 0",borderBottom:"1px solid var(--border)"}});
+      const cb = el("div",{class:`cb${done?" done":""}`}); if (done) cb.innerHTML="&#x2713;";
+      cb.addEventListener("click",()=>{ item.lastChecked=done?null:today(); save(); render.today(); });
+      r.append(cb, el("span",{class:"lbl",style:{fontSize:"15px"},text:item.title}));
+      recurCard.append(r);
+    }
+  } else {
+    recurCard.append(el("div",{class:"empty",text:"No daily tasks yet — add them in Tasks"}));
   }
-  waterCard.append(wrow);
-  grid.append(waterCard);
-
-  // Cleaning preview
-  const cleanCard = el("div", { class:"card" });
-  cleanCard.append(el("h3", {}, [el("span",{text:"Cleaning"}), el("button",{class:"btn ghost sm",text:"All →",onclick:()=>showView("cleaning")})]));
-  const overdue = [];
-  for (const r of state.cleaning.rooms) for (const t of r.tasks) {
-    const s = cleanTaskStatus(t, r.id);
-    if (s.overdue) overdue.push({ room:r, task:t, status:s });
-  }
-  for (const o of overdue.slice(0,4)) {
-    const row = el("div", { class:"row", style:{padding:"6px 0",borderBottom:"1px solid var(--border)"} });
-    const check = el("div", { class:"check", style:{width:"20px",height:"20px",borderRadius:"50%",border:"2px solid var(--border)",cursor:"pointer",flexShrink:"0"} });
-    check.addEventListener("click", () => {
-      const k = `${o.room.id}_${o.task.id}`;
-      if (!state.cleaning.history[k]) state.cleaning.history[k]=[];
-      state.cleaning.history[k].push(today()); save(); render.today(); renderHeader();
-    });
-    row.append(check);
-    row.append(el("span", { style:{flex:"1",fontSize:"14px"}, text: o.task.name }));
-    row.append(el("span", { class:"chip", text: o.room.name }));
-    cleanCard.append(row);
-  }
-  if (!overdue.length) cleanCard.append(el("div", { class:"empty", text:"All clean ✓" }));
-  grid.append(cleanCard);
-
-  // Today's schedule
-  const schedCard = el("div", { class:"card" });
-  schedCard.append(el("h3", {}, [el("span",{text:"Today's Schedule"}), el("button",{class:"btn ghost sm",text:"Plan →",onclick:()=>showView("schedule")})]));
-  const todayBlocks = state.schedule.blocks.filter(b => b.date===today()).sort((a,b)=>a.startTime.localeCompare(b.startTime));
-  for (const b of todayBlocks) {
-    const r = el("div", { class:"row", style:{padding:"6px 0",borderBottom:"1px solid var(--border)"} });
-    r.append(el("div", { style:{width:"4px",height:"24px",background:b.color,borderRadius:"2px",flexShrink:"0"} }));
-    r.append(el("span", { class:"muted", text: `${b.startTime}-${b.endTime}`, style:{fontSize:"12px",minWidth:"90px"} }));
-    r.append(el("span", { style:{flex:"1",fontSize:"14px"}, text: b.title }));
-    schedCard.append(r);
-  }
-  if (!todayBlocks.length) schedCard.append(el("div", { class:"empty", text:"No blocks scheduled" }));
-  grid.append(schedCard);
-
-  // Diet snapshot
-  const dietCard = el("div", { class:"card" });
-  dietCard.append(el("h3", {}, [el("span",{text:"Diet Today"}), el("button",{class:"btn ghost sm",text:"All →",onclick:()=>showView("diet")})]));
-  const meals = state.diet.meals.filter(m=>m.date===today());
-  const cal = sum(meals.map(m=>m.cal));
-  const calGoal = state.diet.settings.calGoal;
-  dietCard.append(el("div", { class:"stat-row" }, [el("span",{class:"stat-big",text:cal}), el("span",{class:"muted",text:`/${calGoal} cal`})]));
-  const bar = el("div", { class:"goal-bar", style:{marginTop:"6px"} });
-  bar.append(el("div", { class:"fill", style:{width:`${clamp(cal/calGoal*100,0,100)}%`,background:"var(--warning)"} }));
-  dietCard.append(bar);
-  dietCard.append(el("div", { class:"muted", style:{fontSize:"11px",marginTop:"6px"}, text: `${meals.length} meal${meals.length!==1?"s":""} logged` }));
-  grid.append(dietCard);
-
-  // Health snapshot
-  const healthCard = el("div", { class:"card" });
-  healthCard.append(el("h3", {}, [el("span",{text:"Health"}), el("button",{class:"btn ghost sm",text:"All →",onclick:()=>showView("health")})]));
-  const lastSleep = state.health.sleep[state.health.sleep.length-1];
-  const todayMood = state.health.mood.find(m=>m.date===today());
-  const wkExercise = sum(state.health.exercise.filter(e => { const dt=new Date(); dt.setDate(dt.getDate()-7); return e.date >= dayStr(dt); }).map(e=>e.minutes));
-  healthCard.append(el("div", { class:"row", style:{gap:"14px",marginTop:"4px"} }, [
-    el("span", { html: `<strong style="font-size:18px">${lastSleep?lastSleep.hours+"h":"—"}</strong><br><small class="muted">sleep</small>`, style:{textAlign:"center"} }),
-    el("span", { html: `<strong style="font-size:18px">${wkExercise}</strong><br><small class="muted">wk min</small>`, style:{textAlign:"center"} }),
-    el("span", { html: `<strong style="font-size:20px">${todayMood?["😞","😐","🙂","😊","🤩"][todayMood.value-1]:"—"}</strong><br><small class="muted">mood</small>`, style:{textAlign:"center"} }),
-  ]));
-  grid.append(healthCard);
+  grid.append(recurCard);
 
   v.append(grid);
+
+  // Crew weather — all markets
+  const wxSection = el("div", { style:{marginTop:"24px"} });
+  const wxHdr = el("div", { class:"flex-row", style:{justifyContent:"space-between",alignItems:"center",marginBottom:"12px"} });
+  wxHdr.append(el("div", { class:"section-title", style:{margin:0}, text:"Markets" }));
+  wxHdr.append(el("button", { class:"btn sm", text:"↻ Refresh", onclick:()=>{ Object.keys(wxCache).forEach(k=>delete wxCache[k]); render.today(); } }));
+  wxSection.append(wxHdr);
+  const wxGrid = el("div", { class:"weather-grid" });
+  (state.weather?.cities||[]).forEach((city, i) => wxGrid.append(buildWxCard(city, i)));
+  wxSection.append(wxGrid);
+  v.append(wxSection);
 };
 
-// ============ UTILITIES ============
-function sparkline(values, opts={}) {
-  const { color = "var(--accent)", height = 50, goal = null, fill = false, label = "" } = opts;
-  const w = 280, h = height;
-  const nonNull = values.filter(v=>v!==null);
-  if (!nonNull.length) {
-    const svg = document.createElementNS("http://www.w3.org/2000/svg","svg");
-    svg.setAttribute("class","sparkline"); svg.setAttribute("viewBox",`0 0 ${w} ${h}`);
-    return svg;
+
+// ============ SETTINGS ============
+render.settings = () => {
+  const v = $("#view-settings");
+  v.innerHTML = "";
+  v.append(el("h1", { text:"Settings" }));
+  v.append(el("div", { class:"view-sub", text:"Calendar, appearance, and data." }));
+
+  // --- Calendar ---
+  v.append(el("div", { class:"section-title", text:"Outlook Calendar (ICS)" }));
+  v.append(el("div", { class:"cal-hint", html:'Go to Outlook → Calendar → Settings → Shared calendars → Publish calendar → copy the ICS link. If your account blocks direct browser fetch, the dashboard retries via corsproxy.io (your data passes through it briefly).' }));
+  const syncRow = el("div", { class:"cal-sync-row" });
+  const urlInp = el("input", { type:"url", placeholder:"https://outlook.live.com/owa/calendar/…/calendar.ics", value: state.calendar?.icsUrl||"" });
+  const syncStatus = el("span", { style:{fontSize:"12px"} });
+  const setSyncStatus = (msg, ok) => { syncStatus.textContent = msg; syncStatus.style.color = ok ? "var(--success)" : "var(--danger)"; };
+  const syncBtn = el("button", { class:"btn primary sm", text:"Sync", onclick: async () => {
+    const u = urlInp.value.trim(); if (!u) return;
+    state.calendar.icsUrl = u; save();
+    syncBtn.textContent = "Syncing…"; syncBtn.disabled = true; syncStatus.textContent = "";
+    try {
+      await syncCalendar(true);
+      setSyncStatus(`✓ ${calCache.events.length} events loaded`, true);
+      renderPreview();
+      render.today?.();
+    } catch(e) {
+      setSyncStatus("Failed — check the URL or connection", false);
+    }
+    syncBtn.textContent = "Sync"; syncBtn.disabled = false;
+  }});
+  const disconnectBtn = el("button", { class:"btn sm danger", text:"Disconnect", onclick:() => {
+    if (!confirm("Remove calendar and clear all synced events?")) return;
+    state.calendar.icsUrl = ""; save();
+    calCache.events = []; calCache.ts = 0;
+    urlInp.value = ""; setSyncStatus("", true);
+    renderPreview(); render.today?.();
+  }});
+  urlInp.addEventListener("keydown", e => { if (e.key==="Enter") syncBtn.click(); });
+  syncRow.append(urlInp, syncBtn, disconnectBtn, syncStatus);
+  v.append(syncRow);
+  const previewEl = el("div", { style:{marginTop:"6px"} });
+  v.append(previewEl);
+  function renderPreview() {
+    previewEl.innerHTML = "";
+    if (!calCache.ts) { previewEl.append(el("div",{class:"empty",text:"No calendar synced yet"})); return; }
+    const now = Date.now();
+    const cutoff = now + 14 * 24 * 60 * 60 * 1000;
+    const todayStart = new Date(today()+'T00:00:00').getTime();
+    const upcoming = calCache.events.filter(e => e.start.ts >= todayStart && e.start.ts <= cutoff);
+    previewEl.append(el("div",{class:"section-title",text:`Upcoming — next 14 days (${upcoming.length})`}));
+    renderCalEvents(previewEl, upcoming, "No events in the next 14 days");
+    previewEl.append(el("div",{class:"wx-ts",text:`Last synced ${new Date(calCache.ts).toLocaleTimeString("en-US",{hour:"numeric",minute:"2-digit"})}`}));
   }
-  const max = Math.max(...nonNull, goal||0) * 1.1 || 1;
-  const min = Math.min(...nonNull, 0);
-  const pad = 4;
-  const stepX = (w - pad*2) / Math.max(values.length-1,1);
-  const points = values.map((v,i) => v===null ? null : [pad + i*stepX, h - pad - ((v-min)/(max-min))*(h-pad*2)]);
-  let pathD = "";
-  let started = false;
-  for (const p of points) {
-    if (p === null) { started = false; continue; }
-    pathD += (started?" L ":" M ")+p[0]+" "+p[1]; started = true;
+  if (state.calendar?.icsUrl) syncCalendar().then(renderPreview).catch(renderPreview);
+  else renderPreview();
+
+  // --- Appearance ---
+  v.append(el("div", { class:"section-title", style:{marginTop:"24px"}, text:"Appearance" }));
+  const themeRow = el("div", { class:"flex-row", style:{gap:"8px",marginBottom:"10px"} });
+  for (const [val, label] of [["light","Light"],["dark","Dark"],["auto","System"]]) {
+    themeRow.append(el("button", { class:`btn sm${state.settings.theme===val?" primary":""}`, text:label, onclick:() => {
+      state.settings.theme = val; save(); applyTheme(); render.settings();
+    }}));
   }
-  const svg = document.createElementNS("http://www.w3.org/2000/svg","svg");
-  svg.setAttribute("class","sparkline"); svg.setAttribute("viewBox",`0 0 ${w} ${h}`); svg.setAttribute("preserveAspectRatio","none");
-  if (goal !== null) {
-    const gy = h - pad - ((goal-min)/(max-min))*(h-pad*2);
-    const gl = document.createElementNS("http://www.w3.org/2000/svg","line");
-    gl.setAttribute("x1",0); gl.setAttribute("x2",w); gl.setAttribute("y1",gy); gl.setAttribute("y2",gy);
-    gl.setAttribute("stroke","var(--muted)"); gl.setAttribute("stroke-dasharray","3,3"); gl.setAttribute("stroke-width","1");
-    svg.appendChild(gl);
+  v.append(themeRow);
+  const calmRow = el("div", { class:"flex-row", style:{gap:"10px",alignItems:"center"} });
+  calmRow.append(el("span", { text:"Calm mode (muted accent colors)" }));
+  const calmBtn = el("button", { class:`btn sm${state.settings.calmMode?" primary":""}`, text: state.settings.calmMode?"On":"Off", onclick:() => {
+    state.settings.calmMode = !state.settings.calmMode; save(); applyTheme(); render.settings();
+  }});
+  calmRow.append(calmBtn);
+  v.append(calmRow);
+
+  // --- Keyboard Shortcuts ---
+  v.append(el("div", { class:"section-title", style:{marginTop:"24px"}, text:"Keyboard Shortcuts" }));
+  const kbGrid = el("div", { style:{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(180px,1fr))",gap:"6px 16px",marginBottom:"8px"} });
+  const kbShortcuts = [
+    ["1","Today"],["2","Tasks"],["3","Schedule"],["4","Crews"],
+    ["5","Goals"],["6","Notes"],["7","Review"],["8","Settings"],
+    ["Ctrl / ⌘ + K","Command palette"],["Esc","Close dialog"],
+  ];
+  for (const [key, label] of kbShortcuts) {
+    const row = el("div", { style:{display:"flex",gap:"8px",alignItems:"center",fontSize:"13px"} });
+    row.append(el("kbd", { text:key, style:{
+      background:"var(--bg-2)",border:"1px solid var(--border)",borderRadius:"5px",
+      padding:"2px 7px",fontFamily:"monospace",fontSize:"12px",whiteSpace:"nowrap",
+      color:"var(--ink-1)",boxShadow:"0 1px 0 var(--border)"
+    }}));
+    row.append(el("span", { text:label, style:{color:"var(--ink-2)"} }));
+    kbGrid.append(row);
   }
-  if (fill && started) {
-    const fillD = pathD + ` L ${w-pad} ${h-pad} L ${pad} ${h-pad} Z`;
-    const f = document.createElementNS("http://www.w3.org/2000/svg","path");
-    f.setAttribute("d", fillD); f.setAttribute("fill", color); f.setAttribute("opacity","0.15");
-    svg.appendChild(f);
+  v.append(kbGrid);
+
+  // --- Cloud Sync ---
+  v.append(el("div", { class:"section-title", style:{marginTop:"24px"}, text:"Cloud Sync (GitHub Gist)" }));
+  v.append(el("div", { class:"cal-hint", html:'Syncs your data to a private GitHub Gist. Step 1: <a href="https://github.com/settings/tokens/new?scopes=gist&description=Dashboard+Sync" target="_blank" rel="noopener">Create a Classic token</a> with only <code>gist</code> scope. Step 2: paste it below and click Connect. Step 3: copy the Gist ID to your other devices.' }));
+
+  const syncStatusEl = el("span", { id:"gistSyncStatus", style:{fontSize:"12px"} });
+  const setSyncSt = (msg, ok) => { syncStatusEl.textContent = msg; syncStatusEl.style.color = ok?"var(--success)":"var(--danger)"; };
+  if (state.sync?.lastSynced) setSyncSt(`↑ Last synced ${new Date(state.sync.lastSynced).toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'})}`, true);
+  else if (state.sync?.gistId) setSyncSt("Connected", true);
+
+  // Token row
+  const tokenInp = el("input", { type:"password", placeholder:"Paste GitHub token (ghp_… or github_pat_…)", value:state.sync?.token||"", style:{flex:"1"} });
+  const connectBtn = el("button", { class:"btn primary sm", text:"Connect", onclick: async () => {
+    const token = tokenInp.value.trim();
+    if (!token) { setSyncSt("Paste your token first", false); return; }
+    connectBtn.textContent="Connecting…"; connectBtn.disabled=true; setSyncSt("Validating token…", true);
+    try {
+      const gistId = await connectGist(token, gistInp.value.trim()||null);
+      gistInp.value = gistId;
+      setSyncSt("✓ Connected and synced", true);
+      render.settings(); // rebuild to show copy button + pull/disconnect
+      renderAll();
+    } catch(e) { setSyncSt(e.message||"Failed", false); connectBtn.textContent="Connect"; connectBtn.disabled=false; }
+  }});
+  const tokenRow = el("div", { class:"flex-row", style:{gap:"8px",marginBottom:"6px"} });
+  tokenRow.append(tokenInp, connectBtn);
+  v.append(tokenRow);
+
+  // Gist ID row
+  const gistInp = el("input", { type:"text", placeholder:"Gist ID — auto-filled after Connect (or paste from another device)", value:state.sync?.gistId||"", style:{width:"100%",fontFamily:"monospace",fontSize:"12px",marginBottom:"6px"} });
+  v.append(gistInp);
+
+  // Action row (only when connected)
+  if (state.sync?.gistId) {
+    const copyBtn = el("button", { class:"btn sm", text:"Copy Gist ID", onclick:() => {
+      navigator.clipboard.writeText(state.sync.gistId).then(() => { copyBtn.textContent="Copied!"; setTimeout(()=>copyBtn.textContent="Copy Gist ID",1500); });
+    }});
+    const pullBtn = el("button", { class:"btn sm", text:"↓ Pull now", onclick: async () => {
+      pullBtn.textContent="Pulling…"; pullBtn.disabled=true;
+      const ok = await gistPull();
+      if (ok) { setSyncSt("✓ Pulled latest data", true); renderAll(); } else setSyncSt("Pull failed — check console", false);
+      pullBtn.textContent="↓ Pull now"; pullBtn.disabled=false;
+    }});
+    const disconnectSyncBtn = el("button", { class:"btn sm danger", text:"Disconnect", onclick:() => {
+      if (!confirm("Stop syncing? Local data is kept, Gist is not deleted.")) return;
+      state.sync = { token:"", gistId:"", lastSynced:null }; save(); render.settings();
+    }});
+    const actionRow = el("div", { class:"flex-row", style:{gap:"8px",marginBottom:"6px"} });
+    actionRow.append(copyBtn, pullBtn, disconnectSyncBtn);
+    v.append(actionRow);
   }
-  const path = document.createElementNS("http://www.w3.org/2000/svg","path");
-  path.setAttribute("d", pathD); path.setAttribute("fill","none"); path.setAttribute("stroke", color); path.setAttribute("stroke-width","2"); path.setAttribute("stroke-linejoin","round");
-  svg.appendChild(path);
-  // Dots
-  for (const p of points) {
-    if (!p) continue;
-    const c = document.createElementNS("http://www.w3.org/2000/svg","circle");
-    c.setAttribute("cx",p[0]); c.setAttribute("cy",p[1]); c.setAttribute("r","2"); c.setAttribute("fill",color);
-    svg.appendChild(c);
+
+  v.append(syncStatusEl);
+
+  // --- Data ---
+  v.append(el("div", { class:"section-title", style:{marginTop:"24px"}, text:"Data" }));
+  const dataRow = el("div", { class:"flex-row", style:{gap:"8px"} });
+  dataRow.append(el("button", { class:"btn sm", text:"Export JSON", onclick:()=>$("#exportBtn").click() }));
+  dataRow.append(el("button", { class:"btn sm", text:"Import JSON", onclick:()=>$("#importBtn").click() }));
+  dataRow.append(el("button", { class:"btn sm danger", text:"Clear all data", onclick:() => {
+    if (confirm("Delete everything and reset to defaults?")) { localStorage.removeItem(KEY); location.reload(); }
+  }}));
+  v.append(dataRow);
+
+  // --- Weather Cities ---
+  v.append(el("div", { class:"section-title", style:{marginTop:"24px"}, text:"Weather Cities" }));
+  v.append(el("div", { class:"muted", style:{fontSize:"13px",marginBottom:"10px"}, text:"Set up to 7 cities for the Markets widget on Today." }));
+  const wxCfgGrid = el("div", { class:"weather-grid" });
+  (state.weather?.cities||[]).forEach((city, i) => wxCfgGrid.append(buildWxCard(city, i)));
+  v.append(wxCfgGrid);
+};
+
+// ============ CREWS ============
+render.crews = () => {
+  const v = $("#view-crews");
+  v.innerHTML = "";
+  v.append(el("h1", { text:"Crews" }));
+  v.append(el("div", { class:"view-sub", text:"One card per market. Tap a phone number to call." }));
+
+  const addBtn = el("button", { class:"btn primary", text:"+ Add crew", onclick:() => openCrewModal(null) });
+  v.append(addBtn);
+
+  if (!state.crews.length) {
+    v.append(el("div", { class:"empty", style:{marginTop:"24px"}, text:"No crews yet — add your first market above" }));
+    return;
   }
-  return svg;
-}
+
+  const grid = el("div", { class:"crew-grid", style:{marginTop:"16px"} });
+  const STATUS_LABELS = { active:"Active", short:"Short-staffed", hold:"On hold", inactive:"Inactive" };
+  for (const c of state.crews) {
+    const card = el("div", { class:"crew-card" });
+    const topRow = el("div", { class:"crew-market" });
+    topRow.append(el("span", { text: c.market || "Unnamed market" }));
+    topRow.append(el("span", { class:`crew-status ${c.status||"active"}`, text: STATUS_LABELS[c.status||"active"] }));
+    card.append(topRow);
+    if (c.lead) card.append(el("div", { class:"crew-detail", text:`Lead: ${c.lead}` }));
+    if (c.phone) {
+      const ph = el("div", { class:"crew-detail" });
+      ph.append(document.createTextNode("Phone: "));
+      ph.append(el("a", { href:`tel:${c.phone.replace(/\D/g,"")}`, text:c.phone, style:{color:"var(--accent)"} }));
+      card.append(ph);
+    }
+    if (c.note) card.append(el("div", { class:"crew-note", text:c.note }));
+    const actions = el("div", { class:"crew-actions" });
+    actions.append(el("button", { class:"btn sm", text:"Edit", onclick:() => openCrewModal(c) }));
+    actions.append(el("button", { class:"btn sm ghost", text:"Delete", onclick:() => {
+      if (confirm(`Remove ${c.market}?`)) { state.crews = state.crews.filter(x=>x.id!==c.id); save(); render.crews(); }
+    }}));
+    card.append(actions);
+    grid.append(card);
+  }
+  v.append(grid);
+
+  function openCrewModal(crew) {
+    const isNew = !crew;
+    if (isNew) crew = { id:genId("cr"), market:"", lead:"", phone:"", status:"active", note:"" };
+    const mkt  = el("input", { type:"text", placeholder:"Market / city name", value:crew.market });
+    const lead = el("input", { type:"text", placeholder:"Crew lead name", value:crew.lead });
+    const ph   = el("input", { type:"tel",  placeholder:"555-867-5309", value:crew.phone });
+    const stat = el("select");
+    for (const [val,lbl] of [["active","Active"],["short","Short-staffed"],["hold","On hold"],["inactive","Inactive"]])
+      stat.append(el("option", { value:val, text:lbl, selected:crew.status===val }));
+    const note = el("textarea", { placeholder:"Notes (equipment shortage, recent hire, etc.)", style:{width:"100%",minHeight:"70px"} });
+    note.value = crew.note;
+    const body = el("div", { class:"flex-col", style:{gap:"8px",display:"flex",flexDirection:"column"} });
+    body.append(mkt, lead, ph, stat, note);
+    modal(isNew ? "Add crew" : "Edit crew", body, () => {
+      crew.market = mkt.value.trim();
+      crew.lead   = lead.value.trim();
+      crew.phone  = ph.value.trim();
+      crew.status = stat.value;
+      crew.note   = note.value.trim();
+      if (!crew.market) return false;
+      if (isNew) state.crews.push(crew);
+      save(); render.crews();
+    }, { saveText: isNew ? "Add" : "Save" });
+  }
+};
 
 // ============ COMMAND PALETTE ============
 const cmdActions = [
   { kind:"View", key:"today", label:"Today", icon:"🏠", action:()=>showView("today") },
   { kind:"View", key:"tasks", label:"Tasks", icon:"✓", action:()=>showView("tasks") },
   { kind:"View", key:"schedule", label:"Schedule / Pomodoro", icon:"📅", action:()=>showView("schedule") },
-  { kind:"View", key:"habits", label:"Habits", icon:"🔥", action:()=>showView("habits") },
-  { kind:"View", key:"diet", label:"Diet", icon:"🍽", action:()=>showView("diet") },
-  { kind:"View", key:"health", label:"Health", icon:"❤", action:()=>showView("health") },
-  { kind:"View", key:"cleaning", label:"Cleaning", icon:"🧽", action:()=>showView("cleaning") },
-  { kind:"View", key:"finance", label:"Finance", icon:"💵", action:()=>showView("finance") },
   { kind:"View", key:"goals", label:"Goals", icon:"🎯", action:()=>showView("goals") },
   { kind:"View", key:"notes", label:"Notes", icon:"📝", action:()=>showView("notes") },
-  { kind:"View", key:"reading", label:"Reading", icon:"📖", action:()=>showView("reading") },
   { kind:"View", key:"review", label:"Weekly Review", icon:"📊", action:()=>showView("review") },
-  { kind:"Action", key:"water", label:"Log a glass of water", icon:"💧", action:()=>{state.diet.water[today()]=(state.diet.water[today()]||0)+1; save(); renderHeader(); render.today();} },
+  { kind:"View", key:"crews", label:"Crews", icon:"👥", action:()=>showView("crews") },
+  { kind:"View", key:"settings", label:"Settings", icon:"⚙", action:()=>showView("settings") },
   { kind:"Action", key:"pom", label:"Start/pause Pomodoro", icon:"⏱", action:pomToggle },
   { kind:"Action", key:"theme", label:"Toggle theme", icon:"🌓", action:()=>$("#themeBtn").click() },
   { kind:"Action", key:"export", label:"Export data", icon:"⬇", action:()=>$("#exportBtn").click() },
@@ -1666,18 +1997,6 @@ function renderCmd(q) {
     state.notes.push({ id:genId("n"), content:q.slice(5), createdAt:new Date().toISOString(), pinned:false, tags:[] });
     save(); render.notes(); closeCmd();
   }});
-  if (ql.startsWith("meal ")) results.push({ kind:"Quick add", label:`Log meal: "${q.slice(5)}"`, icon:"+", action: () => {
-    state.diet.meals.push({ id:genId("m"), date:today(), time:"Snack", name:q.slice(5), cal:0, protein:0, carbs:0, fat:0 });
-    save(); render.diet(); closeCmd();
-  }});
-  const spendMatch = ql.match(/^spend\s+([\d.]+)\s*(.*)$/);
-  if (spendMatch) results.push({ kind:"Quick add", label:`Log expense $${spendMatch[1]} ${spendMatch[2]}`, icon:"+", action: () => {
-    state.finance.entries.push({ id:genId("f"), amount:+spendMatch[1], category:spendMatch[2]||"misc", note:"", date:today() });
-    save(); render.finance(); closeCmd();
-  }});
-  if (ql === "water" || ql.startsWith("water")) results.push({ kind:"Action", label:"Log a glass of water", icon:"💧", action: () => {
-    state.diet.water[today()] = (state.diet.water[today()]||0)+1; save(); renderHeader(); render.today(); closeCmd();
-  }});
 
   // View matches
   for (const a of cmdActions) {
@@ -1700,9 +2019,6 @@ $("#cmdInput").addEventListener("keydown", e => {
   let n = 0;
   if (ql.startsWith("task ")) n++;
   if (ql.startsWith("note ")) n++;
-  if (ql.startsWith("meal ")) n++;
-  if (/^spend\s+[\d.]+/.test(ql)) n++;
-  if (ql==="water"||ql.startsWith("water")) n++;
   for (const a of cmdActions) if (!ql || a.label.toLowerCase().includes(ql) || a.key.includes(ql)) n++;
   if (e.key==="ArrowDown") { cmdSel = Math.min(n-1, cmdSel+1); renderCmd(e.target.value); e.preventDefault(); }
   if (e.key==="ArrowUp") { cmdSel = Math.max(0, cmdSel-1); renderCmd(e.target.value); e.preventDefault(); }
@@ -1713,7 +2029,7 @@ document.addEventListener("keydown", e => {
   if ((e.metaKey||e.ctrlKey) && e.key==="k") { e.preventDefault(); openCmd(); }
   if (e.key==="Escape") closeCmd();
   if (!$("#modal").classList.contains("open") && !$("#cmd").classList.contains("open") && document.activeElement.tagName!=="INPUT" && document.activeElement.tagName!=="TEXTAREA") {
-    const map = { "1":"today","2":"tasks","3":"schedule","4":"habits","5":"diet","6":"health","7":"cleaning","8":"finance","9":"goals","0":"notes" };
+    const map = { "1":"today","2":"tasks","3":"schedule","4":"crews","5":"goals","6":"notes","7":"review","8":"settings" };
     if (map[e.key]) { showView(map[e.key]); }
   }
 });
@@ -1738,10 +2054,16 @@ $("#importFile").addEventListener("change", e => {
 // ============ INIT ============
 function renderAll() {
   renderHeader();
-  for (const k of Object.keys(render)) render[k]?.();
+  for (const k of Object.keys(render)) {
+    try { render[k]?.(); } catch(e) { console.error("render." + k + " failed:", e); }
+  }
 }
-renderAll();
-showView("today");
+if (state.sync?.token && state.sync?.gistId) {
+  gistPull().then(() => { renderAll(); showView(localStorage.getItem("_view") || "today"); });
+} else {
+  renderAll();
+  showView(localStorage.getItem("_view") || "today");
+}
 </script>
 </body>
 </html>
